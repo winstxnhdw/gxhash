@@ -1,5 +1,8 @@
 # gxhash-py
 
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![python](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue)](https://www.python.org/)
+
 Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast and robust non-cryptographic hashing algorithm.
 
 ## Features
@@ -11,13 +14,15 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 ## Installation
 
-You must have [rustup](https://rustup.rs/) installed and set to `nightly`.
+### pip
+
+`gxhash` is available on PyPI and can be installed via `pip`.
 
 ```bash
 pip install gxhash
 ```
 
-For the best performance, you can enable the `hybrid` feature with the following.
+For best performance, you can enable the `hybrid` by passing the following `build-args` to the `--config-settings` flag.
 
 ```bash
 pip install gxhash --config-settings build-args="--features hybrid"
@@ -27,6 +32,19 @@ By default, `gxhash` uses your system's vectorisation features. You can disable 
 
 ```bash
 RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
+```
+
+### uv
+
+If you are using [uv](https://docs.astral.sh/uv/), you can enable the `hybrid` feature by adding the following `config-settings` under the `[tool.uv]` section.
+
+```bash
+uv add gxhash
+```
+
+```toml
+[tool.uv]
+config-settings = { build-args = "--features hybrid" }
 ```
 
 ## Usage
