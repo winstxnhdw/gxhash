@@ -5,5 +5,8 @@ all:
 publish:
 	uv publish
 
+sync:
+	uv sync --reinstall
+
 clean:
 	rm -rf dist target .venv

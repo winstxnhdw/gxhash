@@ -1,5 +1,12 @@
 from typing import Protocol
 
+class GxHashAsyncError(Exception):
+    """
+    Summary
+    -------
+    This error is raised when an asynchronous hash operation fails.
+    """
+
 class Hasher(Protocol):
     def __init__(self, *, seed: int) -> None:
         """

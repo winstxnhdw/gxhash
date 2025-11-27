@@ -36,7 +36,7 @@ RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
 
 ### uv
 
-If you are using [uv](https://docs.astral.sh/uv/), you can enable the `hybrid` feature by adding the following `config-settings` under the `[tool.uv]` section.
+If you are using [uv](https://docs.astral.sh/uv/), you can enable the `hybrid` feature by adding the following `config-settings` under the `tool.uv` section.
 
 ```bash
 uv add gxhash

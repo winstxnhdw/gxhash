@@ -30,7 +30,13 @@ profile = "release"
 locked = true
 strip = true
 features = ["pyo3/extension-module"]
-exclude = ["**/uv.lock", "Makefile"]
+exclude = [
+    "**/uv.lock",
+    "**/Makefile",
+    "**/.gitgnore",
+    "**/rustfmt.toml",
+    "**/*.md",
+]
 
 [tool.ruff]
 line-length = 120

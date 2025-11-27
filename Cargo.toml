@@ -5,8 +5,8 @@ panic = "abort"
 strip = "symbols"
 
 [package]
-name = "py-gxhash"
-version = "0.2.3"
+name = "gxhash-py"
+version = "0.2.5"
 edition = "2024"
 
 [lib]

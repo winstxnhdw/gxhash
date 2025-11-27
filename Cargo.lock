@@ -107,6 +107,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "gxhash-py"
+version = "0.2.5"
+dependencies = [
+ "gxhash",
+ "pyo3",
+ "pyo3-async-runtimes",
+ "pyo3-build-config",
+ "tokio",
+]
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -173,17 +184,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5ee95bc4ef87b8d5ba32e8b7714ccc834865276eab0aed5c9958d00ec45f49e8"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "py-gxhash"
-version = "0.2.3"
-dependencies = [
- "gxhash",
- "pyo3",
- "pyo3-async-runtimes",
- "pyo3-build-config",
- "tokio",
 ]
 
 [[package]]
