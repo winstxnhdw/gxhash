@@ -38,13 +38,13 @@ RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
 
 If you are using [uv](https://docs.astral.sh/uv/), you can enable the `hybrid` feature by adding the following `config-settings` under the `tool.uv` section.
 
-```bash
-uv add gxhash
-```
-
 ```toml
 [tool.uv]
 config-settings = { build-args = "--features hybrid" }
+```
+
+```bash
+uv add gxhash
 ```
 
 ## Usage
