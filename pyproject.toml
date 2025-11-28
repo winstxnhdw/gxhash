@@ -28,7 +28,12 @@ Repository = "https://github.com/winstxnhdw/gxhash"
 Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
-dev = ["maturin==1.10.2", "pyright>=1.1.407", "ruff>=0.14.6"]
+dev = [
+    "commitizen>=3.31.0",
+    "maturin>=1.10.2",
+    "pyright>=1.1.407",
+    "ruff>=0.14.6",
+]
 
 [build-system]
 requires = ["maturin>=1.10.2, <2.0.0"]
@@ -68,3 +73,11 @@ ignore = [
 
 [tool.pyright]
 typeCheckingMode = "strict"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "pep440"
+version_provider = "cargo"
+update_changelog_on_bump = true
+major_version_zero = true
