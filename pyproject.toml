@@ -5,7 +5,10 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.8"
 dynamic = ["version"]
+keywords = ["hash"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
@@ -17,6 +20,12 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
+
+[project.urls]
+Homepage = "https://github.com/winstxnhdw/gxhash"
+Documentation = "https://github.com/winstxnhdw/gxhash"
+Repository = "https://github.com/winstxnhdw/gxhash"
+Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
 dev = ["maturin==1.10.2", "pyright>=1.1.407", "ruff>=0.14.6"]
