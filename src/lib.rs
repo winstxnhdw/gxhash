@@ -83,7 +83,7 @@ impl Hasher {
 /// * hash(bytes: bytes) -> int
 /// * hash_async(bytes: bytes) -> Awaitable[int]
 ///
-#[pyo3::prelude::pymodule(name = "gxhash")]
+#[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
 mod gxhash_py {
     #[pymodule_export]
     use super::GxHash32;
