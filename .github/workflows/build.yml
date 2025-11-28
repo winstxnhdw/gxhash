@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths:
-      - .github/workflows/main.yml
+      - .github/workflows/build.yml
       - uv.lock
       - pyproject.toml
       - Cargo.toml
@@ -13,7 +13,14 @@ on:
       - "**/*.pyi"
 
 jobs:
-  test:
+  install:
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.14]
+        runs-on: [ubuntu, macos, windows]
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
     with:
+      python-version: ${{ matrix.python-version }}
+      runs-on: ${{ matrix.runs-on }}-latest
+      disable-test: true
       install-project: true
