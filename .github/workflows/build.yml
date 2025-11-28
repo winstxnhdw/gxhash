@@ -22,10 +22,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.14]
-        runs-on: [ubuntu, macos, windows]
+        runs-on:
+          - ubuntu-latest
+          - windows-latest
+          - ubuntu-24.04-arm
+          - windows-11-arm
+          - macos-15-intel
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
     with:
       python-version: ${{ matrix.python-version }}
-      runs-on: ${{ matrix.runs-on }}-latest
+      runs-on: ${{ matrix.runs-on }}
       disable-test: true
       install-project: true
