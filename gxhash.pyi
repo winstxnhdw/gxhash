@@ -27,7 +27,6 @@ class Hasher(Protocol):
         hasher = GxHash32(seed=1234)
         ```
         """
-
     def hash(self, bytes: bytes, /) -> int:
         """
         Summary
@@ -52,7 +51,6 @@ class Hasher(Protocol):
         print(f"Hash is {hasher.hash(bytes([42] * 1000))}!")
         ```
         """
-
     async def hash_async(self, bytes: bytes, /) -> int:
         """
         Summary
