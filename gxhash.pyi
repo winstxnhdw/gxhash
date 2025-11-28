@@ -32,7 +32,7 @@ class Hasher(Protocol):
         Summary
         -------
         Hashes `bytes` to an `int`.
-        If your input is in `bytes`, this is the most performant variant of the hasher.
+        This method has less overhead than `hash_async`.
 
         Parameters
         ----------
@@ -56,9 +56,9 @@ class Hasher(Protocol):
         Summary
         -------
         Hashes `bytes` to an `int` asynchronously.
-        This method allows you to perform multiple hashes with true multi-threaded parallelism.
+        This method allows you to compute multiple hashes with true multi-threaded parallelism.
         If called sequentially, this method is slightly less performant than the default `hash` method.
-        Otherwise, this variant offers the best raw multi-threaded performance.
+        Otherwise, this variant offers the highest throughput.
 
         Parameters
         ----------
