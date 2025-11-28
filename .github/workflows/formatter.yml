@@ -1,0 +1,16 @@
+name: Format
+
+on:
+  push:
+    paths:
+      - .github/workflows/formatter.yml
+      - pyproject.toml
+      - uv.lock
+      - "**/*.pyi"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    uses: winstxnhdw/actions/.github/workflows/format-python.yml@main

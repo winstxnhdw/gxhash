@@ -1,0 +1,19 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/main.yml
+      - uv.lock
+      - pyproject.toml
+      - Cargo.toml
+      - Cargo.lock
+      - "**/*.rs"
+      - "**/*.pyi"
+
+jobs:
+  test:
+    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
+    with:
+      install-project: true
