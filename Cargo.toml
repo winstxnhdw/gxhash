@@ -6,7 +6,7 @@ strip = "symbols"
 
 [package]
 name = "gxhash-py"
-version = "0.2.5"
+version = "0.2.6"
 edition = "2024"
 
 [lib]
