@@ -28,12 +28,7 @@ Repository = "https://github.com/winstxnhdw/gxhash"
 Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
-dev = [
-    "commitizen>=3.31.0",
-    "maturin>=1.10.2",
-    "pyright>=1.1.407",
-    "ruff>=0.14.6",
-]
+dev = ["commitizen>=3.31.0", "maturin>=1.10.2", "pyright>=1.1.407", "ruff>=0.14.6"]
 
 [build-system]
 requires = ["maturin>=1.10.2, <2.0.0"]
@@ -44,32 +39,14 @@ profile = "release"
 locked = true
 strip = true
 features = ["pyo3/extension-module"]
-exclude = [
-    "**/uv.lock",
-    "**/Makefile",
-    "**/.gitgnore",
-    "**/rustfmt.toml",
-    "**/*.md",
-]
+exclude = [".github/**/*", "**/uv.lock", "**/Makefile", "**/.gitgnore", "**/rustfmt.toml"]
 
 [tool.ruff]
 line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = [
-    "PYI021",
-    "A002",
-    "COM812",
-    "D203",
-    "D205",
-    "D211",
-    "D212",
-    "D400",
-    "D413",
-    "D415",
-    "D417",
-]
+ignore = ["PYI021", "A002", "COM812", "D203", "D205", "D211", "D212", "D400", "D413", "D415", "D417"]
 
 [tool.pyright]
 typeCheckingMode = "strict"

@@ -6,8 +6,13 @@ strip = "symbols"
 
 [package]
 name = "gxhash-py"
-version = "0.2.6"
+description = "Python bindings for GxHash"
+version = "0.2.7"
 edition = "2024"
+license = "MIT"
+homepage = "https://github.com/winstxnhdw/gxhash"
+repository = "https://github.com/winstxnhdw/gxhash"
+documentation = "https://github.com/winstxnhdw/gxhash/README.md"
 
 [lib]
 name = "gxhash"
