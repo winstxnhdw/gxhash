@@ -59,7 +59,7 @@ impl_gxhash_methods!(GxHash64, u64, gxhash::gxhash64);
 impl_gxhash_methods!(GxHash128, u128, gxhash::gxhash128);
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
+#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass, generic))]
 struct Hasher {}
 
 #[pymethods]

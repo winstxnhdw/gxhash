@@ -1,4 +1,9 @@
-from typing import Protocol
+from typing import NewType, Protocol, TypeVar
+
+T_co = TypeVar("T_co", covariant=True, bound=int)
+Int32 = NewType("Int32", int)
+Int64 = NewType("Int64", int)
+Int128 = NewType("Int128", int)
 
 class GxHashAsyncError(Exception):
     """
@@ -7,7 +12,7 @@ class GxHashAsyncError(Exception):
     This error is raised when an asynchronous hash operation fails.
     """
 
-class Hasher(Protocol):
+class Hasher(Protocol[T_co]):
     def __init__(self, *, seed: int) -> None:
         """
         Summary
@@ -27,7 +32,7 @@ class Hasher(Protocol):
         hasher = GxHash32(seed=1234)
         ```
         """
-    def hash(self, bytes: bytes, /) -> int:
+    def hash(self, bytes: bytes, /) -> T_co:
         """
         Summary
         -------
@@ -51,7 +56,7 @@ class Hasher(Protocol):
         print(f"Hash is {hasher.hash(bytes([42] * 1000))}!")
         ```
         """
-    async def hash_async(self, bytes: bytes, /) -> int:
+    async def hash_async(self, bytes: bytes, /) -> T_co:
         """
         Summary
         -------
@@ -78,21 +83,21 @@ class Hasher(Protocol):
         ```
         """
 
-class GxHash32(Hasher):
+class GxHash32(Hasher[Int32]):
     """
     Summary
     -------
     This class exposes GxHash's 32-bit hash methods.
     """
 
-class GxHash64(Hasher):
+class GxHash64(Hasher[Int64]):
     """
     Summary
     -------
     This class exposes GxHash's 64-bit hash methods.
     """
 
-class GxHash128(Hasher):
+class GxHash128(Hasher[Int128]):
     """
     Summary
     -------
