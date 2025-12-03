@@ -89,6 +89,9 @@ impl Hasher {
 ///
 #[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
 mod gxhash_py {
+    use pyo3::prelude::PyModuleMethods;
+    use pyo3::types::PyAnyMethods;
+
     #[pymodule_export]
     use super::GxHash32;
     #[pymodule_export]
@@ -99,4 +102,14 @@ mod gxhash_py {
     use super::GxHashAsyncError;
     #[pymodule_export]
     use super::Hasher;
+
+    #[pymodule_init]
+    fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
+        let int_type = m.py().import("builtins")?.getattr("int")?;
+        m.add("T_co", &int_type)?;
+        m.add("Int32", &int_type)?;
+        m.add("Int64", &int_type)?;
+        m.add("Int128", int_type)?;
+        Ok(())
+    }
 }
