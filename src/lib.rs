@@ -66,8 +66,10 @@ struct Hasher {}
 #[pymethods]
 impl Hasher {
     #[new]
-    fn new() -> Self {
-        Self {}
+    #[pyo3(signature = (**_kwargs))]
+    fn new(_kwargs: Option<&Bound<'_, pyo3::types::PyDict>>) -> PyResult<Self> {
+        let error = pyo3::exceptions::PyTypeError::new_err(r#"Cannot instantiate Protocol class "Hasher""#);
+        Err(error)
     }
 
     #[classmethod]
