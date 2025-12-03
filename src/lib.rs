@@ -1,9 +1,9 @@
 use pyo3::PyAny;
 use pyo3::prelude::Bound;
 use pyo3::prelude::PyResult;
-use pyo3::prelude::Python;
 use pyo3::prelude::pyclass;
 use pyo3::prelude::pymethods;
+use tokio::runtime::Runtime;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
 
@@ -11,18 +11,21 @@ pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyExcepti
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash32 {
     seed: i64,
+    reactor: Runtime,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash64 {
     seed: i64,
+    reactor: Runtime,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash128 {
     seed: i64,
+    reactor: Runtime,
 }
 
 macro_rules! impl_gxhash_methods {
@@ -30,26 +33,29 @@ macro_rules! impl_gxhash_methods {
         #[pymethods]
         impl $Self {
             #[new]
-            fn new(seed: i64) -> Self {
-                $Self { seed }
+            fn new(seed: i64) -> PyResult<Self> {
+                let hasher = $Self {
+                    seed,
+                    reactor: Runtime::new()?,
+                };
+
+                Ok(hasher)
             }
 
             fn hash(&self, bytes: &[u8]) -> $return_type {
                 $hasher(bytes, self.seed)
             }
 
-            fn hash_async<'a>(
-                &self,
-                py: Python<'a>,
-                bytes: pyo3::prelude::Py<pyo3::types::PyBytes>,
-            ) -> PyResult<Bound<'a, PyAny>> {
+            async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
+                let task = self.reactor.spawn_blocking(move || {
+                    Ok($hasher(
+                        pyo3::prelude::Python::attach(|py| bytes.as_bytes(py)),
+                        seed,
+                    ))
+                });
 
-                pyo3_async_runtimes::tokio::future_into_py(py, async move {
-                    tokio::task::spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
-                        .await
-                        .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
-                })
+                task.await.map_err(|e| GxHashAsyncError::new_err(e.to_string()))?
             }
         }
     };

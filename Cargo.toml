@@ -24,20 +24,16 @@ hybrid = ["gxhash/hybrid"]
 [dependencies.pyo3]
 version = "0.27.1"
 default-features = false
-features = ["macros"]
-
-[dependencies.pyo3-async-runtimes]
-version = "0.27.0"
-default-features = false
-features = ["tokio-runtime"]
+features = ["macros", "experimental-async"]
 
 [dependencies.gxhash]
 version = "3.5.0"
 default-features = false
 
 [dependencies.tokio]
-version = "1.44.1"
+version = "1.48.0"
 default-features = false
+features = ["rt-multi-thread"]
 
 [build-dependencies.pyo3-build-config]
 version = "0.27.1"
