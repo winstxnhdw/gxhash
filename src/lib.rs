@@ -1,3 +1,4 @@
+use pyo3::PyAny;
 use pyo3::prelude::Bound;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
@@ -41,7 +42,7 @@ macro_rules! impl_gxhash_methods {
                 &self,
                 py: Python<'a>,
                 bytes: pyo3::prelude::Py<pyo3::types::PyBytes>,
-            ) -> PyResult<Bound<'a, pyo3::prelude::PyAny>> {
+            ) -> PyResult<Bound<'a, PyAny>> {
                 let seed = self.seed;
 
                 pyo3_async_runtimes::tokio::future_into_py(py, async move {
@@ -59,7 +60,7 @@ impl_gxhash_methods!(GxHash64, u64, gxhash::gxhash64);
 impl_gxhash_methods!(GxHash128, u128, gxhash::gxhash128);
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass, generic))]
+#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
 struct Hasher {}
 
 #[pymethods]
@@ -68,6 +69,9 @@ impl Hasher {
     fn new() -> Self {
         Self {}
     }
+
+    #[classmethod]
+    pub fn __class_getitem__(_cls: &Bound<'_, pyo3::types::PyType>, _key: &Bound<'_, PyAny>) {}
 }
 
 /// gxhash — Python bindings for gxhash
