@@ -22,7 +22,7 @@ crate-type = ["cdylib"]
 hybrid = ["gxhash/hybrid"]
 
 [dependencies.pyo3]
-version = "0.27.1"
+version = "0.27.2"
 default-features = false
 features = ["macros", "experimental-async"]
 
@@ -36,6 +36,6 @@ default-features = false
 features = ["rt-multi-thread"]
 
 [build-dependencies.pyo3-build-config]
-version = "0.27.1"
+version = "0.27.2"
 default-features = false
 features = ["resolve-config"]
