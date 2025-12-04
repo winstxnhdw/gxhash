@@ -48,14 +48,11 @@ macro_rules! impl_gxhash_methods {
 
             async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
-                let task = self.reactor.spawn_blocking(move || {
-                    Ok($hasher(
-                        pyo3::prelude::Python::attach(|py| bytes.as_bytes(py)),
-                        seed,
-                    ))
-                });
 
-                task.await.map_err(|e| GxHashAsyncError::new_err(e.to_string()))?
+                self.reactor
+                    .spawn_blocking(move || $hasher(pyo3::prelude::Python::attach(|py| bytes.as_bytes(py)), seed))
+                    .await
+                    .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
             }
         }
     };
