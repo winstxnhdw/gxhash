@@ -89,8 +89,17 @@ impl Hasher {
 ///
 /// Each class provides methods for hashing byte sequences both synchronously and asynchronously.
 ///
-/// * hash(bytes: bytes) -> int
-/// * hash_async(bytes: bytes) -> Awaitable[int]
+/// * GxHash32(seed: int)
+/// * hash(bytes: bytes) -> Uint32
+/// * hash_async(bytes: bytes) -> Awaitable[Uint32]
+///
+/// * GxHash64(seed: int)
+/// * hash(bytes: bytes) -> Uint64
+/// * hash_async(bytes: bytes) -> Awaitable[Uint64]
+///
+/// * GxHash128(seed: int)
+/// * hash(bytes: bytes) -> Uint128
+/// * hash_async(bytes: bytes) -> Awaitable[Uint128]
 ///
 #[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
 mod gxhash_py {
@@ -112,9 +121,9 @@ mod gxhash_py {
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
         let int_type = m.py().import("builtins")?.getattr("int")?;
         m.add("T_co", &int_type)?;
-        m.add("Int32", &int_type)?;
-        m.add("Int64", &int_type)?;
-        m.add("Int128", int_type)?;
+        m.add("Uint32", &int_type)?;
+        m.add("Uint64", &int_type)?;
+        m.add("Uint128", int_type)?;
         Ok(())
     }
 }

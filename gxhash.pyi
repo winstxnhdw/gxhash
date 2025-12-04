@@ -1,9 +1,9 @@
 from typing import NewType, Protocol, TypeVar
 
 T_co = TypeVar("T_co", covariant=True, bound=int)
-Int32 = NewType("Int32", int)
-Int64 = NewType("Int64", int)
-Int128 = NewType("Int128", int)
+Uint32 = NewType("Uint32", int)
+Uint64 = NewType("Uint64", int)
+Uint128 = NewType("Uint128", int)
 
 class GxHashAsyncError(Exception):
     """
@@ -83,21 +83,21 @@ class Hasher(Protocol[T_co]):
         ```
         """
 
-class GxHash32(Hasher[Int32]):
+class GxHash32(Hasher[Uint32]):
     """
     Summary
     -------
     This class exposes GxHash's 32-bit hash methods.
     """
 
-class GxHash64(Hasher[Int64]):
+class GxHash64(Hasher[Uint64]):
     """
     Summary
     -------
     This class exposes GxHash's 64-bit hash methods.
     """
 
-class GxHash128(Hasher[Int128]):
+class GxHash128(Hasher[Uint128]):
     """
     Summary
     -------
