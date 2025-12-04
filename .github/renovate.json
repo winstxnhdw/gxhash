@@ -3,7 +3,11 @@
 	"ignoreDeps": ["python"],
 	"packageRules": [
 		{
-			"matchManagers": ["cargo", "pep621"],
+			"matchManagers": ["cargo"],
+			"groupName": "{{manager}}"
+		},
+		{
+			"matchManagers": ["pep621"],
 			"groupName": "{{manager}}"
 		}
 	]
