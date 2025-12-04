@@ -1,4 +1,10 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
-	"ignoreDeps": ["python"]
+	"ignoreDeps": ["python"],
+	"packageRules": [
+		{
+			"matchManagers": ["cargo", "pep621"],
+			"groupName": "{{manager}}"
+		}
+	]
 }
