@@ -1,6 +1,6 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
-	"ignoreDeps": ["python", "commitizen"],
+	"ignoreDeps": ["python", "commitizen", "serial_test"],
 	"packageRules": [
 		{
 			"matchManagers": ["cargo"],
