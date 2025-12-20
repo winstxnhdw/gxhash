@@ -65,7 +65,9 @@ jobs:
           activate-environment: true
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
+        run: |
+          rustup default nightly
+          rustup update nightly
 
       - name: Test
         run: cargo test
@@ -79,7 +81,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Update Rust
+      - name: Setup Rust
         run: |
           rustup default nightly
           rustup update nightly
