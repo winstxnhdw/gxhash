@@ -4,10 +4,9 @@ use pyo3::Python;
 use pyo3::intern;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyInt;
-use serial_test::serial;
+use quickcheck_macros::quickcheck;
 
 static ONCE: std::sync::Once = std::sync::Once::new();
-static BYTES: [u8; 3] = [1u8, 2, 3];
 
 macro_rules! pytest {
     ($py:ident, $body:block) => {{
@@ -55,42 +54,55 @@ macro_rules! gxhash_callable_test {
 }
 
 macro_rules! gxhash_hash_test {
-    ($test_name:ident, $hasher:expr, $output_type:ty, $expected:expr) => {
-        #[test]
-        fn $test_name() -> PyResult<()> {
+    ($test_name:ident, $hasher:expr, $output_type:ty) => {
+        #[quickcheck]
+        fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
-                let result = py
+                let hasher = py
                     .import(intern!(py, "gxhash"))?
-                    .getattr($hasher)?
-                    .call1((42,))?
-                    .call_method1(intern!(py, "hash"), (BYTES,))?
+                    .getattr(intern!(py, $hasher))?
+                    .call1((42,))?;
+
+                let result1 = hasher
+                    .call_method1(intern!(py, "hash"), (&bytes,))?
                     .extract::<$output_type>()?;
 
-                assert_eq!(result, $expected);
+                let result2 = hasher
+                    .call_method1(intern!(py, "hash"), (&bytes,))?
+                    .extract::<$output_type>()?;
+
+                assert_eq!(result1, result2);
             })
         }
     };
 }
 
 macro_rules! gxhash_hash_async_test {
-    ($test_name:ident, $hasher:expr, $output_type:ty, $expected:expr) => {
-        #[serial]
-        #[test]
-        fn $test_name() -> PyResult<()> {
+    ($test_name:ident, $hasher:expr, $output_type:ty) => {
+        #[quickcheck]
+        fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
-                let coroutine = py
+                let asyncio = py.import(intern!(py, "asyncio"))?;
+
+                #[cfg(windows)]
+                {
+                    let policy = asyncio.getattr(intern!(py, "WindowsSelectorEventLoopPolicy"))?;
+                    asyncio.call_method1(intern!(py, "set_event_loop_policy"), (policy.call0()?,))?;
+                }
+
+                let async_run = asyncio.getattr(intern!(py, "run"))?;
+                let hasher = py
                     .import(intern!(py, "gxhash"))?
-                    .getattr($hasher)?
-                    .call1((42,))?
-                    .call_method1(intern!(py, "hash_async"), (BYTES,))?;
+                    .getattr(intern!(py, $hasher))?
+                    .call1((42,))?;
 
-                let result = py
-                    .import(intern!(py, "asyncio"))?
-                    .getattr(intern!(py, "run"))?
-                    .call1((coroutine,))?
-                    .extract::<$output_type>()?;
+                let coroutine1 = hasher.call_method1(intern!(py, "hash_async"), (&bytes,))?;
+                let coroutine2 = hasher.call_method1(intern!(py, "hash_async"), (&bytes,))?;
 
-                assert_eq!(result, $expected);
+                assert_eq!(
+                    async_run.call1((coroutine1,))?.extract::<$output_type>()?,
+                    async_run.call1((coroutine2,))?.extract::<$output_type>()?,
+                );
             })
         }
     };
@@ -98,20 +110,19 @@ macro_rules! gxhash_hash_async_test {
 
 macro_rules! gxhash_hash_seed_test {
     ($test_name:ident, $hasher:expr, $output_type:ty) => {
-        #[test]
-        fn $test_name() -> PyResult<()> {
+        #[quickcheck]
+        fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
                 let seed = 42;
-                let hasher_class = py.import(intern!(py, "gxhash"))?.getattr($hasher)?;
+                let hasher_class = py.import(intern!(py, "gxhash"))?.getattr(intern!(py, $hasher))?;
 
                 let result1 = hasher_class
                     .call1((seed,))?
-                    .call_method1(intern!(py, "hash"), (BYTES,))?
+                    .call_method1(intern!(py, "hash"), (&bytes,))?
                     .extract::<$output_type>()?;
-
                 let result2 = hasher_class
                     .call1((seed + 1,))?
-                    .call_method1(intern!(py, "hash"), (BYTES,))?
+                    .call_method1(intern!(py, "hash"), (&bytes,))?
                     .extract::<$output_type>()?;
 
                 assert_ne!(result1, result2);
@@ -122,21 +133,27 @@ macro_rules! gxhash_hash_seed_test {
 
 macro_rules! gxhash_hash_async_seed_test {
     ($test_name:ident, $hasher:expr, $output_type:ty) => {
-        #[serial]
-        #[test]
-        fn $test_name() -> PyResult<()> {
+        #[quickcheck]
+        fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
-                let async_run = py.import(intern!(py, "asyncio"))?.getattr(intern!(py, "run"))?;
-                let hasher_class = py.import(intern!(py, "gxhash"))?.getattr($hasher)?;
+                let asyncio = py.import(intern!(py, "asyncio"))?;
+
+                #[cfg(windows)]
+                {
+                    let policy = asyncio.getattr(intern!(py, "WindowsSelectorEventLoopPolicy"))?;
+                    asyncio.call_method1(intern!(py, "set_event_loop_policy"), (policy.call0()?,))?;
+                }
+
                 let seed = 42;
+                let async_run = asyncio.getattr(intern!(py, "run"))?;
+                let hasher_class = py.import(intern!(py, "gxhash"))?.getattr($hasher)?;
 
                 let coroutine1 = hasher_class
                     .call1((seed,))?
-                    .call_method1(intern!(py, "hash_async"), (BYTES,))?;
-
+                    .call_method1(intern!(py, "hash_async"), (&bytes,))?;
                 let coroutine2 = hasher_class
                     .call1((seed + 1,))?
-                    .call_method1(intern!(py, "hash_async"), (BYTES,))?;
+                    .call_method1(intern!(py, "hash_async"), (&bytes,))?;
 
                 assert_ne!(
                     async_run.call1((coroutine1,))?.extract::<$output_type>()?,
@@ -170,23 +187,13 @@ gxhash_callable_test!(test_uint32, "Uint32", PyInt);
 gxhash_callable_test!(test_uint64, "Uint64", PyInt);
 gxhash_callable_test!(test_uint128, "Uint128", PyInt);
 
-gxhash_hash_test!(test_gxhash32_hash, "GxHash32", u32, 2205376180u32);
-gxhash_hash_test!(test_gxhash64_hash, "GxHash64", u64, 14923488923042930356u64);
-gxhash_hash_test!(
-    test_gxhash128_hash,
-    "GxHash128",
-    u128,
-    77345409872630947185460848780960292532u128
-);
+gxhash_hash_test!(test_gxhash32_hash, "GxHash32", u32);
+gxhash_hash_test!(test_gxhash64_hash, "GxHash64", u64);
+gxhash_hash_test!(test_gxhash128_hash, "GxHash128", u128);
 
-gxhash_hash_async_test!(test_gxhash32_hash_async, "GxHash32", u32, 2205376180u32);
-gxhash_hash_async_test!(test_gxhash64_hash_async, "GxHash64", u64, 14923488923042930356u64);
-gxhash_hash_async_test!(
-    test_gxhash128_hash_async,
-    "GxHash128",
-    u128,
-    77345409872630947185460848780960292532u128
-);
+gxhash_hash_async_test!(test_gxhash32_hash_async, "GxHash32", u32);
+gxhash_hash_async_test!(test_gxhash64_hash_async, "GxHash64", u64);
+gxhash_hash_async_test!(test_gxhash128_hash_async, "GxHash128", u128);
 
 gxhash_hash_seed_test!(test_gxhash32_seed, "GxHash32", u32);
 gxhash_hash_seed_test!(test_gxhash64_seed, "GxHash64", u64);

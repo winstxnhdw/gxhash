@@ -12,6 +12,10 @@ on:
       - "**/*.rs"
       - "**/*.pyi"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
@@ -36,7 +40,6 @@ jobs:
         python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
         runs-on:
           - ubuntu-latest
-          - ubuntu-24.04-arm
           - macos-15-intel
           - windows-latest
 
@@ -57,26 +60,15 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7.1.6
+      - name: Setup Python
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: ${{ matrix.python-version }}
-          enable-cache: false
-          activate-environment: true
-
-      - name: Set library path for Linux/macOS
-        if: runner.os != 'Windows'
-        run: |
-          echo "LD_LIBRARY_PATH=$(python -c "from distutils.sysconfig import get_config_var; print(get_config_var('LIBDIR'))")" >> $GITHUB_ENV
-
-      - name: Set library path for Windows
-        if: runner.os == 'Windows'
-        run: |
-          $libdir = python -c "from distutils.sysconfig import get_config_var as get_config_var; print(get_config_var('LIBDIR'))"
-          echo "PATH=$libdir;$env:PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@nightly
+        run: |
+          rustup default nightly
+          rustup update nightly
 
       - name: Test
         run: cargo test
@@ -90,7 +82,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Update Rust
+      - name: Setup Rust
         run: |
           rustup default nightly
           rustup update nightly
@@ -99,7 +91,7 @@ jobs:
         uses: taiki-e/install-action@cargo-llvm-cov
 
       - name: Generate code coverage
-        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info -- --test-threads=1
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5.5.2

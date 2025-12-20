@@ -1,7 +1,10 @@
 use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
+use pyo3::prelude::Python;
 use pyo3::prelude::pyclass;
 use pyo3::prelude::pymethods;
+use pyo3::sync::PyOnceLock;
+use tokio::runtime::Builder;
 use tokio::runtime::Runtime;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
@@ -10,22 +13,21 @@ pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyExcepti
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash32 {
     seed: i64,
-    reactor: Runtime,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash64 {
     seed: i64,
-    reactor: Runtime,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 struct GxHash128 {
     seed: i64,
-    reactor: Runtime,
 }
+
+static RUNTIME: PyOnceLock<Runtime> = PyOnceLock::new();
 
 macro_rules! impl_gxhash_methods {
     ($Self:ident, $return_type:ty, $hasher:path) => {
@@ -33,11 +35,7 @@ macro_rules! impl_gxhash_methods {
         impl $Self {
             #[new]
             fn new(seed: i64) -> PyResult<Self> {
-                let hasher = $Self {
-                    seed,
-                    reactor: Runtime::new()?,
-                };
-
+                let hasher = $Self { seed };
                 Ok(hasher)
             }
 
@@ -48,8 +46,8 @@ macro_rules! impl_gxhash_methods {
             async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
 
-                self.reactor
-                    .spawn_blocking(move || $hasher(pyo3::prelude::Python::attach(|py| bytes.as_bytes(py)), seed))
+                Python::attach(|py| RUNTIME.get_or_try_init(py, || Builder::new_multi_thread().build()))?
+                    .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
                     .await
                     .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
             }
