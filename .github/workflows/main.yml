@@ -1,0 +1,71 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/build.yml
+      - uv.lock
+      - pyproject.toml
+      - Cargo.toml
+      - Cargo.lock
+      - "**/*.rs"
+      - "**/*.pyi"
+
+jobs:
+  build:
+    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
+    with:
+      python-version: ${{ matrix.python-version }}
+      runs-on: ${{ matrix.runs-on }}
+      disable-test: true
+      install-project: true
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
+        runs-on:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-15-intel
+          - windows-latest
+
+  test:
+    runs-on: ${{ matrix.runs-on }}
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
+        runs-on:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-15-intel
+          - windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+
+      - name: Cache Cargo
+        uses: actions/cache@v5.0.1
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.1.6
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: false
+          activate-environment: true
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Test
+        run: cargo test

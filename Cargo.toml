@@ -16,17 +16,18 @@ documentation = "https://github.com/winstxnhdw/gxhash/README.md"
 
 [lib]
 name = "gxhash"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [features]
-hybrid = ["gxhash/hybrid"]
+hybrid = ["gxhash_core/hybrid"]
 
 [dependencies.pyo3]
 version = "0.27.1"
 default-features = false
 features = ["macros", "experimental-async"]
 
-[dependencies.gxhash]
+[dependencies.gxhash_core]
+package = "gxhash"
 version = "3.5.0"
 default-features = false
 
@@ -39,3 +40,6 @@ features = ["rt-multi-thread"]
 version = "0.27.1"
 default-features = false
 features = ["resolve-config"]
+
+[dev-dependencies]
+serial_test = "*"

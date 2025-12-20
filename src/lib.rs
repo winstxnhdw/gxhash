@@ -57,9 +57,9 @@ macro_rules! impl_gxhash_methods {
     };
 }
 
-impl_gxhash_methods!(GxHash32, u32, gxhash::gxhash32);
-impl_gxhash_methods!(GxHash64, u64, gxhash::gxhash64);
-impl_gxhash_methods!(GxHash128, u128, gxhash::gxhash128);
+impl_gxhash_methods!(GxHash32, u32, gxhash_core::gxhash32);
+impl_gxhash_methods!(GxHash64, u64, gxhash_core::gxhash64);
+impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
@@ -101,7 +101,7 @@ impl Hasher {
 /// * hash_async(bytes: bytes) -> Awaitable[Uint128]
 ///
 #[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
-mod gxhash_py {
+pub mod gxhash_py {
     use pyo3::prelude::PyModuleMethods;
     use pyo3::types::PyAnyMethods;
 
