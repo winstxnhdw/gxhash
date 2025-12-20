@@ -118,11 +118,11 @@ mod gxhash_py {
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
-        let int_type = m.py().import("builtins")?.getattr("int")?;
-        m.add("T_co", &int_type)?;
-        m.add("Uint32", &int_type)?;
-        m.add("Uint64", &int_type)?;
-        m.add("Uint128", int_type)?;
+        let int = m.py().import("builtins")?.getattr("int")?;
+        m.add("T_co", &int)?;
+        m.add("Uint32", &int)?;
+        m.add("Uint64", &int)?;
+        m.add("Uint128", int)?;
         Ok(())
     }
 }
