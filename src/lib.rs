@@ -1,5 +1,4 @@
-use pyo3::PyAny;
-use pyo3::prelude::Bound;
+use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::pyclass;
 use pyo3::prelude::pymethods;
@@ -70,13 +69,13 @@ struct Hasher {}
 impl Hasher {
     #[new]
     #[pyo3(signature = (**_kwargs))]
-    fn new(_kwargs: Option<&Bound<'_, pyo3::types::PyDict>>) -> PyResult<Self> {
+    fn new(_kwargs: Option<Py<pyo3::types::PyDict>>) -> PyResult<Self> {
         let error = pyo3::exceptions::PyTypeError::new_err(r#"Cannot instantiate Protocol class "Hasher""#);
         Err(error)
     }
 
     #[classmethod]
-    pub fn __class_getitem__(_cls: &Bound<'_, pyo3::types::PyType>, _key: &Bound<'_, PyAny>) {}
+    pub fn __class_getitem__(_cls: Py<pyo3::types::PyType>, _key: Py<pyo3::PyAny>) {}
 }
 
 /// gxhash — Python bindings for gxhash
