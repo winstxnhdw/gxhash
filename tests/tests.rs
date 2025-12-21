@@ -126,6 +126,49 @@ macro_rules! gxhash_hash_async_test {
     };
 }
 
+macro_rules! gxhash_hash_determinism_test {
+    ($test_name:ident, $hasher:expr, $output_type:ty, $expected:expr) => {
+        #[test]
+        fn $test_name() -> PyResult<()> {
+            pytest!(py, {
+                let bytes = [1u8, 2, 3];
+                let result = py
+                    .import(intern!(py, "gxhash"))?
+                    .getattr($hasher)?
+                    .call1((42,))?
+                    .call_method1(intern!(py, "hash"), (&bytes,))?
+                    .extract::<$output_type>()?;
+
+                assert_eq!(result, $expected);
+            })
+        }
+    };
+}
+
+macro_rules! gxhash_hash_async_determinism_test {
+    ($test_name:ident, $hasher:expr, $output_type:ty, $expected:expr) => {
+        #[test]
+        fn $test_name() -> PyResult<()> {
+            pytest!(py, {
+                let bytes = [1u8, 2, 3];
+                let coroutine = py
+                    .import(intern!(py, "gxhash"))?
+                    .getattr($hasher)?
+                    .call1((42,))?
+                    .call_method1(intern!(py, "hash_async"), (&bytes,))?;
+
+                let result = py
+                    .import(intern!(py, "asyncio"))?
+                    .getattr(intern!(py, "run"))?
+                    .call1((coroutine,))?
+                    .extract::<$output_type>()?;
+
+                assert_eq!(result, $expected);
+            })
+        }
+    };
+}
+
 macro_rules! gxhash_hash_seed_test {
     ($test_name:ident, $hasher:expr, $output_type:ty) => {
         #[quickcheck]
@@ -212,6 +255,29 @@ gxhash_hash_test!(test_gxhash128_hash, "GxHash128", u128);
 gxhash_hash_async_test!(test_gxhash32_hash_async, "GxHash32", u32);
 gxhash_hash_async_test!(test_gxhash64_hash_async, "GxHash64", u64);
 gxhash_hash_async_test!(test_gxhash128_hash_async, "GxHash128", u128);
+
+gxhash_hash_determinism_test!(test_gxhash32_hash_determinism, "GxHash32", u32, 2205376180u32);
+gxhash_hash_determinism_test!(test_gxhash64_hash_determinism, "GxHash64", u64, 14923488923042930356u64);
+gxhash_hash_determinism_test!(
+    test_gxhash128_hash_determinism,
+    "GxHash128",
+    u128,
+    77345409872630947185460848780960292532u128
+);
+
+gxhash_hash_async_determinism_test!(test_gxhash32_hash_async_determinism, "GxHash32", u32, 2205376180u32);
+gxhash_hash_async_determinism_test!(
+    test_gxhash64_hash_async_determinism,
+    "GxHash64",
+    u64,
+    14923488923042930356u64
+);
+gxhash_hash_async_determinism_test!(
+    test_gxhash128_hash_async_determinism,
+    "GxHash128",
+    u128,
+    77345409872630947185460848780960292532u128
+);
 
 gxhash_hash_seed_test!(test_gxhash32_seed, "GxHash32", u32);
 gxhash_hash_seed_test!(test_gxhash64_seed, "GxHash64", u64);
