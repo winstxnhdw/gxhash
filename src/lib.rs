@@ -1,5 +1,3 @@
-#![feature(once_cell_try)]
-
 use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
@@ -36,9 +34,13 @@ macro_rules! impl_gxhash_methods {
         impl $Self {
             #[new]
             fn new(seed: i64) -> PyResult<Self> {
-                RUNTIME.get_or_try_init(|| Builder::new_multi_thread().build())?;
-                let hasher = $Self { seed };
-                Ok(hasher)
+                RUNTIME.get_or_init(|| {
+                    Builder::new_multi_thread()
+                        .build()
+                        .expect("Failed to create async runtime!")
+                });
+
+                Ok($Self { seed })
             }
 
             fn hash(&self, bytes: &[u8]) -> $return_type {
