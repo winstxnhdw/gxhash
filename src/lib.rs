@@ -1,9 +1,10 @@
+#![feature(once_cell_try)]
+
 use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
 use pyo3::prelude::pyclass;
 use pyo3::prelude::pymethods;
-use pyo3::sync::PyOnceLock;
 use tokio::runtime::Builder;
 use tokio::runtime::Runtime;
 
@@ -27,7 +28,7 @@ struct GxHash128 {
     seed: i64,
 }
 
-static RUNTIME: PyOnceLock<Runtime> = PyOnceLock::new();
+static RUNTIME: std::sync::OnceLock<Runtime> = std::sync::OnceLock::new();
 
 macro_rules! impl_gxhash_methods {
     ($Self:ident, $return_type:ty, $hasher:path) => {
@@ -35,6 +36,7 @@ macro_rules! impl_gxhash_methods {
         impl $Self {
             #[new]
             fn new(seed: i64) -> PyResult<Self> {
+                RUNTIME.get_or_try_init(|| Builder::new_multi_thread().build())?;
                 let hasher = $Self { seed };
                 Ok(hasher)
             }
@@ -46,7 +48,9 @@ macro_rules! impl_gxhash_methods {
             async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
 
-                Python::attach(|py| RUNTIME.get_or_try_init(py, || Builder::new_multi_thread().build()))?
+                RUNTIME
+                    .get()
+                    .expect("Runtime should have been initialised in the constructor!")
                     .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
                     .await
                     .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
@@ -80,9 +84,9 @@ impl Hasher {
 ///
 /// This module contains the Python bindings for GxHash, a blazingly fast and robust non-cryptographic hashing algorithm.
 ///
-/// * GxHash32*:  a class for computing 32-bit hashes
-/// * GxHash64*:  a class for computing 64-bit hashes
-/// * GxHash128*: a class for computing 128-bit hashes
+/// * GxHash32  - a class for computing 32-bit hashes
+/// * GxHash64  - a class for computing 64-bit hashes
+/// * GxHash128 - a class for computing 128-bit hashes
 ///
 /// Each class provides methods for hashing byte sequences both synchronously and asynchronously.
 ///
