@@ -9,6 +9,19 @@ use quickcheck_macros::quickcheck;
 
 static ONCE: std::sync::Once = std::sync::Once::new();
 
+#[inline(always)]
+fn import_asyncio<'py>(py: Python<'py>) -> PyResult<pyo3::Bound<'py, pyo3::types::PyModule>> {
+    let asyncio = py.import(intern!(py, "asyncio"))?;
+
+    #[cfg(windows)]
+    {
+        let policy = asyncio.getattr(intern!(py, "WindowsSelectorEventLoopPolicy"))?;
+        asyncio.call_method1(intern!(py, "set_event_loop_policy"), (policy.call0()?,))?;
+    }
+
+    Ok(asyncio)
+}
+
 macro_rules! pytest {
     ($py:ident, $body:block) => {{
         ONCE.call_once(|| {
@@ -99,14 +112,7 @@ macro_rules! gxhash_hash_async_test {
         #[quickcheck]
         fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
-                let asyncio = py.import(intern!(py, "asyncio"))?;
-
-                #[cfg(windows)]
-                {
-                    let policy = asyncio.getattr(intern!(py, "WindowsSelectorEventLoopPolicy"))?;
-                    asyncio.call_method1(intern!(py, "set_event_loop_policy"), (policy.call0()?,))?;
-                }
-
+                let asyncio = import_asyncio(py)?;
                 let async_run = asyncio.getattr(intern!(py, "run"))?;
                 let seed = [("seed", 42)].into_py_dict(py)?;
                 let hasher = py
@@ -150,6 +156,7 @@ macro_rules! gxhash_hash_async_determinism_test {
         #[test]
         fn $test_name() -> PyResult<()> {
             pytest!(py, {
+                let asyncio = import_asyncio(py)?;
                 let bytes = [1u8, 2, 3];
                 let coroutine = py
                     .import(intern!(py, "gxhash"))?
@@ -157,8 +164,7 @@ macro_rules! gxhash_hash_async_determinism_test {
                     .call1((42,))?
                     .call_method1(intern!(py, "hash_async"), (&bytes,))?;
 
-                let result = py
-                    .import(intern!(py, "asyncio"))?
+                let result = asyncio
                     .getattr(intern!(py, "run"))?
                     .call1((coroutine,))?
                     .extract::<$output_type>()?;
@@ -197,14 +203,7 @@ macro_rules! gxhash_hash_async_seed_test {
         #[quickcheck]
         fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
-                let asyncio = py.import(intern!(py, "asyncio"))?;
-
-                #[cfg(windows)]
-                {
-                    let policy = asyncio.getattr(intern!(py, "WindowsSelectorEventLoopPolicy"))?;
-                    asyncio.call_method1(intern!(py, "set_event_loop_policy"), (policy.call0()?,))?;
-                }
-
+                let asyncio = import_asyncio(py)?;
                 let seed = 42;
                 let async_run = asyncio.getattr(intern!(py, "run"))?;
                 let hasher_class = py.import(intern!(py, "gxhash"))?.getattr($hasher)?;
@@ -297,7 +296,7 @@ fn test_hasher_instantiation() -> PyResult<()> {
             .call((), Some(&seed))
             .unwrap_err();
 
-        assert!(error.is_instance_of::<pyo3::exceptions::PyException>(py));
+        assert!(error.is_instance_of::<pyo3::exceptions::PyTypeError>(py));
     })
 }
 
