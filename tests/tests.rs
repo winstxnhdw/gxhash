@@ -2,6 +2,7 @@ use gxhash::gxhash_py;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::intern;
+use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyInt;
 use quickcheck_macros::quickcheck;
@@ -53,20 +54,36 @@ macro_rules! gxhash_callable_test {
     };
 }
 
+macro_rules! gxhash_getitem_test {
+    ($name:ident, $hasher:expr) => {
+        #[test]
+        fn $name() -> PyResult<()> {
+            pytest!(py, {
+                let gxhash = py.import(intern!(py, "gxhash"))?;
+                let hasher = gxhash.getattr(intern!(py, $hasher))?;
+
+                gxhash
+                    .getattr(intern!(py, "Hasher"))?
+                    .call_method1(intern!(py, "__class_getitem__"), (hasher,))?;
+            })
+        }
+    };
+}
+
 macro_rules! gxhash_hash_test {
     ($test_name:ident, $hasher:expr, $output_type:ty) => {
         #[quickcheck]
         fn $test_name(bytes: Vec<u8>) -> PyResult<()> {
             pytest!(py, {
+                let seed = [("seed", 42)].into_py_dict(py)?;
                 let hasher = py
                     .import(intern!(py, "gxhash"))?
                     .getattr(intern!(py, $hasher))?
-                    .call1((42,))?;
+                    .call((), Some(&seed))?;
 
                 let result1 = hasher
                     .call_method1(intern!(py, "hash"), (&bytes,))?
                     .extract::<$output_type>()?;
-
                 let result2 = hasher
                     .call_method1(intern!(py, "hash"), (&bytes,))?
                     .extract::<$output_type>()?;
@@ -91,10 +108,11 @@ macro_rules! gxhash_hash_async_test {
                 }
 
                 let async_run = asyncio.getattr(intern!(py, "run"))?;
+                let seed = [("seed", 42)].into_py_dict(py)?;
                 let hasher = py
                     .import(intern!(py, "gxhash"))?
                     .getattr(intern!(py, $hasher))?
-                    .call1((42,))?;
+                    .call((), Some(&seed))?;
 
                 let coroutine1 = hasher.call_method1(intern!(py, "hash_async"), (&bytes,))?;
                 let coroutine2 = hasher.call_method1(intern!(py, "hash_async"), (&bytes,))?;
@@ -202,3 +220,21 @@ gxhash_hash_seed_test!(test_gxhash128_seed, "GxHash128", u128);
 gxhash_hash_async_seed_test!(test_gxhash32_seed_async, "GxHash32", u32);
 gxhash_hash_async_seed_test!(test_gxhash64_seed_async, "GxHash64", u64);
 gxhash_hash_async_seed_test!(test_gxhash128_seed_async, "GxHash128", u128);
+
+#[test]
+fn test_hasher_instantiation() -> PyResult<()> {
+    pytest!(py, {
+        let seed = [("seed", 42)].into_py_dict(py)?;
+        let error = py
+            .import(intern!(py, "gxhash"))?
+            .getattr(intern!(py, "Hasher"))?
+            .call((), Some(&seed))
+            .unwrap_err();
+
+        assert!(error.is_instance_of::<pyo3::exceptions::PyException>(py));
+    })
+}
+
+gxhash_getitem_test!(test_hasher_getitem_gxhash32, "GxHash32");
+gxhash_getitem_test!(test_hasher_getitem_gxhash64, "GxHash64");
+gxhash_getitem_test!(test_hasher_getitem_gxhash128, "GxHash128");
