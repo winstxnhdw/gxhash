@@ -29,9 +29,9 @@ struct GxHash128 {
 static RUNTIME: std::sync::OnceLock<Runtime> = std::sync::OnceLock::new();
 
 macro_rules! impl_gxhash_methods {
-    ($Self:ident, $return_type:ty, $hasher:path) => {
+    ($name:ident, $return_type:ty, $hasher:path) => {
         #[pymethods]
-        impl $Self {
+        impl $name {
             #[new]
             fn new(seed: i64) -> PyResult<Self> {
                 RUNTIME.get_or_init(|| {
@@ -40,7 +40,7 @@ macro_rules! impl_gxhash_methods {
                         .expect("Failed to create async runtime!")
                 });
 
-                Ok($Self { seed })
+                Ok(Self { seed })
             }
 
             fn hash(&self, bytes: &[u8]) -> $return_type {
