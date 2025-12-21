@@ -20,7 +20,17 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
+        python-version:
+          - 3.8
+          - 3.9
+          - "3.10"
+          - 3.11
+          - pypy3.11
+          - 3.12
+          - 3.13
+          - 3.13t
+          - 3.14
+          - 3.14t
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
@@ -47,7 +57,16 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
+        python-version:
+          - 3.8
+          - 3.9
+          - "3.10"
+          - 3.11
+          - 3.12
+          - 3.13
+          - 3.13t
+          - 3.14
+          - 3.14t
         runs-on:
           - ubuntu-latest
           - macos-15-intel
