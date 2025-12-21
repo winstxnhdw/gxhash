@@ -74,6 +74,7 @@ jobs:
         run: cargo test
 
   coverage:
+    needs: [build, test]
     runs-on: ubuntu-latest
 
     steps:
