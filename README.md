@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/github/winstxnhdw/gxhash/graph/badge.svg?token=L5FVMJTQUB)](https://codecov.io/github/winstxnhdw/gxhash)
 [![python](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue)](https://www.python.org/)
 [![main.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml)
-[![clippy.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/clippy.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/clippy.yml)
+[![lint.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/lint.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/lint.yml)
 [![formatter.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/formatter.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/formatter.yml)
 
 Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast and robust non-cryptographic hashing algorithm.
