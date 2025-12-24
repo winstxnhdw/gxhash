@@ -10,19 +10,19 @@ pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyExcepti
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
-struct GxHash32 {
+pub struct GxHash32 {
     seed: i64,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
-struct GxHash64 {
+pub struct GxHash64 {
     seed: i64,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
-struct GxHash128 {
+pub struct GxHash128 {
     seed: i64,
 }
 
@@ -126,7 +126,7 @@ pub mod gxhash_py {
         m.add("T_co", &int)?;
         m.add("Uint32", &int)?;
         m.add("Uint64", &int)?;
-        m.add("Uint128", int)?;
+        m.add("Uint128", &int)?;
         Ok(())
     }
 }

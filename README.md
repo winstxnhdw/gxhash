@@ -58,7 +58,7 @@ Hashing bytes.
 ```python
 from gxhash import GxHash32
 
-def main():
+def main() -> None:
     gxhash = GxHash32(seed=0)
     result = gxhash.hash(b"Hello, world!")
 
@@ -72,7 +72,7 @@ Hashing bytes asynchronously.
 from asyncio import run
 from gxhash import GxHash128
 
-async def main():
+async def main() -> None:
     gxhash = GxHash128(seed=0)
     result = await gxhash.hash_async(b"Hello, world!")
 
