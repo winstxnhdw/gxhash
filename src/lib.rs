@@ -26,7 +26,7 @@ pub struct GxHash128 {
     seed: i64,
 }
 
-static RUNTIME: std::sync::OnceLock<Runtime> = std::sync::OnceLock::new();
+static RUNTIME: std::sync::OnceLock<tokio::runtime::Runtime> = std::sync::OnceLock::new();
 
 macro_rules! impl_gxhash_methods {
     ($name:ident, $return_type:ty, $hasher:path) => {
@@ -34,12 +34,6 @@ macro_rules! impl_gxhash_methods {
         impl $name {
             #[new]
             fn new(seed: i64) -> PyResult<Self> {
-                RUNTIME.get_or_init(|| {
-                    Builder::new_multi_thread()
-                        .build()
-                        .expect("Failed to create async runtime!")
-                });
-
                 Ok(Self { seed })
             }
 
@@ -122,11 +116,16 @@ pub mod gxhash_py {
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
+        super::RUNTIME.get_or_init(|| {
+            tokio::runtime::Builder::new_multi_thread()
+                .build()
+                .expect("Failed to create async runtime!")
+        });
+
         let int = m.py().import("builtins")?.getattr("int")?;
         m.add("T_co", &int)?;
         m.add("Uint32", &int)?;
         m.add("Uint64", &int)?;
-        m.add("Uint128", &int)?;
-        Ok(())
+        m.add("Uint128", &int)
     }
 }
