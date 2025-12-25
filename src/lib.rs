@@ -3,65 +3,53 @@ use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
 use pyo3::prelude::pyclass;
 use pyo3::prelude::pymethods;
-use tokio::runtime::Builder;
-use tokio::runtime::Runtime;
+use pyo3::types::PyAnyMethods;
+use tokio::runtime::Handle;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
+
+#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
+#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
+struct Hasher;
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 pub struct GxHash32 {
     seed: i64,
+    runtime: Handle,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 pub struct GxHash64 {
     seed: i64,
+    runtime: Handle,
 }
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
 pub struct GxHash128 {
     seed: i64,
+    runtime: Handle,
 }
 
-static RUNTIME: std::sync::OnceLock<tokio::runtime::Runtime> = std::sync::OnceLock::new();
-
-macro_rules! impl_gxhash_methods {
-    ($name:ident, $return_type:ty, $hasher:path) => {
-        #[pymethods]
-        impl $name {
-            #[new]
-            fn new(seed: i64) -> PyResult<Self> {
-                Ok(Self { seed })
-            }
-
-            fn hash(&self, bytes: &[u8]) -> $return_type {
-                $hasher(bytes, self.seed)
-            }
-
-            async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
-                let seed = self.seed;
-
-                RUNTIME
-                    .get()
-                    .expect("Runtime should have been initialised in the constructor!")
-                    .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
-                    .await
-                    .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
-            }
-        }
-    };
+#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
+#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
+struct TokioRuntime {
+    runtime: tokio::runtime::Runtime,
 }
 
-impl_gxhash_methods!(GxHash32, u32, gxhash_core::gxhash32);
-impl_gxhash_methods!(GxHash64, u64, gxhash_core::gxhash64);
-impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
+#[pymethods]
+impl TokioRuntime {
+    #[new]
+    fn new() -> PyResult<Self> {
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .build()
+            .expect("Unable to construct runtime!");
 
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
-struct Hasher {}
+        Ok(Self { runtime })
+    }
+}
 
 #[pymethods]
 impl Hasher {
@@ -75,6 +63,43 @@ impl Hasher {
     #[classmethod]
     pub fn __class_getitem__(_cls: Py<pyo3::types::PyType>, _key: Py<pyo3::PyAny>) {}
 }
+
+macro_rules! impl_gxhash_methods {
+    ($name:ident, $return_type:ty, $hasher:path) => {
+        #[pymethods]
+        impl $name {
+            #[new]
+            fn new(py: Python, seed: i64) -> PyResult<Self> {
+                let runtime = py
+                    .import("gxhash")?
+                    .getattr("runtime")?
+                    .extract::<pyo3::PyRef<TokioRuntime>>()?
+                    .runtime
+                    .handle()
+                    .clone();
+
+                Ok(Self { seed, runtime })
+            }
+
+            fn hash(&self, bytes: &[u8]) -> $return_type {
+                $hasher(bytes, self.seed)
+            }
+
+            async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
+                let seed = self.seed;
+
+                self.runtime
+                    .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
+                    .await
+                    .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
+            }
+        }
+    };
+}
+
+impl_gxhash_methods!(GxHash32, u32, gxhash_core::gxhash32);
+impl_gxhash_methods!(GxHash64, u64, gxhash_core::gxhash64);
+impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 
 /// gxhash — Python bindings for gxhash
 ///
@@ -116,16 +141,13 @@ pub mod gxhash_py {
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
-        super::RUNTIME.get_or_init(|| {
-            tokio::runtime::Builder::new_multi_thread()
-                .build()
-                .expect("Failed to create async runtime!")
-        });
+        let py = m.py();
+        let int = py.import("builtins")?.getattr("int")?;
 
-        let int = m.py().import("builtins")?.getattr("int")?;
         m.add("T_co", &int)?;
         m.add("Uint32", &int)?;
         m.add("Uint64", &int)?;
-        m.add("Uint128", &int)
+        m.add("Uint128", &int)?;
+        m.add("runtime", pyo3::Py::new(py, super::TokioRuntime::new()?)?)
     }
 }
