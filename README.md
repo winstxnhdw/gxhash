@@ -18,37 +18,25 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 ## Installation
 
-### pip
-
 `gxhash` is available on PyPI and can be installed via `pip`.
 
 ```bash
 pip install gxhash
 ```
 
-For best performance, you can enable the `hybrid` by passing the following `build-args` to the `--config-settings` flag.
+> [!IMPORTANT]\
+> This is only possible on systems that support `VAES` and `AVX2` instruction sets.
+
+For the best throughput, you can allow `gxhash` to use wider registers by passing the `MATURIN_PEP517_ARGS` environment variable.
 
 ```bash
-pip install gxhash --config-settings build-args="--features hybrid"
+MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
 By default, `gxhash` uses your system's vectorisation features. You can disable this by setting the relevant `RUSTFLAGS`.
 
 ```bash
 RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
-```
-
-### uv
-
-If you are using [uv](https://docs.astral.sh/uv/), you can enable the `hybrid` feature by adding the following `config-settings` under the `tool.uv` section.
-
-```toml
-[tool.uv]
-config-settings = { build-args = "--features hybrid" }
-```
-
-```bash
-uv add gxhash
 ```
 
 ## Usage
