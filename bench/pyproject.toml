@@ -1,0 +1,40 @@
+[project]
+name = "bench"
+version = "0.1.0"
+description = "Benchmark suite for GxHash"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = ["gxhash", "polars>=1.37.1", "uvloop>=0.22.1", "xxhash>=3.6.0"]
+
+[project.scripts]
+bench = "src:main"
+bench-batch = "src.batching:main"
+
+[dependency-groups]
+dev = ["pyright>=1.1.408", "ruff>=0.14.13"]
+
+[build-system]
+requires = ["uv_build"]
+build-backend = "uv_build"
+
+[tool.uv]
+config-settings = { build-args = "--features hybrid" }
+
+[tool.uv.build-backend]
+module-root = ""
+module-name = "src"
+source-exclude = ["**/typings"]
+
+[tool.uv.sources]
+gxhash = { path = "../" }
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "TC003"]
+
+[tool.pyright]
+typeCheckingMode = "strict"
+reportUnknownMemberType = false

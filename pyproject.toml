@@ -39,16 +39,26 @@ profile = "release"
 locked = true
 strip = true
 features = ["pyo3/extension-module"]
-exclude = ["tests/**", ".github/**/*", "**/.gitignore", "**/uv.lock", "**/rustfmt.toml", "**/Makefile"]
+exclude = [
+    "tests/**",
+    "benchmark/**/*",
+    ".github/**/*",
+    "**/.gitignore",
+    "**/uv.lock",
+    "**/rustfmt.toml",
+    "**/Makefile",
+]
 
 [tool.ruff]
+exclude = ["bench"]
 line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["PYI001", "PYI021", "A002", "COM812", "D203", "D205", "D211", "D212", "D400", "D413", "D415", "D417"]
+ignore = ["PYI001", "PYI021", "A002", "COM812", "D", "TC003"]
 
 [tool.pyright]
+exclude = [".venv", "bench"]
 typeCheckingMode = "strict"
 
 [tool.commitizen]

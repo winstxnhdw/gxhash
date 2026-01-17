@@ -3,5 +3,7 @@ node_modules/
 target/
 dist/
 gxhash-*/
-
-bun.lock
+**/*.pyc
+**/*.png
+**/*.svg
+**/benchmarks.parquet

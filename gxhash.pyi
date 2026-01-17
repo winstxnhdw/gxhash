@@ -1,6 +1,6 @@
 from typing import NewType, Protocol, TypeVar
 
-T_co = TypeVar("T_co", covariant=True, bound=int)
+T_co = TypeVar("T_co", covariant=True, bound=int, default=int)
 Uint32 = NewType("Uint32", int)
 Uint64 = NewType("Uint64", int)
 Uint128 = NewType("Uint128", int)
