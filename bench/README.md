@@ -28,7 +28,7 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## Asynchronous Hashing
 
-`gxhash` has first-class support for asynchronous hashing. As seen in the benchmarks above, the asynchronous variant of `gxhash` greatly underperforms due to the overhead of spawning a thread for each hash operation. However, when hashing many items concurrently, `gxhash` is able to fully utilise all CPU cores and outperform its synchronous variant. In the benchmark below, we consistent used batches of 16 payloads across all payload sizes.
+`gxhash` includes first-class support for asynchronous hashing. As the benchmarks above show, the asynchronous variant performs significantly worse in single-hash scenarios because it incurs the overhead of spawning a thread per operation. When hashing many items concurrently, however, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads consistently across all payload sizes.
 
 <div align="center">
     <img alt="Shows a bar chart with benchmark results for asynchronous hashing."
