@@ -1,4 +1,5 @@
-from collections.abc import Awaitable, Callable, Iterator
+from asyncio import gather
+from collections.abc import Awaitable, Callable, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
 from itertools import product
@@ -21,20 +22,26 @@ class Length(IntEnum):
     BIT_128 = 128
 
 
-class Evaluand(TypedDict):
-    name: str
-    length: int
-    hasher: Callable[[bytes], Awaitable[int]]
-    payload_warmup: bytes
-    payload: bytes
-
-
 class EvaluationResult(TypedDict):
     name: str
-    length: int
+    length: Length
+    batch_size: int
     payload_size: int
     cold_duration: Nanoseconds
     hot_duration: Nanoseconds
+
+
+class EvaluandMetadata(TypedDict):
+    batch_size: int
+    payload_size: int
+    payloads_warmup: Iterable[bytes]
+    payloads: Iterable[bytes]
+
+
+class Evaluand(EvaluandMetadata):
+    name: str
+    length: Length
+    hasher: Callable[[bytes], Awaitable[int]]
 
 
 async def wrap_async[**P](
@@ -56,135 +63,124 @@ def async_wrapper[**P](
 
 async def benchmark(kwargs: Evaluand) -> EvaluationResult:
     hasher = kwargs["hasher"]
-    payload_warmup = kwargs["payload_warmup"]
-    payload = kwargs["payload"]
+    payloads_warmup = kwargs["payloads_warmup"]
+    payloads = kwargs["payloads"]
 
     start = perf_counter_ns()
-    await hasher(payload_warmup)
+    await gather(*map(hasher, payloads_warmup))
     end = perf_counter_ns()
     cold_duration = Nanoseconds(end - start)
 
     start = perf_counter_ns()
-    await hasher(payload)
+    await gather(*map(hasher, payloads))
     end = perf_counter_ns()
     hot_duration = Nanoseconds(end - start)
 
     return {
         "name": kwargs["name"],
         "length": kwargs["length"],
-        "payload_size": len(payload),
+        "batch_size": kwargs["batch_size"],
+        "payload_size": kwargs["payload_size"],
         "cold_duration": cold_duration,
         "hot_duration": hot_duration,
     }
 
 
-def create_evaluands(seed: int, payload_warmup: bytes, payload: bytes) -> tuple[Evaluand, ...]:
-    gxhash32 = GxHash32(seed=seed)
-    gxhash64 = GxHash64(seed=seed)
-    gxhash128 = GxHash128(seed=seed)
+def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evaluand]:
+    seed = randint(0, 256)
+    payloads_warmup = tuple(urandom(payload_size) for _ in range(payload_count))
+    payloads = tuple(urandom(payload_size) for _ in range(payload_count))
+    metadata: EvaluandMetadata = {
+        "payload_size": payload_size,
+        "payloads_warmup": payloads_warmup,
+        "payloads": payloads,
+        "batch_size": payload_count,
+    }
 
-    return (
-        {
-            "name": "GxHash32",
-            "length": Length.BIT_32,
-            "hasher": async_wrapper(gxhash32.hash),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "XXH32",
-            "length": Length.BIT_32,
-            "hasher": async_wrapper(xxh32_intdigest, seed=seed),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "GxHash64",
-            "length": Length.BIT_64,
-            "hasher": async_wrapper(gxhash64.hash),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "XXH3",
-            "length": Length.BIT_64,
-            "hasher": async_wrapper(xxh64_intdigest, seed=seed),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "GxHash128",
-            "length": Length.BIT_128,
-            "hasher": async_wrapper(gxhash128.hash),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "XXH128",
-            "length": Length.BIT_128,
-            "hasher": async_wrapper(xxh128_intdigest, seed=seed),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "MD5",
-            "length": Length.BIT_128,
-            "hasher": async_wrapper(
-                lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "big"),
-            ),
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "GxHash32 (async)",
-            "length": Length.BIT_32,
-            "hasher": gxhash32.hash_async,
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "GxHash64 (async)",
-            "length": Length.BIT_64,
-            "hasher": gxhash64.hash_async,
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-        {
-            "name": "GxHash128 (async)",
-            "length": Length.BIT_128,
-            "hasher": gxhash128.hash_async,
-            "payload_warmup": payload_warmup,
-            "payload": payload,
-        },
-    )
+    yield {
+        **metadata,
+        "name": "GxHash32",
+        "length": Length.BIT_32,
+        "hasher": async_wrapper(GxHash32(seed=seed).hash),
+    }
+    yield {
+        **metadata,
+        "name": "GxHash32 (async)",
+        "length": Length.BIT_32,
+        "hasher": GxHash32(seed=seed).hash_async,
+    }
+    yield {
+        **metadata,
+        "name": "XXH32",
+        "length": Length.BIT_32,
+        "hasher": async_wrapper(xxh32_intdigest, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "GxHash64",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(GxHash64(seed=seed).hash),
+    }
+    yield {
+        **metadata,
+        "name": "GxHash64 (async)",
+        "length": Length.BIT_64,
+        "hasher": GxHash64(seed=seed).hash_async,
+    }
+    yield {
+        **metadata,
+        "name": "XXH3",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(xxh64_intdigest, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "GxHash128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(GxHash128(seed=seed).hash),
+    }
+    yield {
+        **metadata,
+        "name": "GxHash128 (async)",
+        "length": Length.BIT_128,
+        "hasher": GxHash128(seed=seed).hash_async,
+    }
+    yield {
+        **metadata,
+        "name": "XXH128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(xxh128_intdigest, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "MD5",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(lambda payloads: int.from_bytes(md5(payloads, usedforsecurity=False).digest(), "big")),
+    }
 
 
 def generate_sizes() -> Iterator[int]:
-    return (4**i for i in range(1, 16))
+    return (4**i for i in range(1, 14))
 
 
-def generate_seeds() -> Iterator[int]:
-    return (randint(0, 256) for _ in range(4))  # noqa: S311
+def payload_counts() -> Iterator[int]:
+    return iter((1, 4, 16))
 
 
-async def bench() -> None:
-    evaluands = (
-        evaluand
-        for seed, size in product(generate_seeds(), generate_sizes())
-        for evaluand in create_evaluands(seed=seed, payload_warmup=urandom(size), payload=urandom(size))
+def main() -> None:
+    results = (
+        run(benchmark(evaluand))
+        for size, count in product(generate_sizes(), payload_counts())
+        for evaluand in create_evaluands(payload_size=size, payload_count=count)
         for _ in range(30)
     )
 
     dataframe = (
-        LazyFrame([await benchmark(evaluand) for evaluand in evaluands])
-        .group_by(col("name"), col("payload_size"), col("length"))
+        LazyFrame(results)
+        .group_by(col("name"), col("payload_size"), col("length"), col("batch_size"))
         .agg(col("cold_duration").mean(), col("hot_duration").mean())
-        .collect()
+        .collect(engine="streaming")
     )
 
-    dataframe.show(10_000)
+    dataframe.sort("batch_size", "payload_size", "length", "hot_duration").show(10_000)
     dataframe.write_parquet("benchmarks.parquet")
-
-
-def main() -> None:
-    run(bench())

@@ -1,0 +1,16 @@
+[package]
+name = "benchmark"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.99"
+fs-err = "3.1.1"
+poloto = "19.1.2"
+resvg = { version = "0.46.0", features = ["text"] }
+tagu = "0.1.6"
+
+[dependencies.polars]
+version = "0.51.0"
+default-features = false
+features = ["lazy", "parquet", "nightly", "cse", "fmt"]

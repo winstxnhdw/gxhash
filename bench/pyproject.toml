@@ -17,9 +17,6 @@ dev = ["pyright>=1.1.408", "ruff>=0.14.13"]
 requires = ["uv_build"]
 build-backend = "uv_build"
 
-[tool.uv]
-config-settings = { build-args = "--features hybrid" }
-
 [tool.uv.build-backend]
 module-root = ""
 module-name = "src"
@@ -33,7 +30,7 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "TC003"]
+ignore = ["D", "TC003", "COM812"]
 
 [tool.pyright]
 typeCheckingMode = "strict"
