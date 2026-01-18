@@ -4,11 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-anyhow = "1.0.100"
-fs-err = "3.2.2"
-poloto = "19.1.2"
-resvg = { version = "0.46.0", features = ["text"] }
-tagu = "0.1.6"
+anyhow = { version = "1.0.100", default-features = false }
+poloto = { version = "19.1.2", default-features = false }
+resvg = { version = "0.46.0", default-features = false, features = ["text", "system-fonts"] }
+tagu = { version = "0.1.6", default-features = false }
 
 [dependencies.polars]
 version = "0.52.0"

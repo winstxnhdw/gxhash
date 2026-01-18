@@ -1,34 +1,38 @@
-use std::ops::{Div, Mul};
+use std::ops::Div;
+use std::ops::Mul;
 use std::path::Path;
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use polars::prelude::*;
-use resvg::usvg::fontdb;
-use tagu::prelude::*;
+use resvg::tiny_skia;
+use resvg::usvg;
+use resvg::usvg::fontdb::Database;
+use tagu::elem::Elem;
 
-fn write_png_from_svg(data: &str, path: &Path, fontdb: &fontdb::Database) -> Result<()> {
-    let options = resvg::usvg::Options {
+fn write_png_from_svg(data: &str, path: &Path, fontdb: &Database) -> Result<()> {
+    let options = usvg::Options {
         fontdb: fontdb.clone().into(),
         ..Default::default()
     };
-    let tree = resvg::usvg::Tree::from_str(data, &options)?;
+
+    let tree = usvg::Tree::from_str(data, &options)?;
     let size = tree.size();
     let width = 1600f32;
     let scale: f32 = width / size.width();
     let target_width = width.round() as u32;
     let target_height = (size.height() * scale).round() as u32;
-    let mut pixmap = resvg::tiny_skia::Pixmap::new(target_width, target_height)
-        .ok_or_else(|| anyhow!("failed to allocate pixmap"))?;
-    let transform = resvg::tiny_skia::Transform::from_scale(scale, scale);
+    let mut pixmap = tiny_skia::Pixmap::new(target_width, target_height).expect("Failed to allocate pixmap");
+    let transform = tiny_skia::Transform::from_scale(scale, scale);
     let mut pixmap_mut = pixmap.as_mut();
     resvg::render(&tree, transform, &mut pixmap_mut);
-    fs_err::create_dir_all(path.parent().unwrap())?;
+    std::fs::create_dir_all(path.parent().unwrap())?;
     pixmap.save_png(path)?;
+
     Ok(())
 }
 
-fn load_fonts() -> fontdb::Database {
-    let mut fontdb = fontdb::Database::new();
+fn load_fonts() -> Database {
+    let mut fontdb = Database::new();
 
     fontdb.load_system_fonts();
     fontdb.set_serif_family("Times New Roman");
@@ -73,15 +77,22 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
             .lazy()
             .filter(col("name").eq(lit(name)))
             .collect()
-            .unwrap();
-        let data = data["payload_size"]
+            .expect("Should be able to collect the filtered dataframe");
+
+        let throughputs = data["throughput"]
             .f64()
-            .unwrap()
+            .expect("throughput column should be f64")
+            .iter()
+            .flatten();
+
+        let points = data["payload_size"]
+            .f64()
+            .expect("payload_size column should be f64")
             .iter()
             .flatten()
-            .zip(data["throughput"].f64().unwrap().iter().flatten());
+            .zip(throughputs);
 
-        poloto::build::plot(name).line(data)
+        poloto::build::plot(name).line(points)
     });
 
     let theme = poloto::render::Theme::light().append(tagu::build::raw(".poloto_background{fill: white;}"));
