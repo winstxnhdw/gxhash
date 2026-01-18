@@ -1,4 +1,4 @@
-from asyncio import gather
+from asyncio import gather, run
 from collections.abc import Awaitable, Callable, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
@@ -10,7 +10,6 @@ from typing import Concatenate, NewType, TypedDict
 
 from gxhash import GxHash32, GxHash64, GxHash128
 from polars import LazyFrame, col
-from uvloop import run
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
 Nanoseconds = NewType("Nanoseconds", int)

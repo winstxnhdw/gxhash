@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Benchmark suite for GxHash"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = ["gxhash", "polars>=1.37.1", "uvloop>=0.22.1", "xxhash>=3.6.0"]
+dependencies = ["gxhash", "polars>=1.37.1", "xxhash>=3.6.0"]
 
 [project.scripts]
 bench = "src:main"
