@@ -91,8 +91,6 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .append_to(poloto::header().with_dim([2800.0, 1500.0]).append(theme))
         .render_string()?;
 
-    println!("{svg}");
-
     Ok(svg)
 }
 
@@ -135,8 +133,8 @@ fn main() -> Result<()> {
     )?;
 
     let fonts = load_fonts();
-    write_png_from_svg(&throughput_32bit_svg, Path::new("throughput_32bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_64bit_svg, Path::new("throughput_64bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_128bit_svg, Path::new("throughput_128bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_batched_svg, Path::new("throughput_batched.png"), &fonts)
+    write_png_from_svg(&throughput_32bit_svg, Path::new("throughput-32bit.png"), &fonts)?;
+    write_png_from_svg(&throughput_64bit_svg, Path::new("throughput-64bit.png"), &fonts)?;
+    write_png_from_svg(&throughput_128bit_svg, Path::new("throughput-128bit.png"), &fonts)?;
+    write_png_from_svg(&throughput_batched_svg, Path::new("throughput-batched.png"), &fonts)
 }

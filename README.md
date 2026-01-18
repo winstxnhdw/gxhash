@@ -11,7 +11,7 @@
   <picture align="center">
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-dark.png" width=50%>
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png" width=50%>
-    <img alt="Shows a bar chart with benchmark results." src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png">
+    <img alt="Shows a bar chart with benchmark results." src="https://i.ibb.co/SXSh79gL/throughput-128bit.png">
   </picture>
 </p>
 
@@ -21,12 +21,12 @@
 
 Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast and robust non-cryptographic hashing algorithm.
 
-## Features
+## Highlights
 
-- **Blazingly Fast**: Minimal-overhead binding to leverage the full speed of GxHash.
-- **Zero Python**: Pure Rust backend with zero additional Python runtime overhead.
-- **Async-Ready**: Tokio-powered async hashing for fast and efficient concurrency.
-- **Fully Typesafe**: Predictable, clean API with complete type safety.
+- [Fastest non-cryptographic hash algorithm](bench/README.md) of its class.
+- Pure Rust backend with zero additional Python runtime overhead.
+- First-class support for parallel [asynchronous hashing](bench/README.md#asynchronous-hashing).
+- Predictable, clean API with complete type safety.
 
 ## Installation
 
