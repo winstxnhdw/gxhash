@@ -9,7 +9,8 @@ on:
       - pyproject.toml
       - Cargo.toml
       - Cargo.lock
-      - "**.rs"
+      - src/**
+      - build.rs
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
