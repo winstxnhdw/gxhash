@@ -8,7 +8,6 @@ dependencies = ["gxhash", "polars>=1.37.1", "uvloop>=0.22.1", "xxhash>=3.6.0"]
 
 [project.scripts]
 bench = "src:main"
-bench-batch = "src.batching:main"
 
 [dependency-groups]
 dev = ["pyright>=1.1.408", "ruff>=0.14.13"]
@@ -20,7 +19,6 @@ build-backend = "uv_build"
 [tool.uv.build-backend]
 module-root = ""
 module-name = "src"
-source-exclude = ["**/typings"]
 
 [tool.uv.sources]
 gxhash = { path = "../" }
