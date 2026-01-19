@@ -49,3 +49,7 @@ To generate the plots from the parquet file, run the following command. This wil
 ```bash
 cargo run
 ```
+
+## Acknowledgements
+
+This benchmark suite was inspired by [uv](https://github.com/astral-sh/uv).

@@ -18,6 +18,11 @@ jobs:
         with:
           show-progress: false
 
+      - name: Setup Rust
+        run: |
+          rustup default nightly
+          rustup update
+
       - name: Install uv
         uses: astral-sh/setup-uv@v7.2.0
         with:
@@ -25,33 +30,39 @@ jobs:
 
       - name: Generate benchmark results
         run: uv run bench
+        env:
+          UV_LOCKED: 1
+          UV_NO_DEV: 1
+          UV_LINK_MODE: copy
+          MATURIN_PEP517_ARGS: --features hybrid
 
       - name: Generate plots
-        run: cargo run
+        run: cargo run --locked && ls
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6.0.0
         with:
           name: plots
-          path: ./*.png
+          path: |
+            **/*.png
 
   upload:
     needs: benchmark
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout wiki
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+          repository: ${{ github.repository }}.wiki
+
       - name: Download artifact
         uses: actions/download-artifact@v7.0.0
         with:
           pattern: plots
           path: resources/
           merge-multiple: true
-
-      - name: Checkout wiki
-        uses: actions/checkout@v6.0.1
-        with:
-          show-progress: false
-          repository: ${{ github.repository }}.wiki
 
       - name: Set Git config
         run: |
