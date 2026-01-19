@@ -1,6 +1,6 @@
 # Benchmarks
 
-All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries.
+All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries. The `hybrid` feature has been enabled for every benchmark.
 
 ## 32-bit
 
@@ -41,7 +41,7 @@ All benchmarks are updated regularly and the latest results can be found below. 
 To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory.
 
 ```bash
-uv run bench
+MATURIN_PEP517_ARGS="--features hybrid" uv run bench
 ```
 
 To generate the plots from the parquet file, run the following command. This will produce the benchmark plots in the current directory.

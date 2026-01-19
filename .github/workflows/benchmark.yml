@@ -2,9 +2,6 @@ name: Benchmark
 
 on: [workflow_dispatch]
 
-permissions:
-  contents: write
-
 jobs:
   benchmark:
     runs-on: ubuntu-latest
@@ -49,6 +46,8 @@ jobs:
   upload:
     needs: benchmark
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout wiki
@@ -71,8 +70,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          export BRANCH=${{ github.head_ref || github.ref_name }}
           git add .
           git commit -m "chore: update benchmarks"
-          git pull --autostash --rebase origin $BRANCH
-          git push origin HEAD:$BRANCH
+          git pull --autostash --rebase
+          git push
