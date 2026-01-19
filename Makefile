@@ -14,3 +14,7 @@ inspect: all
 
 clean:
 	rm -rf dist target .venv
+
+benchmark:
+	uv --directory bench run bench
+	cargo run --manifest-path bench/Cargo.toml

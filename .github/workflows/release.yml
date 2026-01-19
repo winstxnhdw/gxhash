@@ -36,6 +36,7 @@ jobs:
         with:
           increment: ${{ github.event.inputs.release_type }}
           changelog_increment_filename: body.md
+          github_token: ${{ github.token}}
 
       - name: Create GitHub release
         run: gh release create ${{ env.REVISION }} -t ${{ env.REVISION }} -F body.md --verify-tag
