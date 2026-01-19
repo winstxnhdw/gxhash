@@ -1,6 +1,6 @@
 all:
 	rm -rf dist
-	uv run maturin sdist --out dist
+	uv build --sdist
 
 publish: all
 	uv publish

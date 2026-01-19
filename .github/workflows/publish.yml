@@ -1,0 +1,33 @@
+name: Publish
+
+on:
+  push:
+    tags: [v*]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.2.0
+
+      - name: Build sdist
+        run: uv build --sdist
+
+      - name: Smoke test
+        run: uv run --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+
+      - name: Publish to PyPI
+        run: uv publish

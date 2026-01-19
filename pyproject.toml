@@ -55,7 +55,7 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["PYI001", "PYI021", "A002", "COM812", "D", "TC003"]
+ignore = ["PYI001", "PYI021", "A002", "COM812", "D", "TC003", "INP001"]
 
 [tool.pyright]
 exclude = [".venv", "bench"]
