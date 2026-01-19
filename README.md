@@ -1,11 +1,10 @@
 # gxhash-py
 
 [![GitHub](https://img.shields.io/badge/GitHub-black?logo=github)](https://github.com/winstxnhdw/gxhash)
+[![PyPi](https://img.shields.io/pypi/v/gxhash)](https://pypi.python.org/pypi/gxhash)
 [![codecov](https://codecov.io/github/winstxnhdw/gxhash/graph/badge.svg?token=L5FVMJTQUB)](https://codecov.io/github/winstxnhdw/gxhash)
 [![python](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue)](https://www.python.org/)
 [![main.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml)
-[![lint.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/lint.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/lint.yml)
-[![formatter.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/formatter.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/formatter.yml)
 
 <p align="center">
   <picture align="center">
