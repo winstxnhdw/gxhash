@@ -1,0 +1,66 @@
+name: Benchmark
+
+on: [workflow_dispatch]
+
+permissions:
+  contents: write
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bench
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.2.0
+        with:
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Generate benchmark results
+        run: uv run bench
+
+      - name: Generate plots
+        run: cargo run
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: plots
+          path: ./*.png
+
+  upload:
+    needs: benchmark
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v7.0.0
+        with:
+          pattern: plots
+          path: resources/
+          merge-multiple: true
+
+      - name: Checkout wiki
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+          repository: ${{ github.repository }}.wiki
+
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+
+      - name: Commit changes
+        run: |
+          export BRANCH=${{ github.head_ref || github.ref_name }}
+          git commit -am "chore: update benchmarks" || true
+          git pull --autostash --rebase origin $BRANCH
+          git push origin HEAD:$BRANCH
