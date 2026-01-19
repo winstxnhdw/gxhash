@@ -21,8 +21,9 @@ jobs:
     needs: main
     runs-on: ubuntu-latest
     env:
-      UV_LINK_MODE: hardlink
       UV_LOCKED: 1
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository

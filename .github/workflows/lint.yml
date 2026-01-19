@@ -16,7 +16,6 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     env:
-      UV_LINK_MODE: hardlink
       UV_LOCKED: 1
     strategy:
       matrix:

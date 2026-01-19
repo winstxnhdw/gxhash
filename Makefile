@@ -16,5 +16,5 @@ clean:
 	rm -rf dist target .venv
 
 benchmark:
-	uv --directory bench run bench
-	cargo run --manifest-path bench/Cargo.toml
+	uv --directory bench run --no-dev --locked bench
+	cargo run --locked --manifest-path bench/Cargo.toml
