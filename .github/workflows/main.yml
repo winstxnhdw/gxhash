@@ -44,46 +44,9 @@ jobs:
         with:
           show-progress: false
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7.2.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          activate-environment: true
-          cache-dependency-glob: "**/uv.lock"
-
-      - name: Install project
-        run: uv pip install .
-
-  install-hybrid:
-    runs-on: ${{ matrix.runs-on }}
-    strategy:
-      matrix:
-        python-version:
-          - 3.8
-          - 3.9
-          - "3.10"
-          - 3.11
-          - pypy3.11
-          - 3.12
-          - 3.13
-          - 3.13t
-          - 3.14
-          - 3.14t
-        runs-on:
-          - ubuntu-latest
-          - macos-15-intel
-          - windows-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.1
-        with:
-          show-progress: false
-
-      - name: Setup Rust
-        run: |
-          rustup default nightly
-          rustup update
+      - name: Uninstall Rust
+        if: ${{ matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11' && runner.os == 'Linux' }}
+        run: rustup self uninstall -y
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7.2.0
@@ -93,9 +56,9 @@ jobs:
           cache-dependency-glob: "**/uv.lock"
 
       - name: Install project
-        run: uv pip install .
+        run: pip install .
         env:
-          MATURIN_PEP517_ARGS: --features hybrid
+          MATURIN_PEP517_ARGS: ${{ matrix.runs-on != 'ubuntu-24.04-arm' && '--features hybrid' || '' }}
 
   test:
     runs-on: ${{ matrix.runs-on }}
@@ -142,7 +105,7 @@ jobs:
         run: cargo test
 
   coverage:
-    needs: [install, install-hybrid, test]
+    needs: [install, test]
     runs-on: ubuntu-latest
 
     steps:
