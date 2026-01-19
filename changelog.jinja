@@ -1,0 +1,19 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+{% for entry in tree %}
+## [{{ entry.version }}]
+
+Released on {{ entry.date }}
+{% for change_key, changes in entry.changes.items() %}
+
+{% if change_key %}
+### {{ change_key }}
+
+{% for change in changes %}
+- {{ change.message }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
