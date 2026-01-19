@@ -72,6 +72,7 @@ jobs:
       - name: Commit changes
         run: |
           export BRANCH=${{ github.head_ref || github.ref_name }}
-          git commit -am "chore: update benchmarks" || true
+          git add .
+          git commit -m "chore: update benchmarks"
           git pull --autostash --rebase origin $BRANCH
           git push origin HEAD:$BRANCH
