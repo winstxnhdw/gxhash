@@ -24,6 +24,7 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 ## Highlights
 
 - [Fastest non-cryptographic hash algorithm](bench/README.md) of its class.
+- Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
 - Pure Rust backend with zero additional Python runtime overhead.
 - First-class support for parallel [asynchronous hashing](bench/README.md#asynchronous-hashing).
 - Predictable, clean API with complete type safety.

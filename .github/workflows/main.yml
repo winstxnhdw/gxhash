@@ -138,11 +138,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Setup Rust
-        run: |
-          rustup default nightly
-          rustup update nightly
-
       - name: Test
         run: cargo test
 

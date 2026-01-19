@@ -2,6 +2,15 @@
 
 All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries. The `hybrid` feature has been enabled for every benchmark.
 
+## Fairness
+
+- All benchmarks are measured after a warm-up phase.
+- Each benchmark is run multiple times and the average throughput is reported.
+- The most performant configuration for each library is used.
+- Event loop is torn down between each benchmark.
+- Seed and payload(s) are randomly shuffled between each run to avoid caching effects.
+- No long-lived reference cycles to avoid interference from the garbage collector.
+
 ## 32-bit
 
 <div align="center">
