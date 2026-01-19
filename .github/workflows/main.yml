@@ -10,6 +10,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - src/**
+      - tests/**.rs
       - build.rs
 
 concurrency:
