@@ -55,10 +55,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           activate-environment: true
-          cache-dependency-glob: "**/uv.lock"
 
       - name: Install project
-        run: pip install .
+        run: uv pip install .
         env:
           MATURIN_PEP517_ARGS: ${{ matrix.runs-on != 'ubuntu-24.04-arm' && '--features hybrid' || '' }}
 
