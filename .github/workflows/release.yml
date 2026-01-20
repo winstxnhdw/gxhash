@@ -45,3 +45,5 @@ jobs:
 
       - name: Create GitHub release
         run: gh release create ${{ env.REVISION }} -t ${{ env.REVISION }} -F body.md --verify-tag
+        env:
+          GH_TOKEN: ${{ github.token }}
