@@ -125,7 +125,9 @@ impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 ///
 #[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
 pub mod gxhash_py {
+    use pyo3::IntoPyObjectExt;
     use pyo3::prelude::PyModuleMethods;
+    use pyo3::types::IntoPyDict;
     use pyo3::types::PyAnyMethods;
 
     #[pymodule_export]
@@ -143,11 +145,13 @@ pub mod gxhash_py {
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
         let py = m.py();
         let int = py.import("builtins")?.getattr("int")?;
+        let typevar = py.import("typing")?.getattr("TypeVar")?;
+        let typevar_kwargs = [("covariant", &true.into_bound_py_any(py)?), ("bound", &int)].into_py_dict(py)?;
 
-        m.add("T_co", &int)?;
         m.add("Uint32", &int)?;
         m.add("Uint64", &int)?;
         m.add("Uint128", &int)?;
+        m.add("T_co", typevar.call(("T_co",), Some(&typevar_kwargs))?)?;
         m.add("runtime", pyo3::Py::new(py, super::TokioRuntime::new()?)?)
     }
 }

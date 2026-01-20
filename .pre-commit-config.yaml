@@ -8,8 +8,22 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.13
     hooks:
+      - id: ruff-format
       - id: ruff-check
         args: [--fix]
 
-      - id: ruff-format
-        args: [--fix]
+  - repo: local
+    hooks:
+      - id: cargo
+        name: cargo test
+        entry: cargo test
+        language: system
+        files: ^*\.rs$
+        pass_filenames: false
+
+      - id: clippy
+        name: clippy
+        entry: cargo clippy
+        language: system
+        files: ^*\.rs$
+        pass_filenames: false
