@@ -62,16 +62,16 @@ def async_wrapper[**P](
 
 async def benchmark(kwargs: Evaluand) -> EvaluationResult:
     hasher = kwargs["hasher"]
-    payloads_warmup = kwargs["payloads_warmup"]
-    payloads = kwargs["payloads"]
+    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"])
+    hash_futures = map(hasher, kwargs["payloads"])
 
     start = perf_counter_ns()
-    await gather(*map(hasher, payloads_warmup))
+    await gather(*hash_warmup_futures)
     end = perf_counter_ns()
     cold_duration = Nanoseconds(end - start)
 
     start = perf_counter_ns()
-    await gather(*map(hasher, payloads))
+    await gather(*hash_futures)
     end = perf_counter_ns()
     hot_duration = Nanoseconds(end - start)
 
@@ -86,7 +86,7 @@ async def benchmark(kwargs: Evaluand) -> EvaluationResult:
 
 
 def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evaluand]:
-    seed = randint(0, 256)
+    seed = randint(-5, 256)
     payloads_warmup = tuple(urandom(payload_size) for _ in range(payload_count))
     payloads = tuple(urandom(payload_size) for _ in range(payload_count))
     metadata: EvaluandMetadata = {
