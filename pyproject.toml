@@ -44,9 +44,12 @@ exclude = [
     "benchmark/**/*",
     ".github/**/*",
     "**/.gitignore",
+    "**/.pre-commit-config.yaml",
     "**/uv.lock",
     "**/rustfmt.toml",
     "**/Makefile",
+    "**/changelog.jinja",
+    "**/CHANGELOG.md",
 ]
 
 [tool.ruff]
