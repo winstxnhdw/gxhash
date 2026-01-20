@@ -17,19 +17,19 @@ class Hasher(Protocol[T_co]):
         """
         Summary
         -------
-        Initialise `Hasher` with a `seed`.
+        Initialise `Hasher` with a a signed 64-bit `seed`.
         The `seed` should not be exposed as it is used to deterministically generate the hash.
         An exposed `seed` would put your service at a higher risk of a DoS attack.
 
         Parameters
         ----------
         seed (`int`)
-            a seed for the hasher
+            a signed 64-bit seed for the hasher [-2^63, 2^63)
 
         Example
         -------
         ```python
-        hasher = GxHash32(seed=1234)
+        hasher = GxHash32(seed=2**63 - 1)
         ```
         """
     def hash(self, bytes: bytes, /) -> T_co:
@@ -53,7 +53,7 @@ class Hasher(Protocol[T_co]):
         -------
         ```python
         hasher = GxHash64(seed=1234)
-        print(f"Hash is {hasher.hash(bytes([42] * 1000))}!")
+        print(f"Hash is {hasher.hash(bytes(range(256)))}!")
         ```
         """
     async def hash_async(self, bytes: bytes, /) -> T_co:
@@ -79,7 +79,7 @@ class Hasher(Protocol[T_co]):
         -------
         ```python
         hasher = GxHash128(seed=1234)
-        print(f"Hash is {await hasher.hash_async(bytes([42] * 1000))}!")
+        print(f"Hash is {await hasher.hash_async(bytes(range(256)))}!")
         ```
         """
 
