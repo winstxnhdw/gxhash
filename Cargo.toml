@@ -24,6 +24,7 @@ hybrid = ["gxhash-core/hybrid"]
 [[bench]]
 name = "regression"
 harness = false
+path = "perf/regression.rs"
 
 [dependencies.pyo3]
 version = "0.27.2"

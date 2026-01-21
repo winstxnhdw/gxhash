@@ -26,11 +26,13 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Setup Rust
-        run: cargo install cargo-codspeed --locked
+      - name: Install cargo-codspeed
+        uses: taiki-e/install-action@v2.67.2
+        with:
+          tool: cargo-codspeed
 
       - name: Build the benchmark target
-        run: cargo codspeed build
+        run: cargo codspeed build --features hybrid
         env:
           RUSTFLAGS: "-C target-cpu=native"
 
