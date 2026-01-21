@@ -44,3 +44,8 @@ features = ["resolve-config"]
 [dev-dependencies]
 quickcheck = "=1.0.3"
 quickcheck_macros = "=1.1.0"
+criterion = { version = "4.3.0", package = "codspeed-criterion-compat" }
+
+[[bench]]
+name = "gxhash_benchmark"
+harness = false
