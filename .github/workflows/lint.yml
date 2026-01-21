@@ -11,7 +11,9 @@ on:
 
 jobs:
   clippy:
-    uses: winstxnhdw/actions/.github/workflows/clippy.yml@main
+    uses: winstxnhdw/actions/.github/workflows/rust.yml@main
+    with:
+      disable-test: true
 
   typecheck:
     runs-on: ubuntu-latest
