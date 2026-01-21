@@ -1,0 +1,39 @@
+name: Performance
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.1
+        with:
+          show-progress: false
+
+      - name: Cache Cargo
+        uses: actions/cache@v5.0.2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Setup Rust
+        run: cargo install cargo-codspeed --locked
+
+      - name: Build the benchmark target
+        run: cargo codspeed build
+
+      - name: Run the benchmark simulation
+        uses: CodSpeedHQ/action@v4.8.2
+        with:
+          mode: simulation
+          run: cargo codspeed run

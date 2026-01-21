@@ -21,6 +21,10 @@ crate-type = ["cdylib", "rlib"]
 [features]
 hybrid = ["gxhash-core/hybrid"]
 
+[[bench]]
+name = "regression"
+harness = false
+
 [dependencies.pyo3]
 version = "0.27.2"
 default-features = false
@@ -42,5 +46,6 @@ default-features = false
 features = ["resolve-config"]
 
 [dev-dependencies]
+divan = { version = "4.3.0", package = "codspeed-divan-compat" }
 quickcheck = "=1.0.3"
 quickcheck_macros = "=1.1.0"
