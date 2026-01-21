@@ -41,6 +41,7 @@ source = { directory = "../" }
 dev = [
     { name = "commitizen", specifier = ">=3.31.0" },
     { name = "maturin", specifier = ">=1.11.5" },
+    { name = "prek", specifier = ">=0.2.30" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "ruff", specifier = ">=0.14.13" },
 ]

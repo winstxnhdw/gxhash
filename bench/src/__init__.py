@@ -86,7 +86,7 @@ async def benchmark(kwargs: Evaluand) -> EvaluationResult:
 
 
 def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evaluand]:
-    seed = randint(-5, 256)
+    seed = randint(-5, 256)  # noqa: S311
     payloads_warmup = tuple(urandom(payload_size) for _ in range(payload_count))
     payloads = tuple(urandom(payload_size) for _ in range(payload_count))
     metadata: EvaluandMetadata = {
