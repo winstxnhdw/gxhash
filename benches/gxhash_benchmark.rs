@@ -1,5 +1,8 @@
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 
+// Import from gxhash_core which is the actual gxhash crate (renamed in Cargo.toml)
+use gxhash_core::{gxhash32, gxhash64, gxhash128};
+
 fn bench_gxhash32(c: &mut Criterion) {
     let mut group = c.benchmark_group("gxhash32");
     
@@ -9,7 +12,7 @@ fn bench_gxhash32(c: &mut Criterion) {
         
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, _| {
             b.iter(|| {
-                black_box(gxhash::gxhash32(black_box(&data), black_box(0)))
+                black_box(gxhash32(black_box(&data), black_box(0)))
             });
         });
     }
@@ -26,7 +29,7 @@ fn bench_gxhash64(c: &mut Criterion) {
         
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, _| {
             b.iter(|| {
-                black_box(gxhash::gxhash64(black_box(&data), black_box(0)))
+                black_box(gxhash64(black_box(&data), black_box(0)))
             });
         });
     }
@@ -43,7 +46,7 @@ fn bench_gxhash128(c: &mut Criterion) {
         
         group.bench_with_input(BenchmarkId::from_parameter(size), size, |b, _| {
             b.iter(|| {
-                black_box(gxhash::gxhash128(black_box(&data), black_box(0)))
+                black_box(gxhash128(black_box(&data), black_box(0)))
             });
         });
     }
@@ -58,15 +61,15 @@ fn bench_small_inputs(c: &mut Criterion) {
     group.throughput(Throughput::Bytes(small_data.len() as u64));
     
     group.bench_function("gxhash32_small", |b| {
-        b.iter(|| black_box(gxhash::gxhash32(black_box(small_data), black_box(0))))
+        b.iter(|| black_box(gxhash32(black_box(small_data), black_box(0))))
     });
     
     group.bench_function("gxhash64_small", |b| {
-        b.iter(|| black_box(gxhash::gxhash64(black_box(small_data), black_box(0))))
+        b.iter(|| black_box(gxhash64(black_box(small_data), black_box(0))))
     });
     
     group.bench_function("gxhash128_small", |b| {
-        b.iter(|| black_box(gxhash::gxhash128(black_box(small_data), black_box(0))))
+        b.iter(|| black_box(gxhash128(black_box(small_data), black_box(0))))
     });
     
     group.finish();
