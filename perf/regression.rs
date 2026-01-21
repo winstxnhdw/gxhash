@@ -70,10 +70,11 @@ impl<'py> PythonExt<'py> for Python<'py> {
 fn hash(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
-        let bytes = generate_bytes(seed);
-        let hasher = py.import_gxhash()?.call1((seed,))?;
+        let bytes_vector = generate_bytes(seed);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash()?.call1((seed,))?.getattr("hash")?;
 
-        bencher.bench_local(|| hasher.call_method1("hash", (bytes.as_slice(),)));
+        bencher.bench_local(|| hash.call1((bytes,)));
     })
 }
 
@@ -81,14 +82,15 @@ fn hash(bencher: Bencher) {
 fn hash_async(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
-        let bytes = generate_bytes(seed);
+        let bytes_vector = generate_bytes(seed);
+        let bytes = bytes_vector.as_slice();
         let asyncio = py.import_asyncio()?;
         let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
 
         asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
-        bencher.bench_local(|| run_until_complete.call1((hash_async.call1((bytes.as_slice(),))?,)));
+        bencher.bench_local(|| run_until_complete.call1((hash_async.call1((bytes,))?,)));
     })
 }
 
