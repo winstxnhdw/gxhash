@@ -31,6 +31,8 @@ jobs:
 
       - name: Build the benchmark target
         run: cargo codspeed build
+        env:
+          RUSTFLAGS: "-C target-cpu=native"
 
       - name: Run the benchmark simulation
         uses: CodSpeedHQ/action@v4.8.2
