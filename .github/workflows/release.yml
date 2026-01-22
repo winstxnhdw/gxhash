@@ -40,10 +40,15 @@ jobs:
           changelog_increment_filename: body.md
           push: false
 
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+
       - name: Push
         run: |
           git add .
-          git commit -m "chore(release): ${{ env.REVISION }}" --no-verify
+          git commit -m "chore(release): release ${{ env.REVISION }}" --no-verify
           git push --atomic origin main --tags
 
       - name: Create GitHub release
