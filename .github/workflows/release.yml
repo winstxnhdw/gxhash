@@ -3,8 +3,8 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      release_type:
-        description: Release type.
+      release-type:
+        description: Release Type
         type: choice
         default: patch
         options:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   main:
-    uses: ./.github/workflows/main.yml
+    uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
     secrets: inherit
 
   release:
@@ -33,20 +33,36 @@ jobs:
           fetch-depth: 0
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Create bump and changelog
-        uses: commitizen-tools/commitizen-action@master
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.2.0
         with:
-          increment: ${{ github.event.inputs.release_type }}
-          changelog_increment_filename: body.md
-          push: false
+          python-version: ${{ matrix.python-version }}
+          activate-environment: true
+
+      - name: Get next revision
+        id: get-revision
+        run: echo "REVISION=$(uvx --from commitizen cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_ENV
+
+      - name: Create bump and changelog
+        run: |
+          uvx --from commitizen cz bump \
+              --increment ${{ inputs.release-type }} \
+              --yes \
+              --changelog \
+              --no-verify \
+              --git-output-to-stderr \
+              --changelog-to-stdout >body.md
+
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
 
       - name: Push
         run: |
-          git add .
-          git commit -m "chore(release): ${{ env.REVISION }}" --no-verify
-          git push --atomic origin main --tags
+          git push --atomic --follow-tags
 
       - name: Create GitHub release
-        run: gh release create ${{ env.REVISION }} -t ${{ env.REVISION }} -F body.md --verify-tag
+        run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}

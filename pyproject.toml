@@ -65,17 +65,17 @@ typeCheckingMode = "strict"
 
 [tool.commitizen]
 name = "cz_customize"
+changelog_file = "CHANGELOG.md"
+template = "changelog.jinja"
 tag_format = "$version"
 version_scheme = "pep440"
 version_provider = "cargo"
+bump_message = "chore(release): release $new_version"
 update_changelog_on_bump = true
-changelog_file = "CHANGELOG.md"
 changelog_incremental = true
-template = "changelog.jinja"
 major_version_zero = true
 
 [tool.commitizen.customize]
-message_template = "{{change_type}}{% if scope %}({{scope}}){% endif %}: {{message}}"
 example = "feat(parser): add support for arrays"
 schema = "<type>(<scope>): <subject>"
 schema_pattern = "^(feat|fix|refactor|perf|build)(\\(.+\\))?: .+"
