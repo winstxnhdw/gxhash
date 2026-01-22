@@ -245,7 +245,7 @@ dependencies = [
 
 [[package]]
 name = "gxhash-py"
-version = "0.3.1"
+version = "0.3.0"
 dependencies = [
  "codspeed-divan-compat",
  "gxhash",

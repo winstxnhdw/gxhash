@@ -20,8 +20,6 @@ jobs:
   release:
     needs: main
     runs-on: ubuntu-latest
-    env:
-      UV_LOCKED: 1
     permissions:
       contents: write
 
@@ -35,9 +33,6 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7.2.0
-        with:
-          python-version: ${{ matrix.python-version }}
-          activate-environment: true
 
       - name: Set Git config
         run: |
@@ -46,7 +41,7 @@ jobs:
 
       - name: Get next revision
         id: get-revision
-        run: echo "REVISION=$(uvx --from commitizen cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_ENV
+        run: echo "REVISION=$(uvx --from commitizen cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_OUTPUT
 
       - name: Create bump and changelog
         run: |
@@ -59,8 +54,7 @@ jobs:
               --changelog-to-stdout >body.md
 
       - name: Push
-        run: |
-          git push --atomic --follow-tags
+        run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
 
       - name: Create GitHub release
         run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
