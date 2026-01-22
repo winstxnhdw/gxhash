@@ -20,7 +20,7 @@ jobs:
           show-progress: false
 
       - name: Setup Python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v6.1.0
         with:
           python-version: 3.14
 
@@ -41,7 +41,7 @@ jobs:
           tool: cargo-codspeed
 
       - name: Build the benchmark target
-        run: cargo codspeed build --features hybrid
+        run: cargo codspeed build
         env:
           RUSTFLAGS: "-C target-cpu=native"
 
