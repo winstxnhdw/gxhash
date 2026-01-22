@@ -6,6 +6,7 @@ on:
     paths:
       - .github/workflows/lint.yml
       - Cargo.toml
+      - pyproject.toml
       - "**.rs"
       - "**.py"
 
