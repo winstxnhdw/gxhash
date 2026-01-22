@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [0.3.1]
+
+Released on 2026-01-22
+
+### Changed
+
+- exclude changelog from sdist
+
 ## [0.3.0]
 
 Released on 2026-01-20
