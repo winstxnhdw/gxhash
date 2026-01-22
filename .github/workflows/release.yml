@@ -44,7 +44,7 @@ jobs:
         run: |
           git add .
           git commit -m "chore(release): ${{ env.REVISION }}" --no-verify
-          git push origin ${{ env.REVISION }}
+          git push --atomic origin main --tags
 
       - name: Create GitHub release
         run: gh release create ${{ env.REVISION }} -t ${{ env.REVISION }} -F body.md --verify-tag
