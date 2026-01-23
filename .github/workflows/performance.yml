@@ -37,7 +37,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.67.4
+        uses: taiki-e/install-action@v2.67.5
         with:
           tool: cargo-codspeed
 
