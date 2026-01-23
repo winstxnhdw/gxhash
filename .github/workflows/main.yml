@@ -13,6 +13,7 @@ on:
       - src/**
       - tests/**.rs
       - build.rs
+      - "!bench/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

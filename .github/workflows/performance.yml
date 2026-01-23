@@ -9,6 +9,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - src/**
+      - "!bench/**"
 jobs:
   performance:
     runs-on: ubuntu-latest
