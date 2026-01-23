@@ -7,6 +7,7 @@ use pyo3::PyAny;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::intern;
+use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyListMethods;
 use pyo3::types::PyModule;
@@ -44,6 +45,7 @@ macro_rules! python {
 trait PythonExt<'py> {
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>>;
     fn import_gxhash(&self) -> PyResult<Bound<'_, PyAny>>;
+    fn import_hashlib_gxhash(&self) -> PyResult<Bound<'_, PyAny>>;
 }
 
 impl<'py> PythonExt<'py> for Python<'py> {
@@ -63,6 +65,11 @@ impl<'py> PythonExt<'py> for Python<'py> {
     fn import_gxhash(&self) -> PyResult<Bound<'_, PyAny>> {
         self.import(intern!(*self, "gxhash"))?
             .getattr(intern!(*self, "GxHash128"))
+    }
+
+    fn import_hashlib_gxhash(&self) -> PyResult<Bound<'_, PyAny>> {
+        self.import(intern!(*self, "gxhash.hashlib"))?
+            .getattr(intern!(*self, "gxhash128"))
     }
 }
 
@@ -120,6 +127,33 @@ fn hash_async_batch(bencher: Bencher) {
 
             run_until_complete.call1((asyncio_gather.call1(coroutines)?,))
         });
+    })
+}
+
+#[divan::bench]
+fn hashlib_gxhash_hexdigest(bencher: Bencher) {
+    python!(py, {
+        let seed = 42;
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+        let hexdigest = py
+            .import_hashlib_gxhash()?
+            .call((generate_bytes(seed).as_slice(),), Some(&kwargs))?
+            .getattr("hexdigest")?;
+
+        bencher.bench_local(|| hexdigest.call0());
+    })
+}
+
+#[divan::bench]
+fn hashlib_gxhash_update(bencher: Bencher) {
+    python!(py, {
+        let seed = 42;
+        let bytes_vector = generate_bytes(seed);
+        let bytes = bytes_vector.as_slice();
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+        let update = py.import_hashlib_gxhash()?.call((), Some(&kwargs))?.getattr("update")?;
+
+        bencher.bench_local(|| update.call1((bytes,)));
     })
 }
 

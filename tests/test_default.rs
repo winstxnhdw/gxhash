@@ -287,66 +287,60 @@ fn test_gxhash128_hash_async_seed_change(bytes: Vec<u8>) -> PyResult<()> {
 #[test]
 fn test_gxhash32_hash_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash32()?.call1((42,))?;
-        let result = call_hash::<u32>(py, &obj, &bytes)?;
+        let result = call_hash::<u32>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 2205376180u32);
+        assert_eq!(result, 11074207u32);
     })
 }
 
 #[test]
 fn test_gxhash64_hash_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash64()?.call1((42,))?;
-        let result = call_hash::<u64>(py, &obj, &bytes)?;
+        let result = call_hash::<u64>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 14923488923042930356u64);
+        assert_eq!(result, 10922345113571621535u64);
     })
 }
 
 #[test]
 fn test_gxhash128_hash_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash128()?.call1((42,))?;
-        let result = call_hash::<u128>(py, &obj, &bytes)?;
+        let result = call_hash::<u128>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 77345409872630947185460848780960292532u128);
+        assert_eq!(result, 340008176428847722652273161291189254815u128);
     })
 }
 
 #[test]
 fn test_gxhash32_hash_async_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash32()?.call1((42,))?;
-        let result = call_hash_async::<u32>(py, &obj, &bytes)?;
+        let result = call_hash_async::<u32>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 2205376180u32);
+        assert_eq!(result, 11074207u32);
     })
 }
 
 #[test]
 fn test_gxhash64_hash_async_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash64()?.call1((42,))?;
-        let result = call_hash_async::<u64>(py, &obj, &bytes)?;
+        let result = call_hash_async::<u64>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 14923488923042930356u64);
+        assert_eq!(result, 10922345113571621535u64);
     })
 }
 
 #[test]
 fn test_gxhash128_hash_async_determinism() -> PyResult<()> {
     pytest!(py, {
-        let bytes = [1u8, 2, 3];
         let obj = py.import_gxhash128()?.call1((42,))?;
-        let result = call_hash_async::<u128>(py, &obj, &bytes)?;
+        let result = call_hash_async::<u128>(py, &obj, b"hello")?;
 
-        assert_eq!(result, 77345409872630947185460848780960292532u128);
+        assert_eq!(result, 340008176428847722652273161291189254815u128);
     })
 }
 

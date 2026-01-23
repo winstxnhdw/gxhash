@@ -9,6 +9,7 @@ from time import perf_counter_ns
 from typing import Concatenate, NewType, TypedDict
 
 from gxhash import GxHash32, GxHash64, GxHash128
+from gxhash.hashlib import gxhash32, gxhash64, gxhash128
 from polars import LazyFrame, col
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
@@ -110,6 +111,12 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
     }
     yield {
         **metadata,
+        "name": "GxHashLib32",
+        "length": Length.BIT_32,
+        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash32(payloads, seed=seed).digest(), "big")),
+    }
+    yield {
+        **metadata,
         "name": "XXH32",
         "length": Length.BIT_32,
         "hasher": async_wrapper(xxh32_intdigest, seed=seed),
@@ -128,6 +135,12 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
     }
     yield {
         **metadata,
+        "name": "GxHashLib64",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash64(payloads, seed=seed).digest(), "big")),
+    }
+    yield {
+        **metadata,
         "name": "XXH3",
         "length": Length.BIT_64,
         "hasher": async_wrapper(xxh64_intdigest, seed=seed),
@@ -143,6 +156,12 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         "name": "GxHash128 (async)",
         "length": Length.BIT_128,
         "hasher": GxHash128(seed=seed).hash_async,
+    }
+    yield {
+        **metadata,
+        "name": "GxHashLib128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash128(payloads, seed=seed).digest(), "big")),
     }
     yield {
         **metadata,

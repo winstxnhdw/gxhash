@@ -1,3 +1,5 @@
+mod hashlib;
+
 use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
@@ -140,6 +142,8 @@ pub mod gxhash_py {
     use super::GxHashAsyncError;
     #[pymodule_export]
     use super::Hasher;
+    #[pymodule_export]
+    use super::hashlib::hashlib_module;
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
@@ -152,6 +156,10 @@ pub mod gxhash_py {
         m.add("Uint64", &int)?;
         m.add("Uint128", &int)?;
         m.add("T_co", typevar.call(("T_co",), Some(&typevar_kwargs))?)?;
-        m.add("runtime", pyo3::Py::new(py, super::TokioRuntime::new()?)?)
+        m.add("runtime", pyo3::Py::new(py, super::TokioRuntime::new()?)?)?;
+
+        py.import("sys")?
+            .getattr("modules")?
+            .set_item("gxhash.hashlib", m.getattr("hashlib")?)
     }
 }

@@ -40,13 +40,12 @@ jobs:
 
       - name: Create bump and changelog
         run: |
-          cz bump \
-              --increment ${{ inputs.release-type }} \
-              --yes \
-              --changelog \
-              --no-verify \
-              --git-output-to-stderr \
-              --changelog-to-stdout >body.md
+          cz bump --increment ${{ inputs.release-type }} \
+                  --yes \
+                  --changelog \
+                  --no-verify \
+                  --git-output-to-stderr \
+                  --changelog-to-stdout >body.md
 
       - name: Push
         run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}

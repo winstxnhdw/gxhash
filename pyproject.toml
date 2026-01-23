@@ -35,6 +35,7 @@ requires = ["maturin>=1.11.5, <2.0.0"]
 build-backend = "maturin"
 
 [tool.maturin]
+python-source = "src"
 profile = "release"
 locked = true
 strip = true
@@ -63,6 +64,8 @@ ignore = ["PYI001", "PYI021", "A002", "COM812", "D", "TC003", "INP001"]
 [tool.pyright]
 exclude = [".venv", "bench"]
 typeCheckingMode = "strict"
+reportMissingModuleSource = false
+reportPrivateUsage = false
 
 [tool.commitizen]
 name = "cz_customize"

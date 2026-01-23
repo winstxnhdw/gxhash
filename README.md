@@ -24,6 +24,8 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 - [Fastest non-cryptographic hash algorithm](bench/README.md) of its class.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
+- Provides a type-safe drop-in replacement for the [hashlib](https://docs.python.org/3/library/hashlib.html) built-in module.
+- Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
 - Pure Rust backend with zero additional Python runtime overhead.
 - First-class support for parallel [asynchronous hashing](bench/README.md#asynchronous-hashing).
 - Predictable, clean API with complete type safety.
@@ -78,6 +80,19 @@ async def main() -> None:
 
 if __name__ == "__main__":
     run(main())
+```
+
+As a drop-in replacement for `hashlib`.
+
+```python
+from gxhash.hashlib import gxhash128
+
+def main() -> None:
+    hasher = gxhash128(data=b"Hello, world!", seed=0)
+    result = hasher.hexdigest()
+
+if __name__ == "__main__":
+    main()
 ```
 
 ## Testing
