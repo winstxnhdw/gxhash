@@ -42,6 +42,30 @@ fn test_hashlib_buffer_instantiation() -> PyResult<()> {
 }
 
 #[test]
+fn test_hashlib_gxhash32_name() -> PyResult<()> {
+    pytest!(py, {
+        let hasher = py.import_hashlib_gxhash32()?.call0()?;
+        assert_eq!(hasher.getattr(intern!(py, "name"))?.extract::<String>()?, "gxhash32");
+    })
+}
+
+#[test]
+fn test_hashlib_gxhash64_name() -> PyResult<()> {
+    pytest!(py, {
+        let hasher = py.import_hashlib_gxhash64()?.call0()?;
+        assert_eq!(hasher.getattr(intern!(py, "name"))?.extract::<String>()?, "gxhash64");
+    })
+}
+
+#[test]
+fn test_hashlib_gxhash128_name() -> PyResult<()> {
+    pytest!(py, {
+        let hasher = py.import_hashlib_gxhash128()?.call0()?;
+        assert_eq!(hasher.getattr(intern!(py, "name"))?.extract::<String>()?, "gxhash128");
+    })
+}
+
+#[test]
 fn test_hashlib_gxhash32_block_size() -> PyResult<()> {
     pytest!(py, {
         let hasher = py.import_hashlib_gxhash32()?.call0()?;
