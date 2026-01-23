@@ -31,21 +31,16 @@ jobs:
           fetch-depth: 0
           ssh-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7.2.0
-
-      - name: Set Git config
-        run: |
-          git config user.email github-actions[bot]@users.noreply.github.com
-          git config user.name github-actions[bot]
+      - name: Install commitizen
+        uses: commitizen-tools/setup-cz@v0.7.0
 
       - name: Get next revision
         id: get-revision
-        run: echo "REVISION=$(uvx --from commitizen cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_OUTPUT
+        run: echo "REVISION=$(cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_OUTPUT
 
       - name: Create bump and changelog
         run: |
-          uvx --from commitizen cz bump \
+          cz bump \
               --increment ${{ inputs.release-type }} \
               --yes \
               --changelog \
