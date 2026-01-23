@@ -1,7 +1,7 @@
 from hashlib import _Hash
-from typing import Protocol, TypeAlias
+from typing import Protocol
 
-HASH: TypeAlias = _Hash
+HASH = _Hash
 
 class Buffer(Protocol):
     def __buffer__(self, flags: int, /) -> memoryview: ...

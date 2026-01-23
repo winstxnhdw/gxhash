@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     paths:
+      - gxhash/**
       - .github/workflows/lint.yml
       - Cargo.toml
       - pyproject.toml
