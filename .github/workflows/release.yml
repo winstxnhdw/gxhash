@@ -57,6 +57,8 @@ jobs:
         run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
 
       - name: Create GitHub release
-        run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
+        run: |
+          sed -i '1d' body.md
+          gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
