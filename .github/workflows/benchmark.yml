@@ -31,7 +31,7 @@ jobs:
           MATURIN_PEP517_ARGS: --features hybrid
 
       - name: Install fonts
-        run: sudo apt install -y fonts-liberation
+        run: sudo apt install -y fonts-roboto
 
       - name: Generate plots
         run: cargo run --locked
