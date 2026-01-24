@@ -30,6 +30,9 @@ jobs:
           UV_NO_DEV: 1
           MATURIN_PEP517_ARGS: --features hybrid
 
+      - name: Install fonts
+        run: sudo apt install -y fonts-liberation
+
       - name: Generate plots
         run: cargo run --locked
 
@@ -37,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v6.0.0
         with:
           name: plots
-          path: "**/*.png"
+          path: bench/*.png
 
   upload:
     needs: benchmark

@@ -95,10 +95,6 @@ if __name__ == "__main__":
     main()
 ```
 
-## Testing
+## Contribute
 
-You can run a comprehensive suite of tests with the following.
-
-```bash
-cargo test
-```
+Read the [CONTRIBUTING.md](CONTRIBUTING.md) docs for development setup and guidelines.

@@ -1,9 +1,8 @@
-mod helpers;
-
+use crate::helpers::PythonExt;
+use crate::helpers::call_hash;
+use crate::helpers::call_hash_async;
+use crate::pytest;
 use gxhash::gxhash_py;
-use helpers::PythonExt;
-use helpers::call_hash;
-use helpers::call_hash_async;
 use pyo3::PyResult;
 use pyo3::intern;
 use pyo3::types::IntoPyDict;

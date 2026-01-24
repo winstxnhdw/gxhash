@@ -16,5 +16,13 @@ clean:
 	rm -rf dist target .venv
 
 benchmark:
-	uv --directory bench run --no-dev --locked bench
-	cargo run --locked --manifest-path bench/Cargo.toml
+	cd bench && uv run --no-dev --locked bench && cargo run --locked
+
+perf:
+	cargo bench --locked
+
+pre-commit:
+	uv run prek install
+
+test:
+	uv run prek run

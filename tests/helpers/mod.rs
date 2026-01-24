@@ -11,7 +11,7 @@ pub(crate) static ONCE: std::sync::Once = std::sync::Once::new();
 #[macro_export]
 macro_rules! pytest {
     ($py:ident, $body:block) => {{
-        helpers::ONCE.call_once(|| {
+        $crate::helpers::ONCE.call_once(|| {
             pyo3::append_to_inittab!(gxhash_py);
             pyo3::Python::initialize();
         });
