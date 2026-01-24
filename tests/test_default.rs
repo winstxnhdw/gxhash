@@ -4,11 +4,8 @@ use crate::helpers::call_hash_async;
 use crate::pytest;
 use gxhash::gxhash_py;
 use pyo3::PyResult;
-use pyo3::intern;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
-use pyo3::types::PyInt;
-use pyo3::types::PyNone;
 use quickcheck_macros::quickcheck;
 
 #[test]
@@ -45,38 +42,6 @@ fn test_import_gxhash128_from_gxhash() -> PyResult<()> {
         let hasher_class = py.import_gxhash128()?.call1((seed,))?;
 
         assert!(hasher_class.is_instance_of::<gxhash::GxHash128>())
-    })
-}
-
-#[test]
-fn test_t_co() -> PyResult<()> {
-    pytest!(py, {
-        let typevar = py.import("typing")?.getattr("TypeVar")?;
-        assert!(py.import_gxhash()?.getattr("T_co")?.is_instance(&typevar)?)
-    })
-}
-
-#[test]
-fn test_uint32() -> PyResult<()> {
-    pytest!(py, {
-        let uint32 = py.import_gxhash()?.getattr("Uint32")?.call0()?;
-        assert!(uint32.is_instance_of::<PyInt>())
-    })
-}
-
-#[test]
-fn test_uint64() -> PyResult<()> {
-    pytest!(py, {
-        let uint64 = py.import_gxhash()?.getattr("Uint64")?.call0()?;
-        assert!(uint64.is_instance_of::<PyInt>())
-    })
-}
-
-#[test]
-fn test_uint128() -> PyResult<()> {
-    pytest!(py, {
-        let uint128 = py.import_gxhash()?.getattr("Uint128")?.call0()?;
-        assert!(uint128.is_instance_of::<PyInt>())
     })
 }
 
@@ -340,48 +305,5 @@ fn test_gxhash128_hash_async_determinism() -> PyResult<()> {
         let result = call_hash_async::<u128>(py, &obj, b"hello")?;
 
         assert_eq!(result, 340008176428847722652273161291189254815u128);
-    })
-}
-
-#[quickcheck]
-fn test_hasher_instantiation(seed: i64) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let error = py.import_hasher()?.call((), Some(&hasher_kwargs)).unwrap_err();
-
-        assert!(error.is_instance_of::<pyo3::exceptions::PyTypeError>(py));
-    })
-}
-
-#[test]
-fn test_hasher_getitem_gxhash32() -> PyResult<()> {
-    pytest!(py, {
-        let hasher_type = py
-            .import_hasher()?
-            .call_method1(intern!(py, "__class_getitem__"), (py.import_gxhash32()?,))?;
-
-        assert!(hasher_type.is_instance_of::<PyNone>());
-    })
-}
-
-#[test]
-fn test_hasher_getitem_gxhash64() -> PyResult<()> {
-    pytest!(py, {
-        let hasher_type = py
-            .import_hasher()?
-            .call_method1(intern!(py, "__class_getitem__"), (py.import_gxhash64()?,))?;
-
-        assert!(hasher_type.is_instance_of::<PyNone>());
-    })
-}
-
-#[test]
-fn test_hasher_getitem_gxhash128() -> PyResult<()> {
-    pytest!(py, {
-        let hasher_type = py
-            .import_hasher()?
-            .call_method1(intern!(py, "__class_getitem__"), (py.import_gxhash128()?,))?;
-
-        assert!(hasher_type.is_instance_of::<PyNone>());
     })
 }

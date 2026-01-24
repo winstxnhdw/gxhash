@@ -7,3 +7,4 @@ gxhash-*/
 **/*.png
 **/*.svg
 **/benchmarks.parquet
+**/*.so

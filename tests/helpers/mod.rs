@@ -30,7 +30,6 @@ pub trait PythonExt<'py> {
     fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_gxhash64(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_gxhash128(&self) -> PyResult<Bound<'_, PyAny>>;
-    fn import_hasher(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_hashlib_gxhash32(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_hashlib_gxhash64(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_hashlib_gxhash128(&self) -> PyResult<Bound<'_, PyAny>>;
@@ -64,10 +63,6 @@ impl<'py> PythonExt<'py> for Python<'py> {
 
     fn import_gxhash128(&self) -> PyResult<Bound<'_, PyAny>> {
         self.import_gxhash()?.getattr(intern!(*self, "GxHash128"))
-    }
-
-    fn import_hasher(&self) -> PyResult<Bound<'_, PyAny>> {
-        self.import_gxhash()?.getattr(intern!(*self, "Hasher"))
     }
 
     fn import_gxhash_hashlib(&self) -> PyResult<Bound<'_, PyModule>> {

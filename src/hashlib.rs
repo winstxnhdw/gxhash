@@ -1,4 +1,5 @@
 use pyo3::Bound;
+use pyo3::IntoPyObjectExt;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::buffer::PyBuffer;
@@ -47,7 +48,7 @@ impl PyBufferExt for PyBuffer<u8> {
 struct Hash;
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
+#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(module = "gxhash.hashlib", frozen, subclass))]
 struct Buffer;
 
 #[cfg_attr(
@@ -118,24 +119,28 @@ macro_rules! impl_hashlib {
             }
 
             fn digest<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-                let slice = unsafe { self.buffer.as_bytes() };
-                let bytes = $hasher(slice, self.seed).to_le_bytes();
+                let bytes = py.detach(|| {
+                    let slice = unsafe { self.buffer.as_bytes() };
+                    $hasher(slice, self.seed).to_le_bytes()
+                });
 
                 Ok(PyBytes::new(py, &bytes))
             }
 
-            fn hexdigest(&self) -> PyResult<String> {
-                let slice = unsafe { self.buffer.as_bytes() };
-                let bytes = $hasher(slice, self.seed).to_le_bytes();
-                let mut hex = String::with_capacity(bytes.len() * 2);
+            fn hexdigest(&self, py: Python) -> PyResult<String> {
+                py.detach(|| {
+                    let slice = unsafe { self.buffer.as_bytes() };
+                    let bytes = $hasher(slice, self.seed).to_le_bytes();
+                    let mut hex = String::with_capacity(bytes.len() * 2);
 
-                for byte in bytes {
-                    let pair = HEX_TABLE[byte as usize];
-                    hex.push(pair[0] as char);
-                    hex.push(pair[1] as char);
-                }
+                    for byte in bytes {
+                        let pair = HEX_TABLE[byte as usize];
+                        hex.push(pair[0] as char);
+                        hex.push(pair[1] as char);
+                    }
 
-                Ok(hex)
+                    Ok(hex)
+                })
             }
 
             fn update(&mut self, py: Python, data: PyBuffer<u8>) -> PyResult<()> {
@@ -145,7 +150,7 @@ macro_rules! impl_hashlib {
                 let mut combined = Vec::with_capacity(slice.len() + new_slice.len());
                 combined.extend_from_slice(slice);
                 combined.extend_from_slice(new_slice);
-                self.buffer = PyBuffer::get(&PyBytes::new(py, &combined))?;
+                self.buffer = PyBuffer::get(&combined.into_bound_py_any(py)?)?;
 
                 Ok(())
             }
@@ -171,7 +176,10 @@ macro_rules! impl_hashlib {
             _kwargs: Option<Bound<'_, pyo3::types::PyDict>>,
         ) -> PyResult<$name> {
             let _ = usedforsecurity;
-            let buffer = data.map_or_else(|| PyBuffer::get(&PyBytes::new(py, b"")), Ok)?;
+            let buffer = match data {
+                Some(buf) => buf,
+                None => PyBuffer::get(&PyBytes::new(py, b""))?,
+            };
 
             Ok($name { seed, buffer })
         }
@@ -182,6 +190,30 @@ impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
 impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
 impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 
+/// gxhash.hashlib — hashlib-compatible GxHash API
+///
+/// This module contains the hashlib-compatible API for GxHash.
+///
+/// * gxhash32  - a hashlib-compatible class for computing 32-bit hashes
+/// * gxhash64  - a hashlib-compatible class for computing 64-bit hashes
+/// * gxhash128 - a hashlib-compatible class for computing 128-bit hashes
+///
+/// The functions provide a compatible interface with Python's built-in hashlib module.
+///
+/// * gxhash32(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
+/// * gxhash64(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
+/// * gxhash128(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
+///
+/// The HASH objects returned by these functions again provide the standard HASH methods and properties.
+///
+/// * name -> str
+/// * digest_size -> int
+/// * block_size -> int
+/// * digest() -> bytes
+/// * hexdigest() -> str
+/// * update(data: bytes) -> None
+/// * copy() -> HASH
+///
 #[pyo3::prelude::pymodule(submodule, name = "hashlib", gil_used = false)]
 pub mod hashlib_module {
     #[pymodule_export]

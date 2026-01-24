@@ -38,8 +38,8 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 pip install gxhash
 ```
 
-> [!IMPORTANT]\
-> This is only possible on systems that support `VAES` and `AVX2` instruction sets.
+> [!WARNING]\
+> This is only possible on systems that support `VAES` and `AVX2` instruction sets. Running on unsupported hardware will result in an illegal instruction error at **runtime**.
 
 For the best throughput, you can allow `gxhash` to use wider registers by passing the `MATURIN_PEP517_ARGS` environment variable.
 
@@ -83,6 +83,9 @@ if __name__ == "__main__":
 ```
 
 As a drop-in replacement for `hashlib`.
+
+> [!NOTE]\
+> The `hashlib` APIs are lazily evaluated. Hash computation only occurs when `digest()` or `hexdigest()` are called.
 
 ```python
 from gxhash.hashlib import gxhash128

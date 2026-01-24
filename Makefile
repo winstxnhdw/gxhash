@@ -26,3 +26,6 @@ pre-commit:
 
 test:
 	uv run prek run
+
+smoke-test: all
+	uv run --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py

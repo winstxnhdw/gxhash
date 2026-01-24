@@ -27,6 +27,13 @@ def gxhash32(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     -------
     gxhash (`HASH`)
         the GxHash32 hash object
+
+    Example
+    -------
+    ```python
+    hasher = gxhash32(b"hello", seed=1234)
+    print(f"Hash is {hasher.hexdigest()}!")
+    ```
     """
 
 def gxhash64(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH:
@@ -51,6 +58,13 @@ def gxhash64(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     -------
     gxhash (`HASH`)
         the GxHash64 hash object
+
+    Example
+    -------
+    ```python
+    hasher = gxhash64(b"hello", seed=1234)
+    print(f"Hash is {hasher.hexdigest()}!")
+    ```
     """
 
 def gxhash128(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH:
@@ -75,4 +89,11 @@ def gxhash128(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = Fals
     -------
     gxhash (`HASH`)
         the GxHash128 hash object
+
+    Example
+    -------
+    ```python
+    hasher = gxhash128(b"hello", seed=1234)
+    print(f"Hash is {hasher.hexdigest()}!")
+    ```
     """

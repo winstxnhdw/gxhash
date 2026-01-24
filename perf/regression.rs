@@ -2,7 +2,7 @@ use divan::Bencher;
 use gxhash::gxhash_py;
 
 use pyo3::Bound;
-use pyo3::IntoPyObject;
+use pyo3::IntoPyObjectExt;
 use pyo3::PyAny;
 use pyo3::PyResult;
 use pyo3::Python;
@@ -121,7 +121,7 @@ fn hash_async_batch(bencher: Bencher) {
                 .iter()
                 .flat_map(|bytes| hash_async.call1((bytes.as_slice(),)))
                 .collect::<Vec<_>>()
-                .into_pyobject(py)?
+                .into_bound_py_any(py)?
                 .cast::<pyo3::types::PyList>()?
                 .to_tuple();
 

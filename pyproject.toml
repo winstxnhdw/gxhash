@@ -35,7 +35,7 @@ requires = ["maturin>=1.11.5, <2.0.0"]
 build-backend = "maturin"
 
 [tool.maturin]
-python-source = "src"
+python-source = "python"
 profile = "release"
 locked = true
 strip = true

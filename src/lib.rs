@@ -1,6 +1,5 @@
 mod hashlib;
 
-use pyo3::prelude::Py;
 use pyo3::prelude::PyResult;
 use pyo3::prelude::Python;
 use pyo3::prelude::pyclass;
@@ -9,10 +8,6 @@ use pyo3::types::PyAnyMethods;
 use tokio::runtime::Handle;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
-
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen, subclass))]
-struct Hasher;
 
 #[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
@@ -51,19 +46,6 @@ impl TokioRuntime {
 
         Ok(Self { runtime })
     }
-}
-
-#[pymethods]
-impl Hasher {
-    #[new]
-    #[pyo3(signature = (**_kwargs))]
-    fn new(_kwargs: Option<Py<pyo3::types::PyDict>>) -> PyResult<Self> {
-        let error = pyo3::exceptions::PyTypeError::new_err(r#"Cannot instantiate Protocol class "Hasher""#);
-        Err(error)
-    }
-
-    #[classmethod]
-    pub fn __class_getitem__(_cls: Py<pyo3::types::PyType>, _key: Py<pyo3::PyAny>) {}
 }
 
 macro_rules! impl_gxhash_methods {
@@ -127,9 +109,7 @@ impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 ///
 #[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
 pub mod gxhash_py {
-    use pyo3::IntoPyObjectExt;
     use pyo3::prelude::PyModuleMethods;
-    use pyo3::types::IntoPyDict;
     use pyo3::types::PyAnyMethods;
 
     #[pymodule_export]
@@ -141,23 +121,12 @@ pub mod gxhash_py {
     #[pymodule_export]
     use super::GxHashAsyncError;
     #[pymodule_export]
-    use super::Hasher;
-    #[pymodule_export]
     use super::hashlib::hashlib_module;
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, pyo3::types::PyModule>) -> pyo3::PyResult<()> {
         let py = m.py();
-        let int = py.import("builtins")?.getattr("int")?;
-        let typevar = py.import("typing")?.getattr("TypeVar")?;
-        let typevar_kwargs = [("covariant", &true.into_bound_py_any(py)?), ("bound", &int)].into_py_dict(py)?;
-
-        m.add("Uint32", &int)?;
-        m.add("Uint64", &int)?;
-        m.add("Uint128", &int)?;
-        m.add("T_co", typevar.call(("T_co",), Some(&typevar_kwargs))?)?;
         m.add("runtime", pyo3::Py::new(py, super::TokioRuntime::new()?)?)?;
-
         py.import("sys")?
             .getattr("modules")?
             .set_item("gxhash.hashlib", m.getattr("hashlib")?)
