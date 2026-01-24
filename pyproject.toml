@@ -52,6 +52,7 @@ exclude = [
     "**/Makefile",
     "**/changelog.jinja",
     "**/CHANGELOG.md",
+    "**/CONTRIBUTING.md",
 ]
 
 [tool.ruff]
