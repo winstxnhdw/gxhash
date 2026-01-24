@@ -19,6 +19,10 @@ All benchmarks are updated regularly and the latest results can be found below. 
     />
 </div>
 
+<p align="center">
+  <i>Higher is better</i>
+</p>
+
 ## 64-bit
 
 <div align="center">
@@ -27,6 +31,10 @@ All benchmarks are updated regularly and the latest results can be found below. 
     />
 </div>
 
+<p align="center">
+  <i>Higher is better</i>
+</p>
+
 ## 128-bit
 
 <div align="center">
@@ -34,6 +42,10 @@ All benchmarks are updated regularly and the latest results can be found below. 
          src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-128bit.png"
     />
 </div>
+
+<p align="center">
+  <i>Higher is better</i>
+</p>
 
 ## Asynchronous Hashing
 
@@ -44,6 +56,10 @@ All benchmarks are updated regularly and the latest results can be found below. 
          src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-batched.png"
     />
 </div>
+
+<p align="center">
+  <i>Higher is better</i>
+</p>
 
 ## Reproduction
 
