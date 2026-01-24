@@ -5,7 +5,7 @@ from . import gxhash
 __doc__ = gxhash.__doc__
 __all__ = gxhash.__all__  # type: ignore[reportUnsupportedDunderAll]
 
-T_co = TypeVar("T_co", covariant=True, bound=int, default=int)
+T_co = TypeVar("T_co", covariant=True, bound=int)
 Uint32 = NewType("Uint32", int)
 Uint64 = NewType("Uint64", int)
 Uint128 = NewType("Uint128", int)

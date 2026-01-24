@@ -43,11 +43,8 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: uv sync --no-install-project
-
       - name: Run type checker
-        run: uv run --no-project pyright
+        run: uv run pyright
 
   lint:
     needs: [clippy, typecheck]
