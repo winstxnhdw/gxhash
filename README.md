@@ -24,7 +24,7 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 - [Fastest non-cryptographic hash algorithm](bench/README.md) of its class.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
-- Provides a type-safe drop-in replacement for the [hashlib](https://docs.python.org/3/library/hashlib.html) built-in module.
+- Provides a type-safe drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
 - Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
 - Pure Rust backend with zero additional Python runtime overhead.
 - First-class support for parallel [asynchronous hashing](bench/README.md#asynchronous-hashing).
@@ -38,10 +38,10 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 pip install gxhash
 ```
 
+For the best throughput, you can allow `gxhash` to use wider registers by installing with the `MATURIN_PEP517_ARGS` environment variable.
+
 > [!WARNING]\
 > This is only possible on systems that support `VAES` and `AVX2` instruction sets. Running on unsupported hardware will result in an illegal instruction error at **runtime**.
-
-For the best throughput, you can allow `gxhash` to use wider registers by passing the `MATURIN_PEP517_ARGS` environment variable.
 
 ```bash
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 As a drop-in replacement for `hashlib`.
 
 > [!NOTE]\
-> The `hashlib` APIs are lazily evaluated. Hash computation only occurs when `digest()` or `hexdigest()` are called.
+> Hash computation in `gxhash.hashlib` functions are deferred and only computed when `digest` or `hexdigest` is called.
 
 ```python
 from gxhash.hashlib import gxhash128
