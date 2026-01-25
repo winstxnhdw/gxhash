@@ -10,7 +10,7 @@
   <picture align="center">
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-dark.png" width=50%>
     <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png" width=50%>
-    <img alt="Shows a bar chart with benchmark results." src="https://i.ibb.co/SXSh79gL/throughput-128bit.png">
+    <img alt="Shows a bar chart with benchmark results." src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png">
   </picture>
 </p>
 
@@ -22,12 +22,13 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 ## Highlights
 
-- [Fastest non-cryptographic hash algorithm](bench/README.md) of its class.
+- [Fastest non-cryptographic hash algorithm](https://github.com/winstxnhdw/gxhash/blob/main/bench/README.md) of its class.
+- Passes all [SMHasher](https://github.com/rurban/smhasher) tests and produces high-quality, hardware-accelerated 32/64/128-bit hashes.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
-- Provides a type-safe drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
+- Provides a type-safe, drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
 - Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
 - Pure Rust backend with zero additional Python runtime overhead.
-- First-class support for parallel [asynchronous hashing](bench/README.md#asynchronous-hashing).
+- Support for [async hashing](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing) with multithreaded parallelism for non-blocking applications.
 - Predictable, clean API with complete type safety.
 
 ## Installation
@@ -100,4 +101,4 @@ if __name__ == "__main__":
 
 ## Contribute
 
-Read the [CONTRIBUTING.md](CONTRIBUTING.md) docs for development setup and guidelines.
+Read the [CONTRIBUTING.md](https://github.com/winstxnhdw/gxhash/blob/main/CONTRIBUTING.md) docs for development setup and guidelines.
