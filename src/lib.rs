@@ -40,10 +40,7 @@ struct TokioRuntime {
 impl TokioRuntime {
     #[new]
     fn new() -> PyResult<Self> {
-        let runtime = tokio::runtime::Builder::new_multi_thread()
-            .build()
-            .expect("Unable to construct runtime!");
-
+        let runtime = tokio::runtime::Builder::new_multi_thread().build()?;
         Ok(Self { runtime })
     }
 }
