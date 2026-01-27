@@ -37,7 +37,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.67.13
+        uses: taiki-e/install-action@v2.67.14
         with:
           tool: cargo-codspeed
 
@@ -47,7 +47,7 @@ jobs:
           RUSTFLAGS: "-C target-cpu=native"
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v4.8.2
+        uses: CodSpeedHQ/action@v4.10.0
         with:
           mode: simulation
           run: cargo codspeed run
