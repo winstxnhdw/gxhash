@@ -16,7 +16,7 @@ clean:
 	rm -rf dist target .venv
 
 benchmark:
-	cd bench && uv run --no-dev --locked bench && cargo run --locked
+	cd bench && uv run --reinstall --no-dev --locked bench && cargo run --locked
 
 perf:
 	cargo bench --locked
@@ -28,4 +28,4 @@ test:
 	uv run prek run
 
 smoke-test: all
-	uv run --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+	uv run --reinstall --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
