@@ -41,7 +41,7 @@ impl TokioRuntime {
     #[new]
     fn new() -> PyResult<Self> {
         let runtime = tokio::runtime::Builder::new_multi_thread().build()?;
-        let worker_count = runtime.metrics().num_workers();
+        let worker_count = std::thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
         let barrier = std::sync::Arc::new(std::sync::Barrier::new(worker_count));
 
         runtime.block_on(futures_util::future::join_all((0..worker_count).map(|_| {
