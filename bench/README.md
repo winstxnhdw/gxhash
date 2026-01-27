@@ -51,6 +51,9 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 `gxhash` includes first-class support for asynchronous hashing. As the benchmarks above show, the asynchronous variant performs significantly worse in single-hash scenarios because it incurs the overhead of spawning a thread per operation. When hashing many items concurrently, however, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads consistently across all payload sizes.
 
+> [!NOTE]\
+> Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking xxHash asynchronously.
+
 <div align="center">
     <img alt="Shows a bar chart with benchmark results for asynchronous hashing."
          src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-batched.png"

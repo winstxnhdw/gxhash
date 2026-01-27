@@ -3,9 +3,9 @@ use pyo3::IntoPyObjectExt;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::buffer::PyBuffer;
-use pyo3::prelude::pyclass;
-use pyo3::prelude::pymethods;
+use pyo3::pyclass;
 use pyo3::pyfunction;
+use pyo3::pymethods;
 use pyo3::types::PyBytes;
 
 const HEX_TABLE: [[u8; 2]; 256] = [
@@ -176,11 +176,7 @@ macro_rules! impl_hashlib {
             _kwargs: Option<Bound<'_, pyo3::types::PyDict>>,
         ) -> PyResult<$name> {
             let _ = usedforsecurity;
-            let buffer = match data {
-                Some(buf) => buf,
-                None => PyBuffer::get(&PyBytes::new(py, b""))?,
-            };
-
+            let buffer = data.map_or_else(|| PyBuffer::get(&PyBytes::new(py, b"")), Ok)?;
             Ok($name { seed, buffer })
         }
     };
@@ -214,7 +210,7 @@ impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 /// * update(data: bytes) -> None
 /// * copy() -> HASH
 ///
-#[pyo3::prelude::pymodule(submodule, name = "hashlib", gil_used = false)]
+#[pyo3::pymodule(submodule, name = "hashlib", gil_used = false)]
 pub mod hashlib_module {
     #[pymodule_export]
     use super::Buffer;

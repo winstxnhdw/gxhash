@@ -1,9 +1,9 @@
 mod hashlib;
 
-use pyo3::prelude::PyResult;
-use pyo3::prelude::Python;
-use pyo3::prelude::pyclass;
-use pyo3::prelude::pymethods;
+use pyo3::PyResult;
+use pyo3::Python;
+use pyo3::pyclass;
+use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
 use tokio::runtime::Handle;
 
@@ -69,13 +69,18 @@ macro_rules! impl_gxhash_methods {
                 $hasher(bytes, self.seed)
             }
 
-            async fn hash_async(&self, bytes: pyo3::prelude::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
+            async fn hash_async(&self, bytes: pyo3::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
+                let bytes_slice = Python::attach(|py| bytes.as_bytes(py));
 
-                self.runtime
-                    .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
-                    .await
-                    .map_err(|e| GxHashAsyncError::new_err(e.to_string()))
+                match bytes_slice.len() < 4 * 1024 * 1024 {
+                    true => Ok($hasher(bytes_slice, seed)),
+                    false => self
+                        .runtime
+                        .spawn_blocking(move || $hasher(Python::attach(|py| bytes.as_bytes(py)), seed))
+                        .await
+                        .map_err(|e| GxHashAsyncError::new_err(e.to_string())),
+                }
             }
         }
     };
@@ -107,7 +112,7 @@ impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 /// * hash(bytes: bytes) -> Uint128
 /// * hash_async(bytes: bytes) -> Awaitable[Uint128]
 ///
-#[pyo3::prelude::pymodule(name = "gxhash", gil_used = false)]
+#[pyo3::pymodule(name = "gxhash", gil_used = false)]
 pub mod gxhash_py {
     use pyo3::prelude::PyModuleMethods;
     use pyo3::types::PyAnyMethods;

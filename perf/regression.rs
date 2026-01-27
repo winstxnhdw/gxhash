@@ -14,15 +14,22 @@ use pyo3::types::PyModule;
 
 static ONCE: std::sync::Once = std::sync::Once::new();
 
-fn generate_bytes(seed: u64) -> Vec<u8> {
-    let mut state = seed.wrapping_add(1);
-    let mut out = Vec::with_capacity(65536);
+#[derive(Clone, Copy)]
+enum Memory {
+    KiB64 = 64 * 1024,
+    MiB4 = 4 * 1024 * 1024,
+}
 
-    for _ in 0..(65536 / 8) {
+fn generate_bytes(seed: u64, output_size: Memory) -> Vec<u8> {
+    let mut state = seed.wrapping_add(1);
+    let mut out = Vec::with_capacity(output_size as usize);
+
+    while out.len() < output_size as usize {
         state = state.wrapping_mul(6364136223846793005u64).wrapping_add(1);
         out.extend_from_slice(&state.to_le_bytes());
     }
 
+    out.truncate(output_size as usize);
     out
 }
 
@@ -77,7 +84,7 @@ impl<'py> PythonExt<'py> for Python<'py> {
 fn hash(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
-        let bytes_vector = generate_bytes(seed);
+        let bytes_vector = generate_bytes(seed, Memory::KiB64);
         let bytes = bytes_vector.as_slice();
         let hash = py.import_gxhash()?.call1((seed,))?.getattr("hash")?;
 
@@ -89,7 +96,23 @@ fn hash(bencher: Bencher) {
 fn hash_async(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
-        let bytes_vector = generate_bytes(seed);
+        let bytes_vector = generate_bytes(seed, Memory::KiB64);
+        let bytes = bytes_vector.as_slice();
+        let asyncio = py.import_asyncio()?;
+        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+        let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
+        let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
+
+        asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
+        bencher.bench_local(|| run_until_complete.call1((hash_async.call1((bytes,))?,)));
+    })
+}
+
+#[divan::bench]
+fn hash_async_large(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::MiB4);
         let bytes = bytes_vector.as_slice();
         let asyncio = py.import_asyncio()?;
         let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
@@ -106,7 +129,36 @@ fn hash_async_batch(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
         let payloads = (0..24)
-            .map(|i| generate_bytes(seed.wrapping_add(i as u64)))
+            .map(|i| generate_bytes(seed.wrapping_add(i as u64), Memory::KiB64))
+            .collect::<Vec<_>>();
+
+        let asyncio = py.import_asyncio()?;
+        let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
+        let asyncio_gather = asyncio.getattr("gather")?;
+        let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
+        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+
+        asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
+        bencher.bench_local(|| {
+            let coroutines = payloads
+                .iter()
+                .flat_map(|bytes| hash_async.call1((bytes.as_slice(),)))
+                .collect::<Vec<_>>()
+                .into_bound_py_any(py)?
+                .cast::<pyo3::types::PyList>()?
+                .to_tuple();
+
+            run_until_complete.call1((asyncio_gather.call1(coroutines)?,))
+        });
+    })
+}
+
+#[divan::bench]
+fn hash_async_batch_large(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let payloads = (0..24)
+            .map(|i| generate_bytes(seed.wrapping_add(i as u64), Memory::MiB4))
             .collect::<Vec<_>>();
 
         let asyncio = py.import_asyncio()?;
@@ -137,7 +189,7 @@ fn hashlib_gxhash_hexdigest(bencher: Bencher) {
         let kwargs = [("seed", seed)].into_py_dict(py)?;
         let hexdigest = py
             .import_hashlib_gxhash()?
-            .call((generate_bytes(seed).as_slice(),), Some(&kwargs))?
+            .call((generate_bytes(seed, Memory::KiB64).as_slice(),), Some(&kwargs))?
             .getattr("hexdigest")?;
 
         bencher.bench_local(|| hexdigest.call0());
@@ -148,7 +200,7 @@ fn hashlib_gxhash_hexdigest(bencher: Bencher) {
 fn hashlib_gxhash_update(bencher: Bencher) {
     python!(py, {
         let seed = 42;
-        let bytes_vector = generate_bytes(seed);
+        let bytes_vector = generate_bytes(seed, Memory::KiB64);
         let bytes = bytes_vector.as_slice();
         let kwargs = [("seed", seed)].into_py_dict(py)?;
         let update = py.import_hashlib_gxhash()?.call((), Some(&kwargs))?.getattr("update")?;
