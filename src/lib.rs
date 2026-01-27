@@ -40,9 +40,14 @@ struct TokioRuntime {
 impl TokioRuntime {
     #[new]
     fn new() -> PyResult<Self> {
-        let runtime = tokio::runtime::Builder::new_multi_thread()
-            .build()
-            .expect("Unable to construct runtime!");
+        let runtime = tokio::runtime::Builder::new_multi_thread().build()?;
+        let worker_count = runtime.metrics().num_workers();
+        let barrier = std::sync::Arc::new(std::sync::Barrier::new(worker_count));
+
+        runtime.block_on(futures_util::future::join_all((0..worker_count).map(|_| {
+            let barrier = barrier.clone();
+            runtime.spawn_blocking(move || barrier.wait())
+        })));
 
         Ok(Self { runtime })
     }

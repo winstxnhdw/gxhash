@@ -25,6 +25,11 @@ crate-type = ["cdylib", "rlib"]
 [features]
 hybrid = ["gxhash-core/hybrid"]
 
+[dependencies.futures-util]
+version = "0.3"
+default-features = false
+features = ["alloc"]
+
 [dependencies.pyo3]
 version = "0.27.2"
 default-features = false
