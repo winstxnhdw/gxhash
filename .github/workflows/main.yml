@@ -52,7 +52,7 @@ jobs:
         run: rustup self uninstall -y
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.2.0
+        uses: astral-sh/setup-uv@v7.2.1
         with:
           python-version: ${{ matrix.python-version }}
           activate-environment: true
