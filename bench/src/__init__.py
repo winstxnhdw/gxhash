@@ -10,6 +10,7 @@ from typing import Concatenate, NewType, TypedDict
 
 from gxhash import GxHash32, GxHash64, GxHash128
 from gxhash.hashlib import gxhash32, gxhash64, gxhash128
+from mmh3 import mmh3_x64_128_uintdigest
 from polars import LazyFrame, col
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
@@ -113,7 +114,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash32(payloads, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "big")),
     }
     yield {
         **metadata,
@@ -137,7 +138,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash64(payloads, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "big")),
     }
     yield {
         **metadata,
@@ -161,7 +162,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payloads: int.from_bytes(gxhash128(payloads, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "big")),
     }
     yield {
         **metadata,
@@ -171,9 +172,15 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
     }
     yield {
         **metadata,
+        "name": "MurmurHash3_x64_128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(lambda payload: mmh3_x64_128_uintdigest(payload, seed)),
+    }
+    yield {
+        **metadata,
         "name": "MD5",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payloads: int.from_bytes(md5(payloads, usedforsecurity=False).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "big")),
     }
 
 
