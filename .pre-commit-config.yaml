@@ -12,11 +12,6 @@ repos:
       - id: ruff-check
         args: [--fix]
 
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.408
-    hooks:
-      - id: pyright
-
   - repo: local
     hooks:
       - id: cargo
@@ -31,4 +26,11 @@ repos:
         entry: cargo clippy
         language: system
         files: ^*\.rs$
+        pass_filenames: false
+
+      - id: pyright
+        name: pyright
+        entry: uv run pyright
+        language: system
+        files: ^*\.py$
         pass_filenames: false
