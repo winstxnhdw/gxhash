@@ -48,7 +48,7 @@ jobs:
           RUSTFLAGS: "-C target-cpu=native"
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v4.10.2
+        uses: CodSpeedHQ/action@v4.10.4
         with:
           mode: simulation
           run: cargo codspeed run
