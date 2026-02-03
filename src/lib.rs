@@ -71,7 +71,7 @@ macro_rules! impl_gxhash_methods {
                 let seed = self.seed;
                 let bytes_slice = Python::attach(|py| bytes.as_bytes(py));
 
-                match bytes_slice.len() < 4 * 1024 * 1024 {
+                match bytes_slice.len() < 4 << 20 {
                     true => Ok($hasher(bytes_slice, seed)),
                     false => self
                         .runtime
