@@ -9,6 +9,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - src/**
+      - perf/**
       - "!bench/**"
 jobs:
   performance:
