@@ -16,8 +16,8 @@ static ONCE: std::sync::Once = std::sync::Once::new();
 
 #[derive(Clone, Copy)]
 enum Memory {
-    KiB64 = 64 * 1024,
-    MiB4 = 4 * 1024 * 1024,
+    KiB64 = 64 << 10,
+    MiB4 = 4 << 20,
 }
 
 fn generate_bytes(seed: u64, output_size: Memory) -> Vec<u8> {

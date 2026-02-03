@@ -119,7 +119,7 @@ fn main() -> Result<()> {
     let throughtput_dataframe = dataframe
         .clone()
         .filter(col("batch_size").eq(1))
-        .filter(col("payload_size").eq(64 * 1024));
+        .filter(col("payload_size").eq(64 << 10));
 
     let throughtput_batched_dataframe = dataframe
         .clone()
