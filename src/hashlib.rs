@@ -3,10 +3,10 @@ use pyo3::IntoPyObjectExt;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::buffer::PyBuffer;
+use pyo3::exceptions::PyTypeError;
 use pyo3::pyclass;
 use pyo3::pyfunction;
 use pyo3::pymethods;
-use pyo3::types::PyBytes;
 
 const HEX_TABLE: [[u8; 2]; 256] = [
     *b"00", *b"01", *b"02", *b"03", *b"04", *b"05", *b"06", *b"07", *b"08", *b"09", *b"0a", *b"0b", *b"0c", *b"0d",
@@ -85,7 +85,7 @@ pub(crate) struct GxHashLib128 {
 impl Hash {
     #[new]
     fn new() -> PyResult<Self> {
-        let error = pyo3::exceptions::PyTypeError::new_err(r#"Cannot instantiate Protocol class "HASH""#);
+        let error = PyTypeError::new_err(r#"Cannot instantiate Protocol class "HASH""#);
         Err(error)
     }
 }
@@ -94,7 +94,7 @@ impl Hash {
 impl Buffer {
     #[new]
     fn new() -> PyResult<Self> {
-        let error = pyo3::exceptions::PyTypeError::new_err(r#"Cannot instantiate Protocol class "Buffer""#);
+        let error = PyTypeError::new_err(r#"Cannot instantiate Protocol class "Buffer""#);
         Err(error)
     }
 }
@@ -148,10 +148,9 @@ macro_rules! impl_hashlib {
             }
 
             fn copy(&self, py: Python) -> PyResult<Self> {
-                let slice = self.buffer.as_bytes(py);
                 let new_hashlib = Self {
                     seed: self.seed,
-                    buffer: PyBuffer::get(&PyBytes::new(py, slice))?,
+                    buffer: PyBuffer::get(&self.buffer.as_bytes(py).into_bound_py_any(py)?)?,
                 };
 
                 Ok(new_hashlib)
@@ -168,7 +167,7 @@ macro_rules! impl_hashlib {
             _kwargs: Option<Bound<'_, pyo3::types::PyDict>>,
         ) -> PyResult<$name> {
             let _ = usedforsecurity;
-            let buffer = data.map_or_else(|| PyBuffer::get(&PyBytes::new(py, b"")), Ok)?;
+            let buffer = data.map_or_else(|| PyBuffer::get(&b"".into_bound_py_any(py)?), Ok)?;
             Ok($name { seed, buffer })
         }
     };

@@ -209,6 +209,19 @@ fn hashlib_gxhash_update(bencher: Bencher) {
     })
 }
 
+#[divan::bench]
+fn hashlib_gxhash_copy(bencher: Bencher) {
+    python!(py, {
+        let seed = 42;
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+        let hashlib = py.import_hashlib_gxhash()?.call((), Some(&kwargs))?;
+        let copy = hashlib.getattr("copy")?;
+
+        hashlib.call_method1("update", (generate_bytes(seed, Memory::KiB64),))?;
+        bencher.bench_local(|| copy.call0());
+    })
+}
+
 fn main() {
     divan::main()
 }
