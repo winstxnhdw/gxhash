@@ -31,11 +31,11 @@ const HEX_TABLE: [[u8; 2]; 256] = [
 ];
 
 trait PyBufferExt {
-    unsafe fn as_bytes(&self) -> &[u8];
+    fn as_bytes(&self, _: Python) -> &[u8];
 }
 
 impl PyBufferExt for PyBuffer<u8> {
-    unsafe fn as_bytes(&self) -> &[u8] {
+    fn as_bytes(&self, _: Python) -> &[u8] {
         unsafe { std::slice::from_raw_parts(self.buf_ptr() as *const u8, self.len_bytes()) }
     }
 }
@@ -118,34 +118,26 @@ macro_rules! impl_hashlib {
                 1
             }
 
-            fn digest<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
-                let bytes = py.detach(|| {
-                    let slice = unsafe { self.buffer.as_bytes() };
-                    $hasher(slice, self.seed).to_le_bytes()
-                });
-
-                Ok(PyBytes::new(py, &bytes))
+            fn digest(&self, py: Python) -> [u8; $digest_size] {
+                $hasher(self.buffer.as_bytes(py), self.seed).to_le_bytes()
             }
 
-            fn hexdigest(&self, py: Python) -> PyResult<String> {
-                py.detach(|| {
-                    let slice = unsafe { self.buffer.as_bytes() };
-                    let bytes = $hasher(slice, self.seed).to_le_bytes();
-                    let mut hex = String::with_capacity(bytes.len() * 2);
+            fn hexdigest(&self, py: Python) -> String {
+                let bytes = $hasher(self.buffer.as_bytes(py), self.seed).to_le_bytes();
+                let mut hex = String::with_capacity(bytes.len() * 2);
 
-                    for byte in bytes {
-                        let pair = HEX_TABLE[byte as usize];
-                        hex.push(pair[0] as char);
-                        hex.push(pair[1] as char);
-                    }
+                for byte in bytes {
+                    let pair = HEX_TABLE[byte as usize];
+                    hex.push(pair[0] as char);
+                    hex.push(pair[1] as char);
+                }
 
-                    Ok(hex)
-                })
+                hex
             }
 
             fn update(&mut self, py: Python, data: PyBuffer<u8>) -> PyResult<()> {
-                let slice = unsafe { self.buffer.as_bytes() };
-                let new_slice = unsafe { data.as_bytes() };
+                let slice = self.buffer.as_bytes(py);
+                let new_slice = data.as_bytes(py);
 
                 let mut combined = Vec::with_capacity(slice.len() + new_slice.len());
                 combined.extend_from_slice(slice);
@@ -156,7 +148,7 @@ macro_rules! impl_hashlib {
             }
 
             fn copy(&self, py: Python) -> PyResult<Self> {
-                let slice = unsafe { self.buffer.as_bytes() };
+                let slice = self.buffer.as_bytes(py);
                 let new_hashlib = Self {
                     seed: self.seed,
                     buffer: PyBuffer::get(&PyBytes::new(py, slice))?,
