@@ -1,5 +1,6 @@
 mod hashlib;
 
+use pyo3::Py;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::pyclass;
@@ -66,7 +67,7 @@ macro_rules! impl_gxhash_methods {
                 $hasher(bytes, self.seed)
             }
 
-            async fn hash_async(&self, bytes: pyo3::Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
+            async fn hash_async(&self, bytes: Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
                 let seed = self.seed;
                 let bytes_slice = Python::attach(|py| bytes.as_bytes(py));
 
