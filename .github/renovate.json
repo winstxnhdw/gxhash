@@ -1,4 +1,14 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
-	"ignoreDeps": ["python", "commitizen"]
+	"ignoreDeps": ["python", "commitizen"],
+    "packageRules": [
+        {
+            "matchCategories": ["rust"],
+            "groupName": "Rust dependencies"
+        },
+        {
+            "matchCategories": ["python"],
+            "groupName": "Python dependencies"
+        }
+    ]
 }
