@@ -28,7 +28,7 @@ Repository = "https://github.com/winstxnhdw/gxhash"
 Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
-dev = ["commitizen>=3.31.0", "maturin>=1.11.5", "prek>=0.3.1", "pyright>=1.1.408", "ruff>=0.15.0"]
+dev = ["commitizen>=3.31.0", "maturin>=1.11.5", "prek>=0.3.2", "pyright>=1.1.408", "ruff>=0.15.0"]
 
 [build-system]
 requires = ["maturin>=1.11.5, <2.0.0"]
