@@ -3,6 +3,7 @@ name: Build
 on:
   workflow_call:
   pull_request:
+    types: [opened]
   push:
     paths:
       - .github/workflows/main.yml
@@ -36,12 +37,28 @@ jobs:
           - 3.13t
           - 3.14
           - 3.14t
+
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
           - macos-latest
           - macos-15-intel
           - windows-latest
+          - windows-11-arm
+
+        exclude:
+          - runs-on: windows-11-arm
+            python-version: 3.8
+
+          - runs-on: windows-11-arm
+            python-version: 3.9
+
+          - runs-on: windows-11-arm
+            python-version: "3.10"
+
+          - runs-on: windows-11-arm
+            python-version: pypy3.11
+
         include:
           - runs-on: ubuntu-latest
             maturin-pep517-args: "--features hybrid"
@@ -51,13 +68,18 @@ jobs:
 
           - runs-on: macos-latest
             maturin-pep517-args: ""
-            rustflags: "-C target-feature=+aes,+neon"
 
           - runs-on: macos-15-intel
             maturin-pep517-args: "--features hybrid"
 
           - runs-on: windows-latest
             maturin-pep517-args: "--features hybrid"
+
+          - runs-on: windows-11-arm
+            maturin-pep517-args: ""
+
+    env:
+      MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
 
     steps:
       - name: Checkout repository
@@ -66,7 +88,7 @@ jobs:
           show-progress: false
 
       - name: Uninstall Rust
-        if: ${{  matrix.runs-on != 'windows-latest' && matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11' }}
+        if: runner.os != 'Windows' && matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11'
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv
@@ -75,14 +97,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           activate-environment: true
 
-      - name: Set RUSTFLAGS
-        if: matrix.rustflags
-        run: echo "RUSTFLAGS=${{ matrix.rustflags }}" >> $GITHUB_ENV
+      - name: Build sdist
+        run: uv build --sdist
+
+      - name: Install project (macos-latest)
+        if: matrix.runs-on == 'macos-latest'
+        run: uv pip install dist/gxhash-*.tar.gz
+        env:
+          RUSTFLAGS: "-C target-feature=+aes,+neon"
 
       - name: Install project
-        run: uv pip install .
-        env:
-          MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
+        if: matrix.runs-on != 'macos-latest'
+        shell: bash
+        run: uv pip install dist/gxhash-*.tar.gz
 
   test:
     runs-on: ${{ matrix.runs-on }}
@@ -104,21 +131,36 @@ jobs:
           - macos-latest
           - macos-15-intel
           - windows-latest
+          - windows-11-arm
+
+        exclude:
+          - runs-on: windows-11-arm
+            python-version: 3.8
+
+          - runs-on: windows-11-arm
+            python-version: 3.9
+
+          - runs-on: windows-11-arm
+            python-version: "3.10"
+
         include:
           - runs-on: ubuntu-latest
-            rustflags: "-C target-feature=+aes,+sse2"
+            rustflags: "-C target-cpu=native"
 
           - runs-on: ubuntu-24.04-arm
-            rustflags: "-C target-feature=+aes,+neon"
+            rustflags: "-C target-cpu=native"
 
           - runs-on: macos-latest
             rustflags: "-C target-feature=+aes,+neon"
 
           - runs-on: macos-15-intel
-            rustflags: "-C target-feature=+aes,+sse2"
+            rustflags: "-C target-cpu=native"
 
           - runs-on: windows-latest
-            rustflags: "-C target-feature=+aes,+sse2"
+            rustflags: "-C target-cpu=native"
+
+          - runs-on: windows-11-arm
+            rustflags: "-C target-cpu=native"
 
     steps:
       - name: Checkout repository
@@ -170,7 +212,7 @@ jobs:
 
   report:
     needs: [install, test, coverage]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Upload code coverage report
