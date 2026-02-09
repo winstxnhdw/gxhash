@@ -10,6 +10,7 @@ on:
       - pyproject.toml
       - Cargo.toml
       - Cargo.lock
+      - rust-toolchain.toml
       - src/**
       - tests/**.rs
       - build.rs
