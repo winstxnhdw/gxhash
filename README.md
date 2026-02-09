@@ -48,11 +48,18 @@ For the best throughput, you can allow `gxhash` to use wider registers by instal
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
-By default, `gxhash` uses your system's vectorisation features. You can disable this by setting the relevant `RUSTFLAGS`.
+By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine.
 
-```bash
-RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
-```
+<table>
+    <tr>
+        <th>Architecture</th><th>Command</th></tr>
+    <tr>
+        <td>x86-64</td><td><code>RUSTFLAGS="-C target-feature=+aes,+sse2" pip install gxhash</code></td>
+    </tr>
+    <tr>
+        <td>ARM64</td><td><code>RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash</code></td>
+    </tr>
+</table>
 
 ## Usage
 

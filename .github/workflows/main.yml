@@ -38,8 +38,25 @@ jobs:
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
+          - macos-latest
           - macos-15-intel
           - windows-latest
+        include:
+          - runs-on: ubuntu-latest
+            maturin-pep517-args: "--features hybrid"
+
+          - runs-on: ubuntu-24.04-arm
+            maturin-pep517-args: ""
+
+          - runs-on: macos-latest
+            maturin-pep517-args: ""
+            rustflags: "-C target-feature=+aes,+neon"
+
+          - runs-on: macos-15-intel
+            maturin-pep517-args: "--features hybrid"
+
+          - runs-on: windows-latest
+            maturin-pep517-args: "--features hybrid"
 
     steps:
       - name: Checkout repository
@@ -48,8 +65,8 @@ jobs:
           show-progress: false
 
       - name: Uninstall Rust
-        if: ${{ matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11' && runner.os == 'Linux' }}
-        run: rustup self uninstall -y
+        if: ${{  matrix.runs-on != 'windows-latest' && matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11' }}
+        run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7.3.0
@@ -57,10 +74,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           activate-environment: true
 
+      - name: Set RUSTFLAGS
+        if: matrix.rustflags
+        run: echo "RUSTFLAGS=${{ matrix.rustflags }}" >> $GITHUB_ENV
+
       - name: Install project
         run: uv pip install .
         env:
-          MATURIN_PEP517_ARGS: ${{ matrix.runs-on != 'ubuntu-24.04-arm' && '--features hybrid' || '' }}
+          MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
 
   test:
     runs-on: ${{ matrix.runs-on }}
@@ -79,8 +100,24 @@ jobs:
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
+          - macos-latest
           - macos-15-intel
           - windows-latest
+        include:
+          - runs-on: ubuntu-latest
+            rustflags: "-C target-feature=+aes,+sse2"
+
+          - runs-on: ubuntu-24.04-arm
+            rustflags: "-C target-feature=+aes,+neon"
+
+          - runs-on: macos-latest
+            rustflags: "-C target-feature=+aes,+neon"
+
+          - runs-on: macos-15-intel
+            rustflags: "-C target-feature=+aes,+sse2"
+
+          - runs-on: windows-latest
+            rustflags: "-C target-feature=+aes,+sse2"
 
     steps:
       - name: Checkout repository
@@ -106,9 +143,10 @@ jobs:
 
       - name: Test
         run: cargo test
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
 
   coverage:
-    needs: [install, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -122,6 +160,23 @@ jobs:
 
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+      - name: Upload code coverage report
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: coverage
+          path: lcov.info
+
+  report:
+    needs: [install, test, coverage]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload code coverage report
+        uses: actions/download-artifact@v6.0.0
+        with:
+          pattern: coverage
+          path: lcov.info
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5.5.2
