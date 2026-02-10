@@ -3,6 +3,7 @@ name: Build
 on:
   workflow_call:
   pull_request:
+    types: [opened]
   push:
     paths:
       - .github/workflows/main.yml
@@ -10,6 +11,7 @@ on:
       - pyproject.toml
       - Cargo.toml
       - Cargo.lock
+      - rust-toolchain.toml
       - src/**
       - tests/**.rs
       - build.rs
@@ -29,17 +31,57 @@ jobs:
           - 3.9
           - "3.10"
           - 3.11
-          - pypy3.11
           - 3.12
           - 3.13
           - 3.13t
           - 3.14
           - 3.14t
+
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
-          - macos-15-intel
+          - macos-latest
+          - macos-latest-large
           - windows-latest
+          - windows-11-arm
+
+        exclude:
+          - runs-on: windows-11-arm
+            python-version: 3.8
+
+          - runs-on: windows-11-arm
+            python-version: 3.9
+
+          - runs-on: windows-11-arm
+            python-version: "3.10"
+
+        include:
+          - runs-on: ubuntu-latest
+            maturin-pep517-args: "--features hybrid"
+            arch: x86_64
+
+          - runs-on: ubuntu-24.04-arm
+            maturin-pep517-args: ""
+            arch: arm64
+
+          - runs-on: macos-latest
+            maturin-pep517-args: ""
+            arch: arm64
+
+          - runs-on: macos-latest-large
+            maturin-pep517-args: "--features hybrid"
+            arch: x86_64
+
+          - runs-on: windows-latest
+            maturin-pep517-args: "--features hybrid"
+            arch: x86_64
+
+          - runs-on: windows-11-arm
+            maturin-pep517-args: ""
+            arch: arm64
+
+    env:
+      MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
 
     steps:
       - name: Checkout repository
@@ -48,19 +90,21 @@ jobs:
           show-progress: false
 
       - name: Uninstall Rust
-        if: ${{ matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11' && runner.os == 'Linux' }}
-        run: rustup self uninstall -y
+        if: runner.os != 'Windows' && matrix.python-version != 3.8 && matrix.python-version != 'pypy3.11'
+        run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7.3.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}-${{ matrix.arch }}
           activate-environment: true
 
+      - name: Build sdist
+        run: uv build --sdist
+
       - name: Install project
-        run: uv pip install .
-        env:
-          MATURIN_PEP517_ARGS: ${{ matrix.runs-on != 'ubuntu-24.04-arm' && '--features hybrid' || '' }}
+        shell: bash
+        run: uv pip install dist/gxhash-*.tar.gz
 
   test:
     runs-on: ${{ matrix.runs-on }}
@@ -79,8 +123,45 @@ jobs:
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
-          - macos-15-intel
+          - macos-latest
+          - macos-latest-large
           - windows-latest
+          - windows-11-arm
+
+        exclude:
+          - runs-on: windows-11-arm
+            python-version: 3.8
+
+          - runs-on: windows-11-arm
+            python-version: 3.9
+
+          - runs-on: windows-11-arm
+            python-version: "3.10"
+
+        include:
+          - runs-on: ubuntu-latest
+            rustflags: "-C target-cpu=native"
+            arch: x64
+
+          - runs-on: ubuntu-24.04-arm
+            rustflags: "-C target-cpu=native"
+            arch: arm64
+
+          - runs-on: macos-latest
+            rustflags: "-C target-feature=+aes,+neon"
+            arch: arm64
+
+          - runs-on: macos-latest-large
+            rustflags: "-C target-cpu=native"
+            arch: x64
+
+          - runs-on: windows-latest
+            rustflags: "-C target-cpu=native"
+            arch: x64
+
+          - runs-on: windows-11-arm
+            rustflags: "-C target-cpu=native"
+            arch: arm64
 
     steps:
       - name: Checkout repository
@@ -103,12 +184,14 @@ jobs:
         uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.arch }}
 
       - name: Test
         run: cargo test
+        env:
+          RUSTFLAGS: ${{ matrix.rustflags }}
 
   coverage:
-    needs: [install, test]
     runs-on: ubuntu-latest
 
     steps:
@@ -122,6 +205,23 @@ jobs:
 
       - name: Generate code coverage
         run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+      - name: Upload code coverage report
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: coverage
+          path: lcov.info
+
+  report:
+    needs: [install, test, coverage]
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Upload code coverage report
+        uses: actions/download-artifact@v6.0.0
+        with:
+          pattern: coverage
+          path: lcov.info
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5.5.2

@@ -48,11 +48,28 @@ For the best throughput, you can allow `gxhash` to use wider registers by instal
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
-By default, `gxhash` uses your system's vectorisation features. You can disable this by setting the relevant `RUSTFLAGS`.
+By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x86-64 systems, the minimum required features arre `aes` and `sse2`.
 
 ```bash
-RUSTFLAGS="-C target-cpu=x86-64 -C target-feature=+aes,+avx2" pip install gxhash
+RUSTFLAGS="-C target-feature=+aes,+sse2" pip install gxhash
 ```
+
+For ARM64 systems, the minimum required features are `aes` and `neon`.
+
+```bash
+RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
+```
+
+## Supported Platforms
+
+`gxhash` is well supported across a wide range of platforms, thanks in part to [maturin](https://github.com/PyO3/maturin), and more specifically [puccinialin](https://github.com/konstin/puccinialin). Therefore, `gxhash` supports all platforms that `maturin` and `puccinialin` support. `gxhash` is also actively tested on the following platforms:
+
+- Ubuntu 24.04 x64
+- Ubuntu 24.04 ARM64
+- macOS 15 Intel
+- macOS 15 ARM64
+- Windows Server 2025 x64
+- Windows 11 ARM64
 
 ## Usage
 

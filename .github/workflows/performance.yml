@@ -8,6 +8,7 @@ on:
       - .github/workflows/performance.yml
       - Cargo.toml
       - Cargo.lock
+      - rust-toolchain.toml
       - src/**
       - perf/**
       - "!bench/**"
