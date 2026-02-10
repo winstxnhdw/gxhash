@@ -11,6 +11,8 @@ def gxhash32(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     Summary
     -------
     Returns a GxHash32 hash object; optionally initialised with `data`.
+    Note that GxHash is not an incremental hasher,
+    and all inputs provided to the `update` method are accumulated internally.
 
     Parameters
     ----------
@@ -41,7 +43,8 @@ def gxhash64(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     Summary
     -------
     Returns a GxHash64 hash object; optionally initialised with `data`.
-
+    Note that GxHash is not an incremental hasher,
+    and all inputs provided to the `update` method are accumulated internally.
 
     Parameters
     ----------
@@ -72,7 +75,8 @@ def gxhash128(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = Fals
     Summary
     -------
     Returns a GxHash128 hash object; optionally initialised with `data`.
-
+    Note that GxHash is not an incremental hasher,
+    and all inputs provided to the `update` method are accumulated internally.
 
     Parameters
     ----------
