@@ -60,6 +60,17 @@ For ARM64 systems, the minimum required features are `aes` and `neon`.
 RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
 ```
 
+## Supported Platforms
+
+`gxhash` is well supported across a wide range of platforms, thanks in part to [maturin](https://github.com/PyO3/maturin), and more specifically [puccinialin](https://github.com/konstin/puccinialin). Therefore, `gxhash` supports all platforms that `maturin` and `puccinialin` support. `gxhash` is also actively tested on the following platforms:
+
+- Ubuntu 24.04 x64
+- Ubuntu 24.04 ARM64
+- macOS 15 Intel
+- macOS 15 ARM64
+- Windows Server 2025 x64
+- Windows 11 ARM64
+
 ## Usage
 
 Hashing bytes.
