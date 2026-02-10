@@ -218,7 +218,7 @@ jobs:
 
     steps:
       - name: Upload code coverage report
-        uses: actions/download-artifact@v6.0.0
+        uses: actions/download-artifact@v7.0.0
         with:
           pattern: coverage
           path: lcov.info
