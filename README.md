@@ -23,13 +23,14 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 ## Highlights
 
 - [Fastest non-cryptographic hash algorithm](https://github.com/winstxnhdw/gxhash/blob/main/bench/README.md) of its class.
+- Pure Rust backend with zero additional Python runtime overhead.
+- Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
+- Support for [async hashing](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing) with multithreaded parallelism for non-blocking applications.
 - Passes all [SMHasher](https://github.com/rurban/smhasher) tests and produces high-quality, hardware-accelerated 32/64/128-bit hashes.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
-- Provides a type-safe, drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
-- Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
-- Pure Rust backend with zero additional Python runtime overhead.
-- Support for [async hashing](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing) with multithreaded parallelism for non-blocking applications.
-- Predictable, clean API with complete type safety.
+- Provides a [performant](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit), drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
+- Fully-typed, clean API with uncompromising [strict-mode](https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-settings-defaults) conformance across all major type checkers.
+- Zero-dependency installations on all platforms supported by [maturin](https://github.com/PyO3/maturin) and [puccinialin](https://github.com/konstin/puccinialin).
 
 ## Installation
 
@@ -66,7 +67,7 @@ RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
 
 - Ubuntu 24.04 x64
 - Ubuntu 24.04 ARM64
-- macOS 15 Intel
+- macOS 15 x64
 - macOS 15 ARM64
 - Windows Server 2025 x64
 - Windows 11 ARM64
