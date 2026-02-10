@@ -62,21 +62,27 @@ jobs:
         include:
           - runs-on: ubuntu-latest
             maturin-pep517-args: "--features hybrid"
+            arch: x86_64
 
           - runs-on: ubuntu-24.04-arm
             maturin-pep517-args: ""
+            arch: aarch64
 
           - runs-on: macos-latest
             maturin-pep517-args: ""
+            arch: arm64
 
           - runs-on: macos-15-intel
             maturin-pep517-args: "--features hybrid"
+            arch: x86_64
 
           - runs-on: windows-latest
             maturin-pep517-args: "--features hybrid"
+            arch: x86_64
 
           - runs-on: windows-11-arm
             maturin-pep517-args: ""
+            arch: aarch64
 
     env:
       MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
@@ -94,11 +100,18 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7.3.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}-${{ matrix.arch }}
           activate-environment: true
 
       - name: Build sdist
         run: uv build --sdist
+
+      - name: Debug cargo config (temporary)
+        if: matrix.runs-on == 'macos-latest'
+        run: |
+          rustc --print cfg | grep target_feature
+          cargo rustc -- --print cfg | grep target_feature
+          rustc -C target-cpu=native --print cfg | grep target_feature
 
       - name: Install project (macos-latest)
         if: matrix.runs-on == 'macos-latest'
@@ -146,21 +159,27 @@ jobs:
         include:
           - runs-on: ubuntu-latest
             rustflags: "-C target-cpu=native"
+            arch: x86_64
 
           - runs-on: ubuntu-24.04-arm
             rustflags: "-C target-cpu=native"
+            arch: aarch64
 
           - runs-on: macos-latest
             rustflags: "-C target-feature=+aes,+neon"
+            arch: arm64
 
           - runs-on: macos-15-intel
             rustflags: "-C target-cpu=native"
+            arch: x86_64
 
           - runs-on: windows-latest
             rustflags: "-C target-cpu=native"
+            arch: x86_64
 
           - runs-on: windows-11-arm
             rustflags: "-C target-cpu=native"
+            arch: aarch64
 
     steps:
       - name: Checkout repository
@@ -182,7 +201,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6.2.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}-${{ matrix.arch }}
 
       - name: Test
         run: cargo test
