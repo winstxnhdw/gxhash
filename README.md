@@ -34,7 +34,7 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 ## Installation
 
-`gxhash` is available on PyPI and can be installed via `pip`.
+`gxhash` is available on [PyPI](https://pypi.python.org/pypi/gxhash) and can be installed via `pip`.
 
 ```bash
 pip install gxhash
@@ -49,7 +49,7 @@ For the best throughput, you can allow `gxhash` to use wider registers by instal
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
-By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x86-64 systems, the minimum required features arre `aes` and `sse2`.
+By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x64 systems, the minimum required features are `aes` and `sse2`.
 
 ```bash
 RUSTFLAGS="-C target-feature=+aes,+sse2" pip install gxhash
