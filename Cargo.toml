@@ -47,5 +47,5 @@ features = ["resolve-config"]
 
 [dev-dependencies]
 divan = { version = "=4.3.0", package = "codspeed-divan-compat" }
-quickcheck = "=1.0.3"
-quickcheck_macros = "=1.1.0"
+quickcheck = "=1.1.0"
+quickcheck_macros = "=1.2.0"
