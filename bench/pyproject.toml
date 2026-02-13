@@ -15,7 +15,7 @@ dependencies = [
 bench = "src:main"
 
 [dependency-groups]
-dev = ["pyright>=1.1.408", "ruff>=0.15.0"]
+dev = ["pyright>=1.1.408", "ruff>=0.15.1"]
 
 [build-system]
 requires = ["uv_build"]
