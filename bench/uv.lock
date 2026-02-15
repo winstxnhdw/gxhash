@@ -42,8 +42,8 @@ source = { directory = "../" }
 [package.metadata.requires-dev]
 dev = [
     { name = "commitizen", specifier = ">=3.31.0" },
-    { name = "maturin", specifier = ">=1.11.5" },
-    { name = "prek", specifier = ">=0.3.2" },
+    { name = "maturin", specifier = ">=1.12.0" },
+    { name = "prek", specifier = ">=0.3.3" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "ruff", specifier = ">=0.15.1" },
 ]
