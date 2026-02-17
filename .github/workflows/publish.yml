@@ -8,14 +8,14 @@ permissions:
   contents: read
   id-token: write
 
+env:
+  UV_LOCKED: 1
+  UV_NO_DEV: 1
+  UV_ISOLATED: 1
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    env:
-      UV_LOCKED: 1
-      UV_NO_DEV: 1
-      UV_ISOLATED: 1
-
     environment:
       name: pypi
 
