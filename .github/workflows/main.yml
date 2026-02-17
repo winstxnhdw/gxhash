@@ -213,10 +213,15 @@ jobs:
           path: lcov.info
 
   report:
+    if: always()
     needs: [install, test, coverage]
     runs-on: ubuntu-slim
 
     steps:
+      - name: Fail if any dependency failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
+
       - name: Upload code coverage report
         uses: actions/download-artifact@v7.0.0
         with:
