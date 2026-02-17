@@ -29,10 +29,10 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6.2.0
         with:
-          python-version: 3.14
+          python-version: 3.14.3
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.67.30
+        uses: taiki-e/install-action@v2.68.1
         with:
           tool: cargo-codspeed
 
