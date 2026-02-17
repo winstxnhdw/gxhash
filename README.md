@@ -29,7 +29,7 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 - Passes all [SMHasher](https://github.com/rurban/smhasher) tests and produces high-quality, hardware-accelerated 32/64/128-bit hashes.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
 - Provides a [performant](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit), drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
-- SIMD-accelerated [hashlib](https://docs.python.org/3/library/hashlib.html) hex digest encoding via SSSE3/NEON.
+- SIMD-accelerated [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) encoding with SSSE3/NEON intrinsics.
 - Fully-typed, clean API with uncompromising [strict-mode](https://github.com/microsoft/pyright/blob/main/docs/configuration.md#diagnostic-settings-defaults) conformance across all major type checkers.
 - Zero-dependency installations on all platforms supported by [maturin](https://github.com/PyO3/maturin) and [puccinialin](https://github.com/konstin/puccinialin).
 
@@ -50,7 +50,7 @@ For the best throughput, you can allow `gxhash` to use wider registers by instal
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
-By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x64 systems, the minimum required features are `aes` and `sse2`.
+By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x64 systems, the minimum required features are `aes` and `ssse3`.
 
 ```bash
 RUSTFLAGS="-C target-feature=+aes,+ssse3" pip install gxhash
