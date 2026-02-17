@@ -91,19 +91,49 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
             .expect("payload_size column should be f64")
             .iter()
             .flatten()
+            .map(f64::log10)
             .zip(throughputs);
 
         poloto::build::plot(name).line(points)
     });
 
+    let tick_positions: Vec<f64> = (4..14).map(|i| f64::log10(4.0_f64.powi(i) / 1_048_576.0)).collect();
+
+    let x_min = tick_positions[0];
+    let x_max = tick_positions[tick_positions.len() - 1];
+
     let theme = poloto::render::Theme::light()
         .append(raw(".poloto_background{fill: white;}"))
-        .append(raw(".poloto_text.poloto_legend{font-size:12px;}"));
+        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"));
 
-    let svg = poloto::frame_build()
-        .data(poloto::plots!(poloto::build::origin(), plots))
-        .build_and_label((heading, "Payload Size (MiB)", "Throughput (MiB/s)"))
-        .append_to(poloto::header().with_dim([2800.0, 1500.0]).append(theme))
+    let viewbox = [1008.0, 540.0];
+    let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
+    let header = poloto::header()
+        .with_dim([2800.0, 1500.0])
+        .with_viewbox(viewbox)
+        .append(theme);
+
+    let svg = poloto::frame()
+        .with_viewbox(viewbox)
+        .build()
+        .data(data)
+        .map_xticks(|_| {
+            poloto::ticks::from_iter(tick_positions).with_tick_fmt(|val: &f64| {
+                let kilobyte = (1 << 10) as f64;
+                let megabyte = (1 << 20) as f64;
+                let bytes = 10.0_f64.powf(*val) * megabyte;
+
+                if bytes >= megabyte {
+                    format!("{:.0} MiB", bytes / megabyte)
+                } else if bytes >= kilobyte {
+                    format!("{:.0} KiB", bytes / kilobyte)
+                } else {
+                    format!("{:.0} B", bytes)
+                }
+            })
+        })
+        .build_and_label((heading, "Payload Size", "Throughput (MiB/s)"))
+        .append_to(header)
         .render_string()?;
 
     Ok(svg)
@@ -129,8 +159,9 @@ fn main() -> Result<()> {
         .clone()
         .filter(col("batch_size").eq(16))
         .filter(col("length").eq(128))
+        .filter(col("payload_size").gt_eq(256))
         .with_column(col("payload_size").cast(DataType::Float64).div(lit(1 << 20)))
-        .filter(col("payload_size").lt_eq(16));
+        .filter(col("payload_size").lt_eq(64));
 
     let throughput_32bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(32));
     let throughput_64bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(64));
