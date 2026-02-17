@@ -7,7 +7,9 @@ name = "bench"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cityhash" },
     { name = "gxhash" },
+    { name = "metrohash" },
     { name = "mmh3" },
     { name = "polars" },
     { name = "xxhash" },
@@ -21,7 +23,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cityhash", specifier = ">=0.4.10" },
     { name = "gxhash", directory = "../" },
+    { name = "metrohash", specifier = ">=0.4.1" },
     { name = "mmh3", specifier = ">=5.2.0" },
     { name = "polars", specifier = ">=1.38.0" },
     { name = "xxhash", specifier = ">=3.6.0" },
@@ -32,6 +36,12 @@ dev = [
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "ruff", specifier = ">=0.15.1" },
 ]
+
+[[package]]
+name = "cityhash"
+version = "0.4.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1f/29/06f572448a407cbcc6565b4568086da70552a74a850ef20c9c73f1cbbf81/cityhash-0.4.10.tar.gz", hash = "sha256:7e35da9aaf5fcf91da3fea23405874db55ffa58b1abc441d39cce0c8704a9c15", size = 274911, upload-time = "2025-10-09T21:57:51.795Z" }
 
 [[package]]
 name = "gxhash"
@@ -47,6 +57,12 @@ dev = [
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "ruff", specifier = ">=0.15.1" },
 ]
+
+[[package]]
+name = "metrohash"
+version = "0.4.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4f/e4/3ed1cb13b16a728627d813435c854ab1bed1d981e51c5ea3b59ddc6aa6e0/metrohash-0.4.1.tar.gz", hash = "sha256:f15d9deb2b9693b2e9dbfc702c5c1c68d51d6df73ad1abbb858f981596708f0c", size = 84977, upload-time = "2025-10-09T21:57:16.11Z" }
 
 [[package]]
 name = "mmh3"

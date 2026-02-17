@@ -8,9 +8,12 @@ from random import randint
 from time import perf_counter_ns
 from typing import Concatenate, NewType, TypedDict
 
+from cityhash import CityHash64WithSeed, CityHash128WithSeed
+from farmhash import FarmHash32WithSeed, FarmHash64WithSeed, FarmHash128WithSeed
 from gxhash import GxHash32, GxHash64, GxHash128
 from gxhash.hashlib import gxhash32, gxhash64, gxhash128
-from mmh3 import mmh3_x64_128_uintdigest
+from metrohash import hash64_int, hash128_int
+from mmh3 import mmh3_32_uintdigest, mmh3_x64_128_uintdigest
 from polars import LazyFrame, col
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
@@ -122,6 +125,18 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         "length": Length.BIT_32,
         "hasher": async_wrapper(xxh32_intdigest, seed=seed),
     }
+    yield {  # MurmurHash3 does not support kwargs
+        **metadata,
+        "name": "MurmurHash3",
+        "length": Length.BIT_32,
+        "hasher": async_wrapper(lambda payload: mmh3_32_uintdigest(payload, seed)),
+    }
+    yield {
+        **metadata,
+        "name": "FarmHash32",
+        "length": Length.BIT_32,
+        "hasher": async_wrapper(FarmHash32WithSeed, seed=seed),
+    }
     yield {
         **metadata,
         "name": "GxHash64",
@@ -148,6 +163,24 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
     }
     yield {
         **metadata,
+        "name": "CityHash64",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(CityHash64WithSeed, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "FarmHash64",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(FarmHash64WithSeed, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "MetroHash64",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(hash64_int, seed=seed),
+    }
+    yield {
+        **metadata,
         "name": "GxHash128",
         "length": Length.BIT_128,
         "hasher": async_wrapper(GxHash128(seed=seed).hash),
@@ -170,11 +203,29 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         "length": Length.BIT_128,
         "hasher": async_wrapper(xxh128_intdigest, seed=seed),
     }
-    yield {
+    yield {  # MurmurHash3 does not support kwargs
         **metadata,
-        "name": "MurmurHash3_x64_128",
+        "name": "MurmurHash3",
         "length": Length.BIT_128,
         "hasher": async_wrapper(lambda payload: mmh3_x64_128_uintdigest(payload, seed)),
+    }
+    yield {
+        **metadata,
+        "name": "CityHash128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(CityHash128WithSeed, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "FarmHash128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(FarmHash128WithSeed, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "MetroHash128",
+        "length": Length.BIT_128,
+        "hasher": async_wrapper(hash128_int, seed=seed),
     }
     yield {
         **metadata,
