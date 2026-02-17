@@ -1,14 +1,11 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
-	"ignoreDeps": ["python", "commitizen"],
+	"ignoreDeps": ["commitizen"],
     "packageRules": [
         {
-            "matchCategories": ["rust"],
-            "groupName": "Rust dependencies"
-        },
-        {
             "matchCategories": ["python"],
-            "groupName": "Python dependencies"
+            "matchFileNames": ["pyproject.toml"],
+            "enabled": false
         }
     ]
 }

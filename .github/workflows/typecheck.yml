@@ -1,29 +1,18 @@
-name: Lint
+name: Typecheck
 
 on:
   pull_request:
     types: [opened]
   push:
     paths:
-      - gxhash/**
       - .github/workflows/lint.yml
-      - Cargo.toml
-      - pyproject.toml
-      - "**.rs"
+      - "**/pyproject.toml"
+      - "**/uv.lock"
       - "**.py"
+      - "**.pyi"
 
 jobs:
-  clippy:
-    strategy:
-      matrix:
-        working-directory: [., bench]
-
-    uses: winstxnhdw/actions/.github/workflows/rust.yml@main
-    with:
-      disable-test: true
-      working-directory: ${{ matrix.working-directory }}
-
-  typecheck:
+  pyright:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,9 +42,9 @@ jobs:
       - name: Run type checker
         run: uv run pyright
 
-  lint:
+  typecheck:
     if: always()
-    needs: [clippy, typecheck]
+    needs: pyright
     runs-on: ubuntu-latest
 
     steps:

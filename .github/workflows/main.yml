@@ -3,18 +3,18 @@ name: Build
 on:
   workflow_call:
   pull_request:
-    types: [opened, reopened]
+    types: [opened]
   push:
     paths:
       - .github/workflows/main.yml
-      - uv.lock
       - pyproject.toml
+      - uv.lock
       - Cargo.toml
       - Cargo.lock
       - rust-toolchain.toml
+      - build.rs
       - src/**
       - tests/**.rs
-      - build.rs
       - "!bench/**"
 
 concurrency:

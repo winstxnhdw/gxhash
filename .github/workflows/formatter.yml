@@ -5,11 +5,11 @@ on:
     types: [opened]
   push:
     paths:
-      - gxhash/**
       - .github/workflows/formatter.yml
-      - pyproject.toml
-      - uv.lock
+      - "**/pyproject.toml"
+      - "**.lock"
       - "**.py"
+      - "**.pyi"
 
 permissions:
   contents: write

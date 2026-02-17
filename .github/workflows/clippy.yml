@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  pull_request:
+    types: [opened]
+  push:
+    paths:
+      - .github/workflows/clippy.yml
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "**.rs"
+
+jobs:
+  clippy:
+    strategy:
+      matrix:
+        working-directory: [., bench]
+
+    uses: winstxnhdw/actions/.github/workflows/rust.yml@main
+    with:
+      disable-test: true
+      working-directory: ${{ matrix.working-directory }}
+
+  lint:
+    if: always()
+    needs: clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fail if any dependency failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
