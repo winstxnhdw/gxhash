@@ -7,6 +7,7 @@ use polars::prelude::*;
 use resvg::tiny_skia;
 use resvg::usvg;
 use resvg::usvg::fontdb::Database;
+use tagu::build::raw;
 use tagu::elem::Elem;
 
 fn write_png_from_svg(data: &str, path: &Path, fontdb: &Database) -> Result<()> {
@@ -53,8 +54,8 @@ fn generate_benchmark_bar_plot(heading: &str, lazyframe: LazyFrame) -> Result<St
         .zip(dataframe["name"].str()?.iter().flatten());
 
     let theme = poloto::render::Theme::light()
-        .append(tagu::build::raw(".poloto0.poloto_fill{fill: #6340AC;}"))
-        .append(tagu::build::raw(".poloto_background{fill: white;}"));
+        .append(raw(".poloto0.poloto_fill{fill: #6340AC;}"))
+        .append(raw(".poloto_background{fill: white;}"));
 
     let svg = poloto::build::bar::gen_simple("", data, [0.0])
         .label((heading, "Throughput (MiB/s)", ""))
@@ -95,7 +96,10 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         poloto::build::plot(name).line(points)
     });
 
-    let theme = poloto::render::Theme::light().append(tagu::build::raw(".poloto_background{fill: white;}"));
+    let theme = poloto::render::Theme::light()
+        .append(raw(".poloto_background{fill: white;}"))
+        .append(raw(".poloto_text.poloto_legend{font-size:12px;}"));
+
     let svg = poloto::frame_build()
         .data(poloto::plots!(poloto::build::origin(), plots))
         .build_and_label((heading, "Payload Size (MiB)", "Throughput (MiB/s)"))

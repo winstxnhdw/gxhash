@@ -7,7 +7,7 @@ on:
     paths:
       - .github/workflows/formatter.yml
       - "**/pyproject.toml"
-      - "**.lock"
+      - "**/uv.lock"
       - "**.py"
       - "**.pyi"
 
