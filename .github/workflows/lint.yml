@@ -14,14 +14,17 @@ on:
 
 jobs:
   clippy:
+    strategy:
+      matrix:
+        working-directory: [., bench]
+
     uses: winstxnhdw/actions/.github/workflows/rust.yml@main
     with:
       disable-test: true
+      working-directory: ${{ matrix.working-directory }}
 
   typecheck:
     runs-on: ubuntu-latest
-    env:
-      UV_LOCKED: 1
     strategy:
       matrix:
         python-version:
@@ -32,6 +35,9 @@ jobs:
           - 3.12
           - 3.13
           - 3.14
+
+    env:
+      UV_LOCKED: 1
 
     steps:
       - name: Checkout repository
@@ -48,9 +54,11 @@ jobs:
         run: uv run pyright
 
   lint:
+    if: always()
     needs: [clippy, typecheck]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Lint completed
-        run: echo "All linting jobs completed successfully."
+      - name: Fail if any dependency failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1

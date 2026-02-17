@@ -112,7 +112,7 @@ fn main() -> Result<()> {
         .mul(lit(1e9))
         .div(col("hot_duration").mul(lit(1 << 20)));
 
-    let dataframe = LazyFrame::scan_parquet(PlPath::new(path), ScanArgsParquet::default())?
+    let dataframe = LazyFrame::scan_parquet(PlRefPath::new(path), ScanArgsParquet::default())?
         .with_column(duration_to_throughput.alias("throughput"))
         .sort(["throughput"], SortMultipleOptions::default());
 

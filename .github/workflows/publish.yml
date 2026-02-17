@@ -11,6 +11,11 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      UV_LOCKED: 1
+      UV_NO_DEV: 1
+      UV_ISOLATED: 1
+
     environment:
       name: pypi
 
@@ -27,7 +32,7 @@ jobs:
         run: uv build --sdist
 
       - name: Smoke test
-        run: uv run --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+        run: uv run --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
 
       - name: Publish to PyPI
         run: uv publish

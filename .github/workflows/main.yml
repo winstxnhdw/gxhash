@@ -3,7 +3,7 @@ name: Build
 on:
   workflow_call:
   pull_request:
-    types: [opened]
+    types: [opened, reopened]
   push:
     paths:
       - .github/workflows/main.yml
@@ -81,6 +81,8 @@ jobs:
             arch: arm64
 
     env:
+      UV_LOCKED: 1
+      UV_NO_DEV: 1
       MATURIN_PEP517_ARGS: ${{ matrix.maturin-pep517-args }}
 
     steps:
@@ -140,28 +142,31 @@ jobs:
 
         include:
           - runs-on: ubuntu-latest
-            rustflags: "-C target-cpu=native"
+            rustflags: -C target-cpu=native
             arch: x64
 
           - runs-on: ubuntu-24.04-arm
-            rustflags: "-C target-cpu=native"
+            rustflags: -C target-cpu=native
             arch: arm64
 
           - runs-on: macos-latest
-            rustflags: "-C target-feature=+aes,+neon"
+            rustflags: -C target-feature=+aes,+neon
             arch: arm64
 
           - runs-on: macos-15-intel
-            rustflags: "-C target-cpu=native"
+            rustflags: -C target-cpu=native
             arch: x64
 
           - runs-on: windows-latest
-            rustflags: "-C target-cpu=native"
+            rustflags: -C target-cpu=native
             arch: x64
 
           - runs-on: windows-11-arm
-            rustflags: "-C target-cpu=native"
+            rustflags: -C target-cpu=native
             arch: arm64
+
+    env:
+      RUSTFLAGS: ${{ matrix.rustflags }}
 
     steps:
       - name: Checkout repository
@@ -177,8 +182,6 @@ jobs:
 
       - name: Test
         run: cargo test
-        env:
-          RUSTFLAGS: ${{ matrix.rustflags }}
 
   coverage:
     runs-on: ubuntu-latest

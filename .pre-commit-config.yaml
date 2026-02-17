@@ -18,19 +18,19 @@ repos:
         name: cargo test
         entry: cargo test
         language: system
-        files: ^*\.rs$
+        files: ^(src|tests)/.*\.rs$
         pass_filenames: false
 
       - id: clippy
         name: clippy
         entry: cargo clippy
         language: system
-        files: ^*\.rs$
+        files: \.rs$
         pass_filenames: false
 
       - id: pyright
         name: pyright
         entry: uv run pyright
         language: system
-        files: ^*\.py$
+        files: \.py$
         pass_filenames: false
