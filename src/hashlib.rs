@@ -17,7 +17,7 @@ use std::arch::aarch64::*;
 #[cfg(target_arch = "x86_64")]
 #[inline(always)]
 fn hexdigest32(hash: u32) -> String {
-    let mut hex = [0u8; 8];
+    let mut hex = Vec::<u8>::with_capacity(8);
 
     unsafe {
         let table = _mm_setr_epi8(
@@ -34,14 +34,15 @@ fn hexdigest32(hash: u32) -> String {
             _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
         );
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(8);
+        String::from_utf8_unchecked(hex)
     }
 }
 
 #[cfg(target_arch = "x86_64")]
 #[inline(always)]
 fn hexdigest64(hash: u64) -> String {
-    let mut hex = [0u8; 16];
+    let mut hex = Vec::<u8>::with_capacity(16);
 
     unsafe {
         let table = _mm_setr_epi8(
@@ -53,19 +54,21 @@ fn hexdigest64(hash: u64) -> String {
         let mask = _mm_set1_epi8(0x0F);
         let lo = _mm_and_si128(input, mask);
         let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
+
         _mm_storeu_si128(
             hex.as_mut_ptr().cast(),
             _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
         );
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(16);
+        String::from_utf8_unchecked(hex)
     }
 }
 
 #[cfg(target_arch = "x86_64")]
 #[inline(always)]
 fn hexdigest128(hash: u128) -> String {
-    let mut hex = [0u8; 32];
+    let mut hex = Vec::<u8>::with_capacity(32);
 
     unsafe {
         let table = _mm_setr_epi8(
@@ -84,14 +87,15 @@ fn hexdigest128(hash: u128) -> String {
             _mm_shuffle_epi8(table, _mm_unpackhi_epi8(hi, lo)),
         );
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(32);
+        String::from_utf8_unchecked(hex)
     }
 }
 
 #[cfg(target_arch = "aarch64")]
 #[inline(always)]
 fn hexdigest32(hash: u32) -> String {
-    let mut hex = [0u8; 8];
+    let mut hex = Vec::<u8>::with_capacity(8);
 
     unsafe {
         let table = vld1q_u8(b"0123456789abcdef".as_ptr());
@@ -100,14 +104,15 @@ fn hexdigest32(hash: u32) -> String {
         let lo = vandq_u8(input, vdupq_n_u8(0x0F));
         vst1_u8(hex.as_mut_ptr(), vget_low_u8(vqtbl1q_u8(table, vzip1q_u8(hi, lo))));
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(8);
+        String::from_utf8_unchecked(hex)
     }
 }
 
 #[cfg(target_arch = "aarch64")]
 #[inline(always)]
 fn hexdigest64(hash: u64) -> String {
-    let mut hex = [0u8; 16];
+    let mut hex = Vec::<u8>::with_capacity(16);
 
     unsafe {
         let table = vld1q_u8(b"0123456789abcdef".as_ptr());
@@ -116,14 +121,15 @@ fn hexdigest64(hash: u64) -> String {
         let lo = vandq_u8(input, vdupq_n_u8(0x0F));
         vst1q_u8(hex.as_mut_ptr(), vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(16);
+        String::from_utf8_unchecked(hex)
     }
 }
 
 #[cfg(target_arch = "aarch64")]
 #[inline(always)]
 fn hexdigest128(hash: u128) -> String {
-    let mut hex = [0u8; 32];
+    let mut hex = Vec::<u8>::with_capacity(32);
 
     unsafe {
         let table = vld1q_u8(b"0123456789abcdef".as_ptr());
@@ -134,7 +140,8 @@ fn hexdigest128(hash: u128) -> String {
         vst1q_u8(buffer, vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
         vst1q_u8(buffer.add(16), vqtbl1q_u8(table, vzip2q_u8(hi, lo)));
 
-        String::from_utf8_unchecked(hex.into())
+        hex.set_len(32);
+        String::from_utf8_unchecked(hex)
     }
 }
 
