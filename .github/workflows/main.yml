@@ -169,17 +169,6 @@ jobs:
         with:
           show-progress: false
 
-      - name: Cache Cargo
-        uses: actions/cache@v5.0.3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ matrix.runs-on }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
       - name: Setup Python
         uses: actions/setup-python@v6.2.0
         with:
