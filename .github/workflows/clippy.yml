@@ -2,7 +2,6 @@ name: Lint
 
 on:
   pull_request:
-    types: [opened]
   push:
     paths:
       - .github/workflows/clippy.yml
