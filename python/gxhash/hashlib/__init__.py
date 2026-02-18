@@ -1,6 +1,7 @@
 from _hashlib import HASH as HASH
 from typing import Protocol
 
+from gxhash.gxhashlib import __doc__ as __doc__  # noqa: A004
 from gxhash.gxhashlib import file_digest as file_digest
 from gxhash.gxhashlib import gxhash32 as gxhash32
 from gxhash.gxhashlib import gxhash64 as gxhash64
