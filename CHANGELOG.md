@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0]
+
+Released on 2026-02-18
+
+### Added
+
+- add `hashlib`-compatible API
+
+### Changed
+
+- rewrite hex encoding with SIMD (#89)
+- do not spawn new thread under 4 MiB (#42)
+- use absolute links for better viewing on PyPi
+- preserve stubs with mixed project layout
+
 ## [0.3.1]
 
 Released on 2026-01-23
