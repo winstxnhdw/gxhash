@@ -19,11 +19,17 @@ use std::arch::x86_64::*;
 
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
+
 #[cfg(unix)]
 use std::os::unix::io::FromRawFd;
 
 #[cfg(windows)]
 use std::os::windows::io::FromRawHandle;
+
+#[cfg(windows)]
+unsafe extern "C" {
+    fn _get_osfhandle(fd: i32) -> isize;
+}
 
 trait HexDigest {
     fn hexdigest(self) -> String;
@@ -324,7 +330,7 @@ fn file_digest<'py>(
         }
         #[cfg(windows)]
         {
-            File::from_raw_handle(fileno as *mut std::ffi::c_void)
+            File::from_raw_handle(_get_osfhandle(fileno) as *mut std::ffi::c_void)
         }
     });
 
