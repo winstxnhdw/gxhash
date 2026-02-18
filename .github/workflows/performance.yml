@@ -13,7 +13,7 @@ on:
       - "!bench/**"
 
 env:
-  RUSTFLAGS: -C target-cpu=native
+  RUSTFLAGS: -C target-feature=+aes,+ssse3
 
 jobs:
   performance:
