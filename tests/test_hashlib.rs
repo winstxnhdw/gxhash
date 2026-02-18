@@ -15,32 +15,6 @@ fn test_import_gxhash_hashlib() -> PyResult<()> {
 }
 
 #[test]
-fn test_hashlib_hash_instantiation() -> PyResult<()> {
-    pytest!(py, {
-        let error = py
-            .import_gxhash_hashlib()?
-            .getattr(intern!(py, "HASH"))?
-            .call0()
-            .unwrap_err();
-
-        assert!(error.is_instance_of::<pyo3::exceptions::PyTypeError>(py));
-    })
-}
-
-#[test]
-fn test_hashlib_buffer_instantiation() -> PyResult<()> {
-    pytest!(py, {
-        let error = py
-            .import_gxhash_hashlib()?
-            .getattr(intern!(py, "Buffer"))?
-            .call0()
-            .unwrap_err();
-
-        assert!(error.is_instance_of::<pyo3::exceptions::PyTypeError>(py));
-    })
-}
-
-#[test]
 fn test_hashlib_gxhash32_name() -> PyResult<()> {
     pytest!(py, {
         let hasher = py.import_hashlib_gxhash32()?.call0()?;
@@ -490,5 +464,287 @@ fn test_hashlib_gxhash128_digest_determinism() -> PyResult<()> {
         let digest = hasher.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
 
         assert_eq!(digest, expected_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_new_gxhash32(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let new_digest = py
+            .import_hashlib_new()?
+            .call1(("gxhash32", bytes.as_slice()))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash32()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(new_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_new_gxhash64(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let new_digest = py
+            .import_hashlib_new()?
+            .call1(("gxhash64", bytes.as_slice()))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(new_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_new_gxhash128(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let new_digest = py
+            .import_hashlib_new()?
+            .call1(("gxhash128", bytes.as_slice()))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash128()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(new_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_new_with_seed(bytes: Vec<u8>, seed: i64) -> PyResult<()> {
+    pytest!(py, {
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+
+        let new_digest = py
+            .import_hashlib_new()?
+            .call(("gxhash64", bytes.as_slice()), Some(&kwargs))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call((bytes.as_slice(),), Some(&kwargs))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(new_digest, direct_digest);
+    })
+}
+
+#[test]
+fn test_hashlib_new_no_data() -> PyResult<()> {
+    pytest!(py, {
+        let new_digest = py
+            .import_hashlib_new()?
+            .call1(("gxhash32",))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash32()?
+            .call0()?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(new_digest, direct_digest);
+    })
+}
+
+#[test]
+fn test_hashlib_new_invalid_name() -> PyResult<()> {
+    pytest!(py, {
+        let error = py.import_hashlib_new()?.call1(("invalid",)).unwrap_err();
+        assert!(error.is_instance_of::<pyo3::exceptions::PyValueError>(py));
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_io_gxhash32(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let file = py
+            .import(intern!(py, "io"))?
+            .getattr(intern!(py, "BytesIO"))?
+            .call1((bytes.as_slice(),))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, "gxhash32"))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash32()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_bytesio_gxhash64(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let file = py
+            .import(intern!(py, "io"))?
+            .getattr(intern!(py, "BytesIO"))?
+            .call1((bytes.as_slice(),))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, "gxhash64"))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_bytesio_gxhash128(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let file = py
+            .import(intern!(py, "io"))?
+            .getattr(intern!(py, "BytesIO"))?
+            .call1((bytes.as_slice(),))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, "gxhash128"))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash128()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_bytesio_with_seed(bytes: Vec<u8>, seed: i64) -> PyResult<()> {
+    pytest!(py, {
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+
+        let file = py
+            .import(intern!(py, "io"))?
+            .getattr(intern!(py, "BytesIO"))?
+            .call1((bytes.as_slice(),))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call((&file, "gxhash64"), Some(&kwargs))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call((bytes.as_slice(),), Some(&kwargs))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_real_file(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let file = py
+            .import(intern!(py, "tempfile"))?
+            .getattr(intern!(py, "NamedTemporaryFile"))?
+            .call0()?;
+
+        file.call_method1(intern!(py, "write"), (bytes.as_slice(),))?;
+        file.call_method1(intern!(py, "seek"), (0,))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, "gxhash64"))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[test]
+fn test_hashlib_file_digest_real_file_partial_seek() -> PyResult<()> {
+    pytest!(py, {
+        let file = py
+            .import(intern!(py, "tempfile"))?
+            .getattr(intern!(py, "NamedTemporaryFile"))?
+            .call0()?;
+
+        file.call_method1(intern!(py, "write"), (b"hello world",))?;
+        file.call_method1(intern!(py, "seek"), (5,))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, "gxhash64"))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = py
+            .import_hashlib_gxhash64()?
+            .call1((b" world",))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
+    })
+}
+
+#[quickcheck]
+fn test_hashlib_file_digest_bytesio_with_callable(bytes: Vec<u8>) -> PyResult<()> {
+    pytest!(py, {
+        let gxhash32_callable = py.import_hashlib_gxhash32()?;
+
+        let file = py
+            .import(intern!(py, "io"))?
+            .getattr(intern!(py, "BytesIO"))?
+            .call1((bytes.as_slice(),))?;
+
+        let file_digest = py
+            .import_hashlib_file_digest()?
+            .call1((&file, &gxhash32_callable))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        let direct_digest = gxhash32_callable
+            .call1((bytes.as_slice(),))?
+            .call_method0(intern!(py, "hexdigest"))?
+            .extract::<String>()?;
+
+        assert_eq!(file_digest, direct_digest);
     })
 }

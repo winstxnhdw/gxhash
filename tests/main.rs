@@ -1,3 +1,3 @@
 mod helpers;
-mod test_default;
+mod test_core;
 mod test_hashlib;

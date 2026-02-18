@@ -70,12 +70,12 @@ impl<'py> PythonExt<'py> for Python<'py> {
     }
 
     fn import_gxhash(&self) -> PyResult<Bound<'_, PyAny>> {
-        self.import(intern!(*self, "gxhash"))?
+        self.import(intern!(*self, "gxhash.core"))?
             .getattr(intern!(*self, "GxHash128"))
     }
 
     fn import_hashlib_gxhash(&self) -> PyResult<Bound<'_, PyAny>> {
-        self.import(intern!(*self, "gxhash.hashlib"))?
+        self.import(intern!(*self, "gxhash.gxhashlib"))?
             .getattr(intern!(*self, "gxhash128"))
     }
 }

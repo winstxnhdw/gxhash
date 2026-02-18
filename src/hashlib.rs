@@ -1,18 +1,29 @@
 use pyo3::Bound;
 use pyo3::IntoPyObjectExt;
+use pyo3::PyAny;
 use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::buffer::PyBuffer;
-use pyo3::exceptions::PyTypeError;
+use pyo3::intern;
 use pyo3::pyclass;
 use pyo3::pyfunction;
 use pyo3::pymethods;
+use pyo3::types::PyAnyMethods;
+use std::fs::File;
+use std::io::Read;
+use std::io::Seek;
+use std::mem::ManuallyDrop;
 
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
+#[cfg(unix)]
+use std::os::unix::io::FromRawFd;
+
+#[cfg(windows)]
+use std::os::windows::io::FromRawHandle;
 
 trait HexDigest {
     fn hexdigest(self) -> String;
@@ -26,8 +37,8 @@ impl HexDigest for u32 {
 
         unsafe {
             let table = _mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
+                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
             );
 
             let input = _mm_cvtsi32_si128(self as i32);
@@ -70,8 +81,8 @@ impl HexDigest for u64 {
 
         unsafe {
             let table = _mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
+                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
             );
 
             let input = _mm_cvtsi64_si128(self as i64);
@@ -115,8 +126,8 @@ impl HexDigest for u128 {
 
         unsafe {
             let table = _mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
+                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
             );
 
             let input = _mm_set_epi64x((self >> 64) as i64, self as i64);
@@ -167,17 +178,6 @@ impl PyBufferExt for PyBuffer<u8> {
 
 #[cfg_attr(
     not(any(Py_3_8, Py_3_9)),
-    pyclass(name = "HASH", module = "_hashlib", frozen, immutable_type, subclass)
-)]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(name = "HASH", module = "_hashlib", frozen, subclass))]
-struct Hash;
-
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type, subclass))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(module = "gxhash.hashlib", frozen, subclass))]
-struct Buffer;
-
-#[cfg_attr(
-    not(any(Py_3_8, Py_3_9)),
     pyclass(name = "HASH", module = "_hashlib", immutable_type)
 )]
 #[cfg_attr(any(Py_3_8, Py_3_9), pyclass(name = "HASH", module = "_hashlib"))]
@@ -206,28 +206,15 @@ pub(crate) struct GxHashLib128 {
     buffer: PyBuffer<u8>,
 }
 
-#[pymethods]
-impl Hash {
-    #[new]
-    fn new() -> PyResult<Self> {
-        let error = PyTypeError::new_err(r#"Cannot instantiate Protocol class "HASH""#);
-        Err(error)
-    }
-}
-
-#[pymethods]
-impl Buffer {
-    #[new]
-    fn new() -> PyResult<Self> {
-        let error = PyTypeError::new_err(r#"Cannot instantiate Protocol class "Buffer""#);
-        Err(error)
-    }
-}
-
 macro_rules! impl_hashlib {
     ($name:ident, $function_name:ident, $digest_size:expr, $hasher:path) => {
         #[pymethods]
         impl $name {
+            #[getter(__class__)]
+            fn __class__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+                py.import(intern!(py, "_hashlib"))?.getattr(intern!(py, "HASH"))
+            }
+
             #[getter]
             fn name(&self) -> &'static str {
                 stringify!($function_name)
@@ -274,15 +261,13 @@ macro_rules! impl_hashlib {
         }
 
         #[pyfunction]
-        #[pyo3(signature = (data = None, *, seed = 0, usedforsecurity = false, **_kwargs))]
+        #[pyo3(signature = (data = None, *, seed = 0, **_kwargs))]
         pub(crate) fn $function_name(
             py: Python<'_>,
             data: Option<PyBuffer<u8>>,
             seed: i64,
-            usedforsecurity: bool,
             _kwargs: Option<Bound<'_, pyo3::types::PyDict>>,
         ) -> PyResult<$name> {
-            let _ = usedforsecurity;
             let buffer = data.map_or_else(|| PyBuffer::get(&b"".into_bound_py_any(py)?), Ok)?;
             Ok($name { seed, buffer })
         }
@@ -292,6 +277,67 @@ macro_rules! impl_hashlib {
 impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
 impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
 impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
+
+#[pyfunction]
+#[pyo3(signature = (name, data = None, *, seed = 0, **kwargs))]
+fn new<'py>(
+    py: Python<'py>,
+    name: &str,
+    data: Option<PyBuffer<u8>>,
+    seed: i64,
+    kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
+) -> PyResult<Bound<'py, PyAny>> {
+    match name {
+        "gxhash32" => gxhash32(py, data, seed, kwargs)?.into_bound_py_any(py),
+        "gxhash64" => gxhash64(py, data, seed, kwargs)?.into_bound_py_any(py),
+        "gxhash128" => gxhash128(py, data, seed, kwargs)?.into_bound_py_any(py),
+        _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "unsupported hash type: {name}",
+        ))),
+    }
+}
+
+#[pyfunction]
+#[pyo3(signature = (fileobj, digest, /, *, seed = 0, **kwargs))]
+fn file_digest<'py>(
+    py: Python<'py>,
+    fileobj: Bound<'py, PyAny>,
+    digest: Bound<'py, PyAny>,
+    seed: i64,
+    kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
+) -> PyResult<Bound<'py, PyAny>> {
+    if let Ok(buffer) = fileobj.call_method0(intern!(py, "getbuffer")) {
+        return match digest.cast::<pyo3::types::PyString>() {
+            Ok(name) => new(py, name.extract()?, Some(PyBuffer::get(&buffer)?), seed, kwargs),
+            _ => digest
+                .call0()
+                .and_then(|hasher| hasher.call_method1(intern!(py, "update"), (&buffer,)).map(|_| hasher)),
+        };
+    }
+
+    let mut file = ManuallyDrop::new(unsafe {
+        let fileno = fileobj.call_method0(intern!(py, "fileno"))?.extract::<i32>()?;
+
+        #[cfg(unix)]
+        {
+            File::from_raw_fd(fileno)
+        }
+        #[cfg(windows)]
+        {
+            File::from_raw_handle(fileno as *mut std::ffi::c_void)
+        }
+    });
+
+    let size = (file.metadata()?.len() - file.stream_position()?) as usize;
+    let data = pyo3::types::PyBytes::new_with(py, size, |buffer| (&*file).read_exact(buffer).map_err(Into::into))?;
+
+    match digest.cast::<pyo3::types::PyString>() {
+        Ok(name) => new(py, name.extract()?, Some(PyBuffer::get(&data)?), seed, kwargs),
+        _ => digest
+            .call0()
+            .and_then(|hasher| hasher.call_method1(intern!(py, "update"), (&data,)).map(|_| hasher)),
+    }
+}
 
 /// gxhash.hashlib — hashlib-compatible GxHash API
 ///
@@ -303,9 +349,11 @@ impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 ///
 /// The functions provide a compatible interface with Python's built-in hashlib module.
 ///
-/// * gxhash32(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
-/// * gxhash64(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
-/// * gxhash128(data: bytes = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH
+/// * gxhash32(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False) -> HASH
+/// * gxhash64(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False) -> HASH
+/// * gxhash128(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False) -> HASH
+/// * new(name: str, data: str | Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False) -> HASH
+/// * file_digest(fileobj: BytesIOLike | FileLike, digest: str | Callable[[], HASH], /, *, seed: int = 0) -> HASH
 ///
 /// The HASH objects returned by these functions again provide the standard HASH methods and properties.
 ///
@@ -317,16 +365,16 @@ impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 /// * update(data: bytes) -> None
 /// * copy() -> HASH
 ///
-#[pyo3::pymodule(submodule, name = "hashlib", gil_used = false)]
+#[pyo3::pymodule(submodule, name = "gxhashlib", gil_used = false)]
 pub mod hashlib_module {
     #[pymodule_export]
-    use super::Buffer;
-    #[pymodule_export]
-    use super::Hash;
+    use super::file_digest;
     #[pymodule_export]
     use super::gxhash32;
     #[pymodule_export]
     use super::gxhash64;
     #[pymodule_export]
     use super::gxhash128;
+    #[pymodule_export]
+    use super::new;
 }

@@ -1,9 +1,11 @@
-from typing import NewType, Protocol, TypeVar
+from typing import Protocol
 
-T_co = TypeVar("T_co", covariant=True, bound=int, default=int)
-Uint32 = NewType("Uint32", int)
-Uint64 = NewType("Uint64", int)
-Uint128 = NewType("Uint128", int)
+from gxhash import T_co, Uint32, Uint64, Uint128
+
+class Hasher(Protocol[T_co]):
+    def __init__(self, *, seed: int) -> None: ...
+    def hash(self, bytes: bytes, /) -> T_co: ...
+    async def hash_async(self, bytes: bytes, /) -> T_co: ...
 
 class GxHashAsyncError(Exception):
     """
@@ -11,11 +13,6 @@ class GxHashAsyncError(Exception):
     -------
     This error is raised when an asynchronous hash operation fails.
     """
-
-class Hasher(Protocol[T_co]):
-    def __init__(self, *, seed: int) -> None: ...
-    def hash(self, bytes: bytes, /) -> T_co: ...
-    async def hash_async(self, bytes: bytes, /) -> T_co: ...
 
 class GxHash32(Hasher[Uint32]):
     """

@@ -1,10 +1,14 @@
+from . import gxhash as gxhash  # noqa: I001
+
 from typing import NewType, Protocol, TypeVar
 
-from . import gxhash
+from gxhash.core import GxHash32 as GxHash32
+from gxhash.core import GxHash64 as GxHash64
+from gxhash.core import GxHash128 as GxHash128
+from gxhash.core import GxHashAsyncError as GxHashAsyncError
+
 
 __doc__ = gxhash.__doc__
-__all__ = gxhash.__all__  # type: ignore[reportUnsupportedDunderAll]
-
 T_co = TypeVar("T_co", covariant=True, bound=int)
 Uint32 = NewType("Uint32", int)
 Uint64 = NewType("Uint64", int)
@@ -85,7 +89,3 @@ class Hasher(Protocol[T_co]):
         ```
         """
         ...
-
-
-def __getattr__(name: str) -> object:
-    return getattr(gxhash, name)

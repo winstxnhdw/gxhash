@@ -10,7 +10,7 @@ strip = "symbols"
 [package]
 name = "gxhash-py"
 description = "Python bindings for GxHash"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2024"
 license = "MIT"
 homepage = "https://github.com/winstxnhdw/gxhash"

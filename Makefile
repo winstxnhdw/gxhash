@@ -28,4 +28,4 @@ test:
 	uv run prek run
 
 smoke-test: all
-	uv run --reinstall --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+	uv run --reinstall --no-cache --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py

@@ -1,4 +1,3 @@
-from . import hashlib as hashlib
+from . import gxhashlib as gxhashlib
 
 __doc__: str
-__all__: list[str]  # noqa: PYI035

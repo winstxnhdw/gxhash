@@ -48,8 +48,8 @@ fn test_import_gxhash128_from_gxhash() -> PyResult<()> {
 #[test]
 fn test_gxhash_async_error() -> PyResult<()> {
     pytest!(py, {
-        let gxhash_async_error = py.import_gxhash()?.getattr("GxHashAsyncError")?.call0()?;
-        assert!(gxhash_async_error.is_instance_of::<pyo3::exceptions::PyException>())
+        let error = py.import_gxhash()?.getattr("GxHashAsyncError")?.call0()?;
+        assert!(error.is_instance_of::<pyo3::exceptions::PyException>())
     })
 }
 
