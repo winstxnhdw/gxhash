@@ -14,134 +14,144 @@ use std::arch::x86_64::*;
 #[cfg(target_arch = "aarch64")]
 use std::arch::aarch64::*;
 
-#[cfg(target_arch = "x86_64")]
-#[inline(always)]
-fn hexdigest32(hash: u32) -> String {
-    let mut hex = Vec::<u8>::with_capacity(8);
+trait HexDigest {
+    fn hexdigest(self) -> String;
+}
 
-    unsafe {
-        let table = _mm_setr_epi8(
-            b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-            b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-        );
+impl HexDigest for u32 {
+    #[cfg(target_arch = "x86_64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(8);
 
-        let input = _mm_cvtsi32_si128(hash as i32);
-        let mask = _mm_set1_epi8(0x0F);
-        let lo = _mm_and_si128(input, mask);
-        let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
-        _mm_storel_epi64(
-            hex.as_mut_ptr().cast(),
-            _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
-        );
+        unsafe {
+            let table = _mm_setr_epi8(
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
+                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+            );
 
-        hex.set_len(8);
-        String::from_utf8_unchecked(hex)
+            let input = _mm_cvtsi32_si128(self as i32);
+            let mask = _mm_set1_epi8(0x0F);
+            let lo = _mm_and_si128(input, mask);
+            let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
+            _mm_storel_epi64(
+                hex.as_mut_ptr().cast(),
+                _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
+            );
+
+            hex.set_len(8);
+            String::from_utf8_unchecked(hex)
+        }
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(8);
+
+        unsafe {
+            let table = vld1q_u8(b"0123456789abcdef".as_ptr());
+            let input = vcombine_u8(vcreate_u8(self as u64), vcreate_u8(0));
+            let hi = vshrq_n_u8(input, 4);
+            let lo = vandq_u8(input, vdupq_n_u8(0x0F));
+            vst1_u8(hex.as_mut_ptr(), vget_low_u8(vqtbl1q_u8(table, vzip1q_u8(hi, lo))));
+
+            hex.set_len(8);
+            String::from_utf8_unchecked(hex)
+        }
     }
 }
 
-#[cfg(target_arch = "x86_64")]
-#[inline(always)]
-fn hexdigest64(hash: u64) -> String {
-    let mut hex = Vec::<u8>::with_capacity(16);
+impl HexDigest for u64 {
+    #[cfg(target_arch = "x86_64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(16);
 
-    unsafe {
-        let table = _mm_setr_epi8(
-            b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-            b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-        );
+        unsafe {
+            let table = _mm_setr_epi8(
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
+                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+            );
 
-        let input = _mm_cvtsi64_si128(hash as i64);
-        let mask = _mm_set1_epi8(0x0F);
-        let lo = _mm_and_si128(input, mask);
-        let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
+            let input = _mm_cvtsi64_si128(self as i64);
+            let mask = _mm_set1_epi8(0x0F);
+            let lo = _mm_and_si128(input, mask);
+            let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
 
-        _mm_storeu_si128(
-            hex.as_mut_ptr().cast(),
-            _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
-        );
+            _mm_storeu_si128(
+                hex.as_mut_ptr().cast(),
+                _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)),
+            );
 
-        hex.set_len(16);
-        String::from_utf8_unchecked(hex)
+            hex.set_len(16);
+            String::from_utf8_unchecked(hex)
+        }
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(16);
+
+        unsafe {
+            let table = vld1q_u8(b"0123456789abcdef".as_ptr());
+            let input = vcombine_u8(vcreate_u8(self), vcreate_u8(0));
+            let hi = vshrq_n_u8(input, 4);
+            let lo = vandq_u8(input, vdupq_n_u8(0x0F));
+            vst1q_u8(hex.as_mut_ptr(), vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
+
+            hex.set_len(16);
+            String::from_utf8_unchecked(hex)
+        }
     }
 }
 
-#[cfg(target_arch = "x86_64")]
-#[inline(always)]
-fn hexdigest128(hash: u128) -> String {
-    let mut hex = Vec::<u8>::with_capacity(32);
+impl HexDigest for u128 {
+    #[cfg(target_arch = "x86_64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(32);
 
-    unsafe {
-        let table = _mm_setr_epi8(
-            b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
-            b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-        );
+        unsafe {
+            let table = _mm_setr_epi8(
+                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8, b'8' as i8,
+                b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
+            );
 
-        let input = _mm_set_epi64x((hash >> 64) as i64, hash as i64);
-        let mask = _mm_set1_epi8(0x0F);
-        let lo = _mm_and_si128(input, mask);
-        let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
-        let buffer = hex.as_mut_ptr();
-        _mm_storeu_si128(buffer.cast(), _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)));
-        _mm_storeu_si128(
-            buffer.add(16).cast(),
-            _mm_shuffle_epi8(table, _mm_unpackhi_epi8(hi, lo)),
-        );
+            let input = _mm_set_epi64x((self >> 64) as i64, self as i64);
+            let mask = _mm_set1_epi8(0x0F);
+            let lo = _mm_and_si128(input, mask);
+            let hi = _mm_and_si128(_mm_srli_epi16(input, 4), mask);
+            let buffer = hex.as_mut_ptr();
+            _mm_storeu_si128(buffer.cast(), _mm_shuffle_epi8(table, _mm_unpacklo_epi8(hi, lo)));
+            _mm_storeu_si128(
+                buffer.add(16).cast(),
+                _mm_shuffle_epi8(table, _mm_unpackhi_epi8(hi, lo)),
+            );
 
-        hex.set_len(32);
-        String::from_utf8_unchecked(hex)
+            hex.set_len(32);
+            String::from_utf8_unchecked(hex)
+        }
     }
-}
 
-#[cfg(target_arch = "aarch64")]
-#[inline(always)]
-fn hexdigest32(hash: u32) -> String {
-    let mut hex = Vec::<u8>::with_capacity(8);
+    #[cfg(target_arch = "aarch64")]
+    #[inline(always)]
+    fn hexdigest(self) -> String {
+        let mut hex = Vec::<u8>::with_capacity(32);
 
-    unsafe {
-        let table = vld1q_u8(b"0123456789abcdef".as_ptr());
-        let input = vcombine_u8(vcreate_u8(hash as u64), vcreate_u8(0));
-        let hi = vshrq_n_u8(input, 4);
-        let lo = vandq_u8(input, vdupq_n_u8(0x0F));
-        vst1_u8(hex.as_mut_ptr(), vget_low_u8(vqtbl1q_u8(table, vzip1q_u8(hi, lo))));
+        unsafe {
+            let table = vld1q_u8(b"0123456789abcdef".as_ptr());
+            let input = vcombine_u8(vcreate_u8(self as u64), vcreate_u8((self >> 64) as u64));
+            let hi = vshrq_n_u8(input, 4);
+            let lo = vandq_u8(input, vdupq_n_u8(0x0F));
+            let buffer = hex.as_mut_ptr();
+            vst1q_u8(buffer, vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
+            vst1q_u8(buffer.add(16), vqtbl1q_u8(table, vzip2q_u8(hi, lo)));
 
-        hex.set_len(8);
-        String::from_utf8_unchecked(hex)
-    }
-}
-
-#[cfg(target_arch = "aarch64")]
-#[inline(always)]
-fn hexdigest64(hash: u64) -> String {
-    let mut hex = Vec::<u8>::with_capacity(16);
-
-    unsafe {
-        let table = vld1q_u8(b"0123456789abcdef".as_ptr());
-        let input = vcombine_u8(vcreate_u8(hash), vcreate_u8(0));
-        let hi = vshrq_n_u8(input, 4);
-        let lo = vandq_u8(input, vdupq_n_u8(0x0F));
-        vst1q_u8(hex.as_mut_ptr(), vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
-
-        hex.set_len(16);
-        String::from_utf8_unchecked(hex)
-    }
-}
-
-#[cfg(target_arch = "aarch64")]
-#[inline(always)]
-fn hexdigest128(hash: u128) -> String {
-    let mut hex = Vec::<u8>::with_capacity(32);
-
-    unsafe {
-        let table = vld1q_u8(b"0123456789abcdef".as_ptr());
-        let input = vcombine_u8(vcreate_u8(hash as u64), vcreate_u8((hash >> 64) as u64));
-        let hi = vshrq_n_u8(input, 4);
-        let lo = vandq_u8(input, vdupq_n_u8(0x0F));
-        let buffer = hex.as_mut_ptr();
-        vst1q_u8(buffer, vqtbl1q_u8(table, vzip1q_u8(hi, lo)));
-        vst1q_u8(buffer.add(16), vqtbl1q_u8(table, vzip2q_u8(hi, lo)));
-
-        hex.set_len(32);
-        String::from_utf8_unchecked(hex)
+            hex.set_len(32);
+            String::from_utf8_unchecked(hex)
+        }
     }
 }
 
@@ -215,7 +225,7 @@ impl Buffer {
 }
 
 macro_rules! impl_hashlib {
-    ($name:ident, $function_name:ident, $digest_size:expr, $hasher:path, $hexdigest:path) => {
+    ($name:ident, $function_name:ident, $digest_size:expr, $hasher:path) => {
         #[pymethods]
         impl $name {
             #[getter]
@@ -238,7 +248,7 @@ macro_rules! impl_hashlib {
             }
 
             fn hexdigest(&self, py: Python) -> String {
-                $hexdigest($hasher(self.buffer.as_bytes(py), self.seed))
+                $hasher(self.buffer.as_bytes(py), self.seed).hexdigest()
             }
 
             fn update(&mut self, py: Python, data: PyBuffer<u8>) -> PyResult<()> {
@@ -279,9 +289,9 @@ macro_rules! impl_hashlib {
     };
 }
 
-impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32, hexdigest32);
-impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64, hexdigest64);
-impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128, hexdigest128);
+impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
+impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
+impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 
 /// gxhash.hashlib — hashlib-compatible GxHash API
 ///
