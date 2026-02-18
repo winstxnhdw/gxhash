@@ -9,6 +9,9 @@ on:
       - "**/Cargo.lock"
       - "**.rs"
 
+env:
+  RUSTFLAGS: -C target-feature=+aes,+ssse3
+
 jobs:
   clippy:
     strategy:
