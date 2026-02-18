@@ -117,7 +117,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
@@ -153,7 +153,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
@@ -195,7 +195,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "GxHashLib128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
@@ -231,7 +231,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
         **metadata,
         "name": "MD5",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "big")),
+        "hasher": async_wrapper(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")),
     }
 
 
