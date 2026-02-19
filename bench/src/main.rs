@@ -97,16 +97,32 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         poloto::build::plot(name).line(points)
     });
 
-    let tick_positions: Vec<f64> = (4..14).map(|i| f64::log10(4.0_f64.powi(i) / 1_048_576.0)).collect();
+    let tick_positions: Vec<_> = dataframe["payload_size"]
+        .i64()?
+        .unique()?
+        .iter()
+        .flatten()
+        .map(|size| f64::log10(size as f64))
+        .collect();
 
-    let x_min = tick_positions[0];
-    let x_max = tick_positions[tick_positions.len() - 1];
+    let x_min = tick_positions.iter().copied().reduce(f64::min).unwrap_or(0.0);
+    let x_max = tick_positions.iter().copied().reduce(f64::max).unwrap_or(4000.0);
+
+    let colours = [
+        "#6340AC", "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#911EB4", "#42D4F4", "#F032E6", "#BFEF45",
+        "#FABED4", "#469990", "#c28dff", "#9A6324", "#800000", "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#054f03",
+    ];
+
+    let colour_css = colours.iter().enumerate().map(|(i, colour)| {
+        format!(".poloto{i}.poloto_line{{stroke:{colour};}}.poloto{i}.poloto_fill{{fill:{colour};}}")
+    });
 
     let theme = poloto::render::Theme::light()
         .append(raw(".poloto_background{fill: white;}"))
-        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"));
+        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"))
+        .append(raw(colour_css.collect::<String>()));
 
-    let viewbox = [1008.0, 540.0];
+    let viewbox = [1200.0, 800.0];
     let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
     let header = poloto::header()
         .with_dim([2800.0, 1500.0])
@@ -118,17 +134,16 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .build()
         .data(data)
         .map_xticks(|_| {
-            poloto::ticks::from_iter(tick_positions).with_tick_fmt(|val: &f64| {
+            poloto::ticks::from_iter(tick_positions).with_tick_fmt(|value: &f64| {
                 let kilobyte = (1 << 10) as f64;
                 let megabyte = (1 << 20) as f64;
-                let bytes = 10.0_f64.powf(*val) * megabyte;
+                let gigabyte = (1 << 30) as f64;
 
-                if bytes >= megabyte {
-                    format!("{:.0} MiB", bytes / megabyte)
-                } else if bytes >= kilobyte {
-                    format!("{:.0} KiB", bytes / kilobyte)
-                } else {
-                    format!("{:.0} B", bytes)
+                match 10.0_f64.powf(*value) {
+                    bytes if bytes >= gigabyte => format!("{:.0} GiB", bytes / gigabyte),
+                    bytes if bytes >= megabyte => format!("{:.0} MiB", bytes / megabyte),
+                    bytes if bytes >= kilobyte => format!("{:.0} KiB", bytes / kilobyte),
+                    bytes => format!("{:.0} B", bytes),
                 }
             })
         })
@@ -159,9 +174,7 @@ fn main() -> Result<()> {
         .clone()
         .filter(col("batch_size").eq(16))
         .filter(col("length").eq(128))
-        .filter(col("payload_size").gt_eq(256))
-        .with_column(col("payload_size").cast(DataType::Float64).div(lit(1 << 20)))
-        .filter(col("payload_size").lt_eq(64));
+        .filter(col("payload_size").gt_eq(256));
 
     let throughput_32bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(32));
     let throughput_64bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(64));

@@ -236,7 +236,7 @@ def create_evaluands(*, payload_size: int, payload_count: int) -> Iterator[Evalu
 
 
 def generate_sizes() -> Iterator[int]:
-    return (4**i for i in range(1, 14))
+    return (4**i for i in range(1, 16))
 
 
 def payload_counts() -> Iterator[int]:
