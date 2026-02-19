@@ -5,6 +5,10 @@ on: [workflow_dispatch]
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   UV_LOCKED: 1
   UV_NO_DEV: 1
@@ -36,7 +40,7 @@ jobs:
         uses: astral-sh/setup-uv@v7.3.0
 
       - name: Generate benchmark results
-        run: uv run bench
+        run: sudo -E nice -n -20 $(which uv) run bench
 
       - name: Install fonts
         run: sudo apt install -y fonts-roboto

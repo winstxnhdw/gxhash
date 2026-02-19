@@ -87,11 +87,11 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
             .flatten();
 
         let points = data["payload_size"]
-            .f64()
-            .expect("payload_size column should be f64")
+            .i64()
+            .expect("payload_size column should be i64")
             .iter()
             .flatten()
-            .map(f64::log10)
+            .map(|size| f64::log10(size as f64))
             .zip(throughputs);
 
         poloto::build::plot(name).line(points)
