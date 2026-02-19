@@ -160,8 +160,7 @@ fn main() -> Result<()> {
         .filter(col("batch_size").eq(16))
         .filter(col("length").eq(128))
         .filter(col("payload_size").gt_eq(256))
-        .with_column(col("payload_size").cast(DataType::Float64).div(lit(1 << 20)))
-        .filter(col("payload_size").lt_eq(64));
+        .with_column(col("payload_size").cast(DataType::Float64).div(lit(1 << 20)));
 
     let throughput_32bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(32));
     let throughput_64bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(64));
