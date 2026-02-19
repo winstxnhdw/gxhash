@@ -118,18 +118,17 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .build()
         .data(data)
         .map_xticks(|_| {
-            poloto::ticks::from_iter(tick_positions).with_tick_fmt(|val: &f64| {
+            poloto::ticks::from_iter(tick_positions).with_tick_fmt(|value: &f64| {
                 let kilobyte = (1 << 10) as f64;
                 let megabyte = (1 << 20) as f64;
-                let bytes = 10.0_f64.powf(*val) * megabyte;
-
-                if bytes >= megabyte {
-                    format!("{:.0} MiB", bytes / megabyte)
-                } else if bytes >= kilobyte {
-                    format!("{:.0} KiB", bytes / kilobyte)
-                } else {
-                    format!("{:.0} B", bytes)
-                }
+                let gigabyte = (1 << 30) as f64;
+                
+                match 10.0_f64.powf(*value) {
+                     bytes if bytes >= gigabyte => format!("{:.0} GiB", bytes / gigabyte),
+                     bytes if bytes >= megabyte => format!("{:.0} MiB", bytes / megabyte),
+                     bytes if bytes >= kilobyte => format!("{:.0} KiB", bytes / kilobyte),
+                     bytes => format!("{:.0} B", bytes),
+                 }
             })
         })
         .build_and_label((heading, "Payload Size", "Throughput (MiB/s)"))
@@ -159,8 +158,7 @@ fn main() -> Result<()> {
         .clone()
         .filter(col("batch_size").eq(16))
         .filter(col("length").eq(128))
-        .filter(col("payload_size").gt_eq(256))
-        .with_column(col("payload_size").cast(DataType::Float64).div(lit(1 << 20)));
+        .filter(col("payload_size").gt_eq(256));
 
     let throughput_32bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(32));
     let throughput_64bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(64));
