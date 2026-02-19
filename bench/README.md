@@ -68,8 +68,17 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. The benchmark may take a few hours to complete, depending on your hardware.
 
+> [!IMPORTANT]\
+> You will need 6 GiB of RAM to avoid OOM errors.
+
 ```bash
 MATURIN_PEP517_ARGS="--features hybrid" uv run bench
+```
+
+You can observe the progress of the benchmark by setting the log level to `DEBUG`.
+
+```bash
+MATURIN_PEP517_ARGS="--features hybrid" PYTHONUNBUFFERED=1 uv run bench DEBUG
 ```
 
 To generate the plots from the parquet file, run the following command. This will produce the benchmark plots in the current directory.
