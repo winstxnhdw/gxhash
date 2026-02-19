@@ -125,11 +125,10 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
             .append(raw(format!(".poloto{i}.poloto_fill{{fill:{color};}}")));
     }
     
-    let viewbox = [1008.0, 540.0];
     let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
     let header = poloto::header()
         .with_dim([2800.0, 1500.0])
-        .with_viewbox(viewbox)
+        .with_viewbox([1200.0, 800.0])
         .append(theme);
 
     poloto::frame()
