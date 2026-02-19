@@ -1,7 +1,19 @@
+from _hashlib import HASH
 from collections.abc import Callable
-from typing import Literal
+from collections.abc import Set as AbstractSet
+from typing import Literal, Protocol
 
-from gxhash.hashlib import HASH, Buffer, BytesIOLike, FileLike
+algorithms_available: AbstractSet[str]
+algorithms_guaranteed: AbstractSet[str]
+
+class Buffer(Protocol):
+    def __buffer__(self, flags: int, /) -> memoryview: ...
+
+class FileLike(Protocol):
+    def fileno(self) -> int: ...
+
+class BytesIOLike(Protocol):
+    def getbuffer(self) -> Buffer: ...
 
 def new(
     name: Literal["gxhash32", "gxhash64", "gxhash128"],

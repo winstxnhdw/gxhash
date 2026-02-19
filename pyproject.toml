@@ -28,7 +28,14 @@ Repository = "https://github.com/winstxnhdw/gxhash"
 Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
-dev = ["commitizen>=3.31.0", "maturin>=1.12.0", "prek>=0.3.3", "pyright>=1.1.408", "ruff>=0.15.1"]
+dev = [
+    "commitizen>=3.31.0",
+    "maturin>=1.12.0",
+    "nodejs-wheel-binaries>=24.13.1",
+    "prek>=0.3.3",
+    "pyright>=1.1.408",
+    "ruff>=0.15.1",
+]
 
 [build-system]
 requires = ["maturin>=1.12.0, <2.0.0"]
@@ -60,10 +67,10 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "PYI001", "PYI021", "A002", "COM812", "TC003", "INP001", "PLC0414"]
+ignore = ["A004", "A002", "D", "COM812", "PYI001", "PYI021", "TC003", "INP001", "PLC0414"]
 
 [tool.pyright]
-exclude = [".venv", "bench"]
+exclude = ["**/node_modules", "**/__pycache__", "**/.*", ".venv", "bench", "**/gxhash-*"]
 typeCheckingMode = "strict"
 reportMissingModuleSource = false
 reportPrivateUsage = false

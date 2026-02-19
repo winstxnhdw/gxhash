@@ -268,7 +268,7 @@ macro_rules! impl_hashlib {
 
         #[pyfunction]
         #[pyo3(signature = (data = None, *, seed = 0, **_kwargs))]
-        pub(crate) fn $function_name(
+        fn $function_name(
             py: Python<'_>,
             data: Option<PyBuffer<u8>>,
             seed: i64,
@@ -280,28 +280,33 @@ macro_rules! impl_hashlib {
     };
 }
 
+macro_rules! hashlib_algorithms {
+    ($($function_name:ident),+) => {
+        const ALGORITHMS: &[&str] = &[$(stringify!($function_name)),+];
+
+        #[pyfunction]
+        #[pyo3(signature = (name, data = None, *, seed = 0, **kwargs))]
+        fn new<'py>(
+            py: Python<'py>,
+            name: &str,
+            data: Option<PyBuffer<u8>>,
+            seed: i64,
+            kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
+        ) -> PyResult<Bound<'py, PyAny>> {
+            match name {
+                $(stringify!($function_name) => $function_name(py, data, seed, kwargs)?.into_bound_py_any(py),)+
+                _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
+                    "unsupported hash type: {name}",
+                ))),
+            }
+        }
+    };
+}
+
 impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
 impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
 impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
-
-#[pyfunction]
-#[pyo3(signature = (name, data = None, *, seed = 0, **kwargs))]
-fn new<'py>(
-    py: Python<'py>,
-    name: &str,
-    data: Option<PyBuffer<u8>>,
-    seed: i64,
-    kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
-) -> PyResult<Bound<'py, PyAny>> {
-    match name {
-        "gxhash32" => gxhash32(py, data, seed, kwargs)?.into_bound_py_any(py),
-        "gxhash64" => gxhash64(py, data, seed, kwargs)?.into_bound_py_any(py),
-        "gxhash128" => gxhash128(py, data, seed, kwargs)?.into_bound_py_any(py),
-        _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
-            "unsupported hash type: {name}",
-        ))),
-    }
-}
+hashlib_algorithms!(gxhash32, gxhash64, gxhash128);
 
 #[pyfunction]
 #[pyo3(signature = (fileobj, digest, /, *, seed = 0, **kwargs))]
@@ -345,7 +350,7 @@ fn file_digest<'py>(
     }
 }
 
-/// gxhash.hashlib — hashlib-compatible GxHash API
+/// hashlib-compatible GxHash API
 ///
 /// This module contains the hashlib-compatible API for GxHash.
 ///
@@ -373,6 +378,9 @@ fn file_digest<'py>(
 ///
 #[pyo3::pymodule(submodule, name = "gxhashlib", gil_used = false)]
 pub mod hashlib_module {
+    use pyo3::types;
+    use pyo3::types::PyModuleMethods;
+
     #[pymodule_export]
     use super::file_digest;
     #[pymodule_export]
@@ -383,4 +391,13 @@ pub mod hashlib_module {
     use super::gxhash128;
     #[pymodule_export]
     use super::new;
+
+    #[pymodule_init]
+    fn init(m: &pyo3::Bound<'_, types::PyModule>) -> pyo3::PyResult<()> {
+        let py = m.py();
+        let algorithms_available = types::PySet::new(py, super::ALGORITHMS)?;
+
+        m.add("algorithms_available", &algorithms_available)?;
+        m.add("algorithms_guaranteed", &algorithms_available)
+    }
 }

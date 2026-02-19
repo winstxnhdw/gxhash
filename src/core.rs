@@ -88,6 +88,28 @@ impl_gxhash_methods!(GxHash32, u32, gxhash_core::gxhash32);
 impl_gxhash_methods!(GxHash64, u64, gxhash_core::gxhash64);
 impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 
+/// Core Python bindings for GxHash
+///
+/// This module contains the core Python bindings for GxHash, a blazingly fast and robust non-cryptographic hashing algorithm.
+///
+/// * GxHash32  - a class for computing 32-bit hashes
+/// * GxHash64  - a class for computing 64-bit hashes
+/// * GxHash128 - a class for computing 128-bit hashes
+///
+/// Each class provides methods for hashing byte sequences both synchronously and asynchronously.
+///
+/// * GxHash32(seed: int)
+/// * hash(bytes: bytes) -> Uint32
+/// * hash_async(bytes: bytes) -> Awaitable[Uint32]
+///
+/// * GxHash64(seed: int)
+/// * hash(bytes: bytes) -> Uint64
+/// * hash_async(bytes: bytes) -> Awaitable[Uint64]
+///
+/// * GxHash128(seed: int)
+/// * hash(bytes: bytes) -> Uint128
+/// * hash_async(bytes: bytes) -> Awaitable[Uint128]
+///
 #[pyo3::pymodule(submodule, name = "core", gil_used = false)]
 pub mod core_module {
     use pyo3::prelude::PyModuleMethods;

@@ -5,6 +5,7 @@ use pyo3::PyResult;
 use pyo3::intern;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
+use pyo3::types::PyType;
 use pyo3::types::PyTypeMethods;
 use quickcheck_macros::quickcheck;
 
@@ -728,27 +729,51 @@ fn test_hashlib_file_digest_real_file_partial_seek() -> PyResult<()> {
 #[test]
 fn test_hashlib_gxhash32_issubclass_hashlib_hash() -> PyResult<()> {
     pytest!(py, {
-        let md5_type = py.import(intern!(py, "hashlib"))?.getattr(intern!(py, "md5"))?.call0()?.getattr(intern!(py, "__class__"))?;
-        let gxhash_type = py.import_hashlib_gxhash32()?.call0()?.getattr(intern!(py, "__class__"))?;
-        assert!(gxhash_type.downcast::<pyo3::types::PyType>()?.is_subclass(&md5_type)?);
+        let md5_type = py
+            .import(intern!(py, "hashlib"))?
+            .call_method0(intern!(py, "md5"))?
+            .getattr(intern!(py, "__class__"))?;
+
+        let gxhash_type = py
+            .import_hashlib_gxhash32()?
+            .call0()?
+            .getattr(intern!(py, "__class__"))?;
+
+        assert!(gxhash_type.cast::<PyType>()?.is_subclass(&md5_type)?);
     })
 }
 
 #[test]
 fn test_hashlib_gxhash64_issubclass_hashlib_hash() -> PyResult<()> {
     pytest!(py, {
-        let md5_type = py.import(intern!(py, "hashlib"))?.getattr(intern!(py, "md5"))?.call0()?.getattr(intern!(py, "__class__"))?;
-        let gxhash_type = py.import_hashlib_gxhash64()?.call0()?.getattr(intern!(py, "__class__"))?;
-        assert!(gxhash_type.downcast::<pyo3::types::PyType>()?.is_subclass(&md5_type)?);
+        let md5_type = py
+            .import(intern!(py, "hashlib"))?
+            .call_method0(intern!(py, "md5"))?
+            .getattr(intern!(py, "__class__"))?;
+
+        let gxhash_type = py
+            .import_hashlib_gxhash64()?
+            .call0()?
+            .getattr(intern!(py, "__class__"))?;
+
+        assert!(gxhash_type.cast::<PyType>()?.is_subclass(&md5_type)?);
     })
 }
 
 #[test]
 fn test_hashlib_gxhash128_issubclass_hashlib_hash() -> PyResult<()> {
     pytest!(py, {
-        let md5_type = py.import(intern!(py, "hashlib"))?.getattr(intern!(py, "md5"))?.call0()?.getattr(intern!(py, "__class__"))?;
-        let gxhash_type = py.import_hashlib_gxhash128()?.call0()?.getattr(intern!(py, "__class__"))?;
-        assert!(gxhash_type.downcast::<pyo3::types::PyType>()?.is_subclass(&md5_type)?);
+        let md5_type = py
+            .import(intern!(py, "hashlib"))?
+            .call_method0(intern!(py, "md5"))?
+            .getattr(intern!(py, "__class__"))?;
+
+        let gxhash_type = py
+            .import_hashlib_gxhash128()?
+            .call0()?
+            .getattr(intern!(py, "__class__"))?;
+
+        assert!(gxhash_type.cast::<PyType>()?.is_subclass(&md5_type)?);
     })
 }
 

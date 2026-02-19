@@ -1,15 +1,13 @@
 # ruff: noqa: S101, PLR2004, PLR0915
 
+from _hashlib import HASH
 from asyncio import run
 from hashlib import md5
 from io import BytesIO
 from tempfile import NamedTemporaryFile
-from typing import Protocol
 
-from gxhash import GxHash32, GxHash64, GxHash128, GxHashAsyncError, Hasher, T_co, Uint32, Uint64, Uint128
+from gxhash import GxHash32, GxHash64, GxHash128, GxHashAsyncError
 from gxhash.hashlib import (
-    HASH,
-    Buffer,
     algorithms_available,
     algorithms_guaranteed,
     file_digest,
@@ -18,9 +16,6 @@ from gxhash.hashlib import (
     gxhash128,
     new,
 )
-
-
-class NewHasher(Protocol[T_co]): ...
 
 
 def equal(hasher1: HASH, hasher2: HASH) -> bool:
@@ -35,28 +30,28 @@ def equal(hasher1: HASH, hasher2: HASH) -> bool:
 
 async def main() -> None:
     try:
-        data: Buffer = bytes(range(256))
+        data = bytes(range(256))
         hashlib_md5 = md5(usedforsecurity=False)
         file = BytesIO(data)
         temporary_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
         temporary_file.write(data)
         additional_data = b"additional data"
-        extra_data: Buffer = data + additional_data
-        hasher32: Hasher[Uint32] = GxHash32(seed=0)
-        hasher64: Hasher[Uint64] = GxHash64(seed=-(2**63))
-        hasher128: Hasher[Uint128] = GxHash128(seed=2**63 - 1)
+        extra_data = data + additional_data
+        hasher32 = GxHash32(seed=0)
+        hasher64 = GxHash64(seed=-(2**63))
+        hasher128 = GxHash128(seed=2**63 - 1)
         gxhashlib32: HASH = gxhash32(data, seed=0, usedforsecurity=False, string=None)
         gxhashlib64: HASH = gxhash64(data, seed=-(2**63), usedforsecurity=False, string=None)
         gxhashlib128: HASH = gxhash128(data, seed=2**63 - 1, usedforsecurity=False, string=None)
-        new_gxhashlib32: HASH = new("gxhash32", data, seed=0, usedforsecurity=False, string=None)
-        new_gxhashlib64: HASH = new("gxhash64", data, seed=-(2**63), usedforsecurity=False, string=None)
-        new_gxhashlib128: HASH = new("gxhash128", data, seed=2**63 - 1, usedforsecurity=False, string=None)
+        new_gxhashlib32 = new("gxhash32", data, seed=0, usedforsecurity=False, string=None)
+        new_gxhashlib64 = new("gxhash64", data, seed=-(2**63), usedforsecurity=False, string=None)
+        new_gxhashlib128 = new("gxhash128", data, seed=2**63 - 1, usedforsecurity=False, string=None)
         gxhashlib32_from_file = file_digest(file, "gxhash32", seed=0, usedforsecurity=False, string=None)
         gxhash64_digest_from_file = file_digest(file, "gxhash64", seed=-(2**63), usedforsecurity=False, string=None)
         gxhash128_digest_from_file = file_digest(file, "gxhash128", seed=2**63 - 1, usedforsecurity=False, string=None)
-        gxhashlib32_copy: HASH = gxhashlib32.copy()
-        gxhashlib64_copy: HASH = gxhashlib64.copy()
-        gxhashlib128_copy: HASH = gxhashlib128.copy()
+        gxhashlib32_copy = gxhashlib32.copy()
+        gxhashlib64_copy = gxhashlib64.copy()
+        gxhashlib128_copy = gxhashlib128.copy()
         assert hasher32.hash(data) != hasher32.hash(extra_data)
         assert hasher64.hash(data) != hasher64.hash(extra_data)
         assert hasher128.hash(data) != hasher128.hash(extra_data)
