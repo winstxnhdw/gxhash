@@ -5,20 +5,23 @@ all:
 publish: all
 	uv publish
 
-sync:
-	uv sync --reinstall
-
 inspect: all
 	rm -rf gxhash-*/
 	tar -xvf dist/*.tar.gz
+
+smoke-test: all
+	uv run --reinstall --no-cache --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+
+sync:
+	uv sync --reinstall
 
 clean:
 	rm -rf dist target .venv
 
 benchmark:
-	cd bench && uv run --reinstall --no-dev --locked bench && cargo run --locked
+	cd bench && uv run --reinstall --no-cache --no-dev --locked bench && cargo run --locked
 
-perf:
+performance:
 	cargo bench --locked
 
 pre-commit:
@@ -26,6 +29,3 @@ pre-commit:
 
 test:
 	uv run prek run
-
-smoke-test: all
-	uv run --reinstall --no-cache --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py

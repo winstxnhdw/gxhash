@@ -43,4 +43,4 @@ jobs:
         uses: CodSpeedHQ/action@v4.10.6
         with:
           mode: simulation
-          run: cargo codspeed run
+          run: sudo -E nice -n -20 cargo codspeed run

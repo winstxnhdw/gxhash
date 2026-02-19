@@ -51,7 +51,9 @@ macro_rules! python {
 
 trait PythonExt<'py> {
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>>;
-    fn import_gxhash(&self) -> PyResult<Bound<'_, PyAny>>;
+    fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>>;
+    fn import_gxhash64(&self) -> PyResult<Bound<'_, PyAny>>;
+    fn import_gxhash128(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_hashlib_gxhash(&self) -> PyResult<Bound<'_, PyAny>>;
 }
 
@@ -69,7 +71,17 @@ impl<'py> PythonExt<'py> for Python<'py> {
         Ok(asyncio)
     }
 
-    fn import_gxhash(&self) -> PyResult<Bound<'_, PyAny>> {
+    fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>> {
+        self.import(intern!(*self, "gxhash.core"))?
+            .getattr(intern!(*self, "GxHash32"))
+    }
+
+    fn import_gxhash64(&self) -> PyResult<Bound<'_, PyAny>> {
+        self.import(intern!(*self, "gxhash.core"))?
+            .getattr(intern!(*self, "GxHash64"))
+    }
+
+    fn import_gxhash128(&self) -> PyResult<Bound<'_, PyAny>> {
         self.import(intern!(*self, "gxhash.core"))?
             .getattr(intern!(*self, "GxHash128"))
     }
@@ -81,12 +93,36 @@ impl<'py> PythonExt<'py> for Python<'py> {
 }
 
 #[divan::bench]
-fn hash(bencher: Bencher) {
+fn hash32(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
         let bytes_vector = generate_bytes(seed, Memory::KiB64);
         let bytes = bytes_vector.as_slice();
-        let hash = py.import_gxhash()?.call1((seed,))?.getattr("hash")?;
+        let hash = py.import_gxhash32()?.call1((seed,))?.getattr("hash")?;
+
+        bencher.bench_local(|| hash.call1((bytes,)));
+    })
+}
+
+#[divan::bench]
+fn hash64(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::KiB64);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash64()?.call1((seed,))?.getattr("hash")?;
+
+        bencher.bench_local(|| hash.call1((bytes,)));
+    })
+}
+
+#[divan::bench]
+fn hash128(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::KiB64);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash128()?.call1((seed,))?.getattr("hash")?;
 
         bencher.bench_local(|| hash.call1((bytes,)));
     })
@@ -99,7 +135,7 @@ fn hash_async(bencher: Bencher) {
         let bytes_vector = generate_bytes(seed, Memory::KiB64);
         let bytes = bytes_vector.as_slice();
         let asyncio = py.import_asyncio()?;
-        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+        let hash_async = py.import_gxhash128()?.call1((seed,))?.getattr("hash_async")?;
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
 
@@ -115,7 +151,7 @@ fn hash_async_large(bencher: Bencher) {
         let bytes_vector = generate_bytes(seed, Memory::MiB4);
         let bytes = bytes_vector.as_slice();
         let asyncio = py.import_asyncio()?;
-        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+        let hash_async = py.import_gxhash128()?.call1((seed,))?.getattr("hash_async")?;
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
 
@@ -136,7 +172,7 @@ fn hash_async_batch(bencher: Bencher) {
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
         let asyncio_gather = asyncio.getattr("gather")?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
-        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+        let hash_async = py.import_gxhash128()?.call1((seed,))?.getattr("hash_async")?;
 
         asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
         bencher.bench_local(|| {
@@ -165,7 +201,7 @@ fn hash_async_batch_large(bencher: Bencher) {
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
         let asyncio_gather = asyncio.getattr("gather")?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
-        let hash_async = py.import_gxhash()?.call1((seed,))?.getattr("hash_async")?;
+        let hash_async = py.import_gxhash128()?.call1((seed,))?.getattr("hash_async")?;
 
         asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
         bencher.bench_local(|| {
@@ -179,6 +215,20 @@ fn hash_async_batch_large(bencher: Bencher) {
 
             run_until_complete.call1((asyncio_gather.call1(coroutines)?,))
         });
+    })
+}
+
+#[divan::bench]
+fn hashlib_gxhash_digest(bencher: Bencher) {
+    python!(py, {
+        let seed = 42;
+        let kwargs = [("seed", seed)].into_py_dict(py)?;
+        let digest = py
+            .import_hashlib_gxhash()?
+            .call((generate_bytes(seed, Memory::KiB64).as_slice(),), Some(&kwargs))?
+            .getattr("digest")?;
+
+        bencher.bench_local(|| digest.call0());
     })
 }
 
