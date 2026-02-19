@@ -131,7 +131,7 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .with_viewbox([1200.0, 800.0])
         .append(theme);
 
-    poloto::frame()
+    let svg = poloto::frame()
         .with_viewbox(viewbox)
         .build()
         .data(data)
@@ -151,7 +151,9 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         })
         .build_and_label((heading, "Payload Size", "Throughput (MiB/s)"))
         .append_to(header)
-        .render_string()
+        .render_string()?;
+        
+    Ok(svg)
 }
 
 fn main() -> Result<()> {
