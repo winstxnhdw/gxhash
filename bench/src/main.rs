@@ -104,31 +104,29 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .flatten()
         .map(|size| f64::log10(size as f64))
         .collect();
-        
+
     let x_min = tick_positions.iter().copied().reduce(f64::min).unwrap_or(0.0);
     let x_max = tick_positions.iter().copied().reduce(f64::max).unwrap_or(4000.0);
 
-    let colors = [
-        "#6340AC", "#E6194B", "#3CB44B", "#FFE119", "#4363D8",
-        "#F58231", "#911EB4", "#42D4F4", "#F032E6", "#BFEF45",
-        "#FABED4", "#469990", "#DCBEFF", "#9A6324", "#800000",
-        "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#A9A9A9",
+    let colours = [
+        "#6340AC", "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#911EB4", "#42D4F4", "#F032E6", "#BFEF45",
+        "#FABED4", "#469990", "#c28dff", "#9A6324", "#800000", "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#054f03",
     ];
+
+    let colour_css = colours.iter().enumerate().map(|(i, colour)| {
+        format!(".poloto{i}.poloto_line{{stroke:{colour};}}.poloto{i}.poloto_fill{{fill:{colour};}}")
+    });
 
     let theme = poloto::render::Theme::light()
         .append(raw(".poloto_background{fill: white;}"))
-        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"));
+        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"))
+        .append(raw(colour_css.collect::<String>()));
 
-    for (i, color) in colors.iter().enumerate() {
-        theme = theme
-            .append(raw(format!(".poloto{i}.poloto_line{{stroke:{color};}}")))
-            .append(raw(format!(".poloto{i}.poloto_fill{{fill:{color};}}")));
-    }
-    
+    let viewbox = [1200.0, 800.0];
     let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
     let header = poloto::header()
         .with_dim([2800.0, 1500.0])
-        .with_viewbox([1200.0, 800.0])
+        .with_viewbox(viewbox)
         .append(theme);
 
     let svg = poloto::frame()
@@ -140,19 +138,19 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
                 let kilobyte = (1 << 10) as f64;
                 let megabyte = (1 << 20) as f64;
                 let gigabyte = (1 << 30) as f64;
-                
+
                 match 10.0_f64.powf(*value) {
-                     bytes if bytes >= gigabyte => format!("{:.0} GiB", bytes / gigabyte),
-                     bytes if bytes >= megabyte => format!("{:.0} MiB", bytes / megabyte),
-                     bytes if bytes >= kilobyte => format!("{:.0} KiB", bytes / kilobyte),
-                     bytes => format!("{:.0} B", bytes),
-                 }
+                    bytes if bytes >= gigabyte => format!("{:.0} GiB", bytes / gigabyte),
+                    bytes if bytes >= megabyte => format!("{:.0} MiB", bytes / megabyte),
+                    bytes if bytes >= kilobyte => format!("{:.0} KiB", bytes / kilobyte),
+                    bytes => format!("{:.0} B", bytes),
+                }
             })
         })
         .build_and_label((heading, "Payload Size", "Throughput (MiB/s)"))
         .append_to(header)
         .render_string()?;
-        
+
     Ok(svg)
 }
 
