@@ -66,7 +66,7 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## Reproduction
 
-To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory.
+To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. The benchmark may take a few hours to complete, depending on your hardware.
 
 ```bash
 MATURIN_PEP517_ARGS="--features hybrid" uv run bench
