@@ -97,15 +97,34 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         poloto::build::plot(name).line(points)
     });
 
-    let tick_positions: Vec<f64> = (4..14).map(|i| f64::log10(4.0_f64.powi(i) / 1_048_576.0)).collect();
+    let tick_positions: Vec<_> = dataframe["payload_size"]
+        .i64()?
+        .unique()?
+        .iter()
+        .flatten()
+        .map(|size| f64::log10(size as f64))
+        .collect();
+        
+    let x_min = tick_positions.iter().copied().reduce(f64::min).unwrap_or(0.0);
+    let x_max = tick_positions.iter().copied().reduce(f64::max).unwrap_or(4000.0);
 
-    let x_min = tick_positions[0];
-    let x_max = tick_positions[tick_positions.len() - 1];
+    let colors = [
+        "#6340AC", "#E6194B", "#3CB44B", "#FFE119", "#4363D8",
+        "#F58231", "#911EB4", "#42D4F4", "#F032E6", "#BFEF45",
+        "#FABED4", "#469990", "#DCBEFF", "#9A6324", "#800000",
+        "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#A9A9A9",
+    ];
 
     let theme = poloto::render::Theme::light()
         .append(raw(".poloto_background{fill: white;}"))
         .append(raw(".poloto_text.poloto_legend{font-size:8px;}"));
 
+    for (i, color) in colors.iter().enumerate() {
+        theme = theme
+            .append(raw(format!(".poloto{i}.poloto_line{{stroke:{color};}}")))
+            .append(raw(format!(".poloto{i}.poloto_fill{{fill:{color};}}")));
+    }
+    
     let viewbox = [1008.0, 540.0];
     let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
     let header = poloto::header()
@@ -113,7 +132,7 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         .with_viewbox(viewbox)
         .append(theme);
 
-    let svg = poloto::frame()
+    poloto::frame()
         .with_viewbox(viewbox)
         .build()
         .data(data)
@@ -133,9 +152,7 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
         })
         .build_and_label((heading, "Payload Size", "Throughput (MiB/s)"))
         .append_to(header)
-        .render_string()?;
-
-    Ok(svg)
+        .render_string()
 }
 
 fn main() -> Result<()> {
