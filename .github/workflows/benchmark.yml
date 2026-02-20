@@ -39,6 +39,9 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7.3.0
 
+      - name: Install Python dependenc(ies)
+        run: uv sync
+
       - name: Generate benchmark results
         run: sudo -E nice -n -20 $(which uv) run bench
 
