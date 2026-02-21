@@ -1,3 +1,4 @@
+mod buffer;
 mod core;
 mod hashlib;
 

@@ -91,6 +91,9 @@ if __name__ == "__main__":
 
 Hashing bytes asynchronously.
 
+> [!IMPORTANT]\
+> As with Python's `hashlib`, callers must not mutate the input buffer during a hash operation.
+
 ```python
 from asyncio import run
 from gxhash import GxHash128

@@ -1,4 +1,4 @@
-use crate::helpers::PythonExt;
+use crate::helpers::{PythonExt, call_hashlib_digest, call_hashlib_hexdigest};
 use crate::pytest;
 use gxhash::gxhash_py;
 use pyo3::PyResult;
@@ -230,91 +230,11 @@ fn test_hashlib_gxhash128_copy() -> PyResult<()> {
 }
 
 #[quickcheck]
-fn test_hashlib_gxhash32_hexdigest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash32()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash32()?.call1((bytes.as_slice(),))?;
-
-        let hexdigest1 = hasher1.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let hexdigest2 = hasher2.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-
-        assert_eq!(hexdigest1, hexdigest2);
-    })
-}
-
-#[quickcheck]
-fn test_hashlib_gxhash64_hexdigest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash64()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash64()?.call1((bytes.as_slice(),))?;
-
-        let hexdigest1 = hasher1.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let hexdigest2 = hasher2.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-
-        assert_eq!(hexdigest1, hexdigest2);
-    })
-}
-
-#[quickcheck]
-fn test_hashlib_gxhash128_hexdigest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash128()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash128()?.call1((bytes.as_slice(),))?;
-
-        let hexdigest1 = hasher1.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let hexdigest2 = hasher2.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-
-        assert_eq!(hexdigest1, hexdigest2);
-    })
-}
-
-#[quickcheck]
-fn test_hashlib_gxhash32_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash32()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash32()?.call1((bytes.as_slice(),))?;
-
-        let digest1 = hasher1.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-        let digest2 = hasher2.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-
-        assert_eq!(digest1, digest2);
-    })
-}
-
-#[quickcheck]
-fn test_hashlib_gxhash64_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash64()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash64()?.call1((bytes.as_slice(),))?;
-
-        let digest1 = hasher1.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-        let digest2 = hasher2.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-
-        assert_eq!(digest1, digest2);
-    })
-}
-
-#[quickcheck]
-fn test_hashlib_gxhash128_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher1 = py.import_hashlib_gxhash128()?.call1((bytes.as_slice(),))?;
-        let hasher2 = py.import_hashlib_gxhash128()?.call1((bytes.as_slice(),))?;
-
-        let digest1 = hasher1.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-        let digest2 = hasher2.call_method0(intern!(py, "digest"))?.extract::<Vec<u8>>()?;
-
-        assert_eq!(digest1, digest2);
-    })
-}
-
-#[quickcheck]
 fn test_hashlib_gxhash32_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
     pytest!(py, {
-        let hasher = py.import_hashlib_gxhash32()?.call1((bytes.as_slice(),))?;
-        let hexdigest = hasher.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let digest: String = hasher
-            .call_method0(intern!(py, "digest"))?
-            .extract::<Vec<u8>>()?
+        let gxhash32 = py.import_hashlib_gxhash32()?;
+        let hexdigest = call_hashlib_hexdigest(py, &gxhash32, &bytes)?;
+        let digest: String = call_hashlib_digest(py, &gxhash32, &bytes)?
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect();
@@ -326,11 +246,9 @@ fn test_hashlib_gxhash32_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<(
 #[quickcheck]
 fn test_hashlib_gxhash64_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
     pytest!(py, {
-        let hasher = py.import_hashlib_gxhash64()?.call1((bytes.as_slice(),))?;
-        let hexdigest = hasher.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let digest: String = hasher
-            .call_method0(intern!(py, "digest"))?
-            .extract::<Vec<u8>>()?
+        let gxhash64 = py.import_hashlib_gxhash64()?;
+        let hexdigest = call_hashlib_hexdigest(py, &gxhash64, &bytes)?;
+        let digest: String = call_hashlib_digest(py, &gxhash64, &bytes)?
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect();
@@ -342,11 +260,9 @@ fn test_hashlib_gxhash64_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<(
 #[quickcheck]
 fn test_hashlib_gxhash128_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<()> {
     pytest!(py, {
-        let hasher = py.import_hashlib_gxhash128()?.call1((bytes.as_slice(),))?;
-        let hexdigest = hasher.call_method0(intern!(py, "hexdigest"))?.extract::<String>()?;
-        let digest: String = hasher
-            .call_method0(intern!(py, "digest"))?
-            .extract::<Vec<u8>>()?
+        let gxhash128 = py.import_hashlib_gxhash128()?;
+        let hexdigest = call_hashlib_hexdigest(py, &gxhash128, &bytes)?;
+        let digest: String = call_hashlib_digest(py, &gxhash128, &bytes)?
             .iter()
             .map(|b| format!("{b:02x}"))
             .collect();

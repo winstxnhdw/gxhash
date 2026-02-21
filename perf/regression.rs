@@ -16,6 +16,7 @@ static ONCE: std::sync::Once = std::sync::Once::new();
 
 #[derive(Clone, Copy)]
 enum Memory {
+    B64 = 64,
     KiB64 = 64 << 10,
     MiB4 = 4 << 20,
 }
@@ -121,6 +122,42 @@ fn hash128(bencher: Bencher) {
     python!(py, {
         let seed: u64 = 42;
         let bytes_vector = generate_bytes(seed, Memory::KiB64);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash128()?.call1((seed,))?.getattr("hash")?;
+
+        bencher.bench_local(|| hash.call1((bytes,)));
+    })
+}
+
+#[divan::bench]
+fn hash32_small(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::B64);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash32()?.call1((seed,))?.getattr("hash")?;
+
+        bencher.bench_local(|| hash.call1((bytes,)));
+    })
+}
+
+#[divan::bench]
+fn hash64_small(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::B64);
+        let bytes = bytes_vector.as_slice();
+        let hash = py.import_gxhash64()?.call1((seed,))?.getattr("hash")?;
+
+        bencher.bench_local(|| hash.call1((bytes,)));
+    })
+}
+
+#[divan::bench]
+fn hash128_small(bencher: Bencher) {
+    python!(py, {
+        let seed: u64 = 42;
+        let bytes_vector = generate_bytes(seed, Memory::B64);
         let bytes = bytes_vector.as_slice();
         let hash = py.import_gxhash128()?.call1((seed,))?.getattr("hash")?;
 

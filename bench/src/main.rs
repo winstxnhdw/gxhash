@@ -109,8 +109,8 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
     let x_max = tick_positions.iter().copied().reduce(f64::max).unwrap_or(4000.0);
 
     let colours = [
-        "#6340AC", "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#911EB4", "#42D4F4", "#F032E6", "#BFEF45",
-        "#FABED4", "#469990", "#c28dff", "#9A6324", "#800000", "#AAFFC3", "#808000", "#FFD8B1", "#000075", "#054f03",
+        "#253b77", "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#79059c", "#42D4F4", "#F032E6", "#BFEF45",
+        "#FABED4", "#469990", "#c28dff", "#9A6324", "#800000", "#AAFFC3", "#808000", "#FFD8B1", "#e30081", "#054f03",
     ];
 
     let colour_css = colours.iter().enumerate().map(|(i, colour)| {

@@ -1,3 +1,5 @@
+use crate::buffer::PyBufferExt;
+
 use pyo3::Bound;
 use pyo3::IntoPyObjectExt;
 use pyo3::PyAny;
@@ -172,16 +174,6 @@ impl HexDigest for u128 {
     }
 }
 
-trait PyBufferExt {
-    fn as_bytes(&self, _: Python) -> &[u8];
-}
-
-impl PyBufferExt for PyBuffer<u8> {
-    fn as_bytes(&self, _: Python) -> &[u8] {
-        unsafe { std::slice::from_raw_parts(self.buf_ptr() as *const u8, self.len_bytes()) }
-    }
-}
-
 #[cfg_attr(
     not(any(Py_3_8, Py_3_9)),
     pyclass(name = "HASH", module = "_hashlib", immutable_type)
@@ -236,17 +228,17 @@ macro_rules! impl_hashlib {
                 1
             }
 
-            fn digest(&self, py: Python) -> [u8; $digest_size] {
-                $hasher(self.buffer.as_bytes(py), self.seed).to_le_bytes()
+            fn digest(&self) -> [u8; $digest_size] {
+                $hasher(self.buffer.as_bytes(), self.seed).to_le_bytes()
             }
 
-            fn hexdigest(&self, py: Python) -> String {
-                $hasher(self.buffer.as_bytes(py), self.seed).hexdigest()
+            fn hexdigest(&self) -> String {
+                $hasher(self.buffer.as_bytes(), self.seed).hexdigest()
             }
 
             fn update(&mut self, py: Python, data: PyBuffer<u8>) -> PyResult<()> {
-                let slice = self.buffer.as_bytes(py);
-                let new_slice = data.as_bytes(py);
+                let slice = self.buffer.as_bytes();
+                let new_slice = data.as_bytes();
 
                 let mut combined = Vec::with_capacity(slice.len() + new_slice.len());
                 combined.extend_from_slice(slice);
@@ -259,7 +251,7 @@ macro_rules! impl_hashlib {
             fn copy(&self, py: Python) -> PyResult<Self> {
                 let new_hashlib = Self {
                     seed: self.seed,
-                    buffer: PyBuffer::get(&self.buffer.as_bytes(py).into_bound_py_any(py)?)?,
+                    buffer: PyBuffer::get(&self.buffer.as_bytes().into_bound_py_any(py)?)?,
                 };
 
                 Ok(new_hashlib)
@@ -339,8 +331,11 @@ fn file_digest<'py>(
         }
     });
 
-    let size = (file.metadata()?.len() - file.stream_position()?) as usize;
-    let data = pyo3::types::PyBytes::new_with(py, size, |buffer| (&*file).read_exact(buffer).map_err(Into::into))?;
+    let data = pyo3::types::PyBytes::new_with(
+        py,
+        (file.metadata()?.len() - file.stream_position()?) as usize,
+        |buffer| py.detach(|| (&*file).read_exact(buffer).map_err(Into::into)),
+    )?;
 
     match digest.cast::<pyo3::types::PyString>() {
         Ok(name) => new(py, name.extract()?, Some(PyBuffer::get(&data)?), seed, kwargs),

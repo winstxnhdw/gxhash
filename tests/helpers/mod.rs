@@ -4,6 +4,8 @@ use pyo3::PyResult;
 use pyo3::Python;
 use pyo3::intern;
 use pyo3::types::PyAnyMethods;
+use pyo3::types::PyBytes;
+use pyo3::types::PyMemoryView;
 use pyo3::types::PyModule;
 
 pub(crate) static ONCE: std::sync::Once = std::sync::Once::new();
@@ -90,6 +92,24 @@ impl<'py> PythonExt<'py> for Python<'py> {
     fn import_hashlib_file_digest(&self) -> PyResult<Bound<'_, PyAny>> {
         self.import_gxhash_hashlib()?.getattr(intern!(*self, "file_digest"))
     }
+}
+
+pub fn call_hashlib_digest<'py>(py: Python<'py>, hasher: &Bound<'py, PyAny>, bytes: &[u8]) -> PyResult<Vec<u8>> {
+    let memoryview = PyMemoryView::from(&PyBytes::new(py, bytes))?;
+
+    hasher
+        .call1((&memoryview,))?
+        .call_method0(intern!(py, "digest"))?
+        .extract()
+}
+
+pub fn call_hashlib_hexdigest<'py>(py: Python<'py>, hasher: &Bound<'py, PyAny>, bytes: &[u8]) -> PyResult<String> {
+    let memoryview = PyMemoryView::from(&PyBytes::new(py, bytes))?;
+
+    hasher
+        .call1((&memoryview,))?
+        .call_method0(intern!(py, "hexdigest"))?
+        .extract()
 }
 
 pub fn call_hash<'py, T>(py: Python<'py>, obj: &Bound<'py, PyAny>, bytes: &[u8]) -> PyResult<T>

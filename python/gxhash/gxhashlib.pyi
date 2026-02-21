@@ -3,11 +3,10 @@ from collections.abc import Callable
 from collections.abc import Set as AbstractSet
 from typing import Literal, Protocol
 
+from gxhash.buffer import Buffer as Buffer
+
 algorithms_available: AbstractSet[str]
 algorithms_guaranteed: AbstractSet[str]
-
-class Buffer(Protocol):
-    def __buffer__(self, flags: int, /) -> memoryview: ...
 
 class FileLike(Protocol):
     def fileno(self) -> int: ...
