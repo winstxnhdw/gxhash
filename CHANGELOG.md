@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0]
+
+Released on 2026-02-21
+
+### Fixed
+
+- re-export `__doc__` to `hashlib` module
+
+### Changed
+
+- no longer expose stubs to users
+
 ## [0.4.1]
 
 Released on 2026-02-19
