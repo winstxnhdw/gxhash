@@ -114,12 +114,12 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
     ];
 
     let colour_css = colours.iter().enumerate().map(|(i, colour)| {
-        format!(".poloto{i}.poloto_line{{stroke:{colour};}}.poloto{i}.poloto_fill{{fill:{colour};}}")
+        format!(".poloto{i}.poloto_stroke{{stroke:{colour};}}.poloto{i}.poloto_fill{{fill:{colour};}}")
     });
 
     let theme = poloto::render::Theme::light()
         .append(raw(".poloto_background{fill: white;}"))
-        .append(raw(".poloto_text.poloto_legend{font-size:8px;}"))
+        .append(raw(".poloto_text.poloto_legend{font-size:8px;fill:black;}"))
         .append(raw(colour_css.collect::<String>()));
 
     let viewbox = [1200.0, 800.0];
