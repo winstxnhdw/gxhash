@@ -65,7 +65,7 @@ macro_rules! impl_gxhash_methods {
             }
 
             #[pyo3(signature = (data, /))]
-            fn hash(&self, data: pyo3::Bound<'_, pyo3::PyAny>) -> $return_type {
+            fn hash(&self, data: pyo3::Bound<pyo3::PyAny>) -> $return_type {
                 let mut view = std::mem::MaybeUninit::<pyo3::ffi::Py_buffer>::uninit();
 
                 unsafe {
