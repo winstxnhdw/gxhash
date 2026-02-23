@@ -3,6 +3,7 @@ use crate::buffer::PyBufferExt;
 use pyo3::Py;
 use pyo3::PyResult;
 use pyo3::buffer::PyBuffer;
+use pyo3::ffi;
 use pyo3::pyclass;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
@@ -68,7 +69,7 @@ macro_rules! impl_gxhash_methods {
                 let mut view = std::mem::MaybeUninit::<pyo3::ffi::Py_buffer>::uninit();
 
                 unsafe {
-                    pyo3::ffi::PyObject_GetBuffer(data.as_ptr(), view.as_mut_ptr(), pyo3::ffi::PyBUF_SIMPLE);
+                    ffi::PyObject_GetBuffer(data.as_ptr(), view.as_mut_ptr(), ffi::PyBUF_SIMPLE);
                     let mut view = view.assume_init();
 
                     let result = $hasher(
@@ -76,7 +77,7 @@ macro_rules! impl_gxhash_methods {
                         self.seed,
                     );
 
-                    pyo3::ffi::PyBuffer_Release(&mut view);
+                    ffi::PyBuffer_Release(&mut view);
                     result
                 }
             }
