@@ -19,7 +19,7 @@ clean:
 	rm -rf dist target .venv
 
 benchmark:
-	cd bench && uv run --reinstall --no-cache --no-dev --locked bench && cargo run --locked
+	cd bench && sudo nice -n -20 uv run --reinstall --no-cache --no-dev --locked bench && cargo run --locked
 
 performance:
 	cargo bench --locked
