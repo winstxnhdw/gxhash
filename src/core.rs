@@ -64,8 +64,21 @@ macro_rules! impl_gxhash_methods {
             }
 
             #[pyo3(signature = (data, /))]
-            fn hash(&self, data: PyBuffer<u8>) -> $return_type {
-                $hasher(data.as_bytes(), self.seed)
+            fn hash(&self, data: pyo3::Bound<'_, pyo3::PyAny>) -> $return_type {
+                let mut view = std::mem::MaybeUninit::<pyo3::ffi::Py_buffer>::uninit();
+
+                unsafe {
+                    pyo3::ffi::PyObject_GetBuffer(data.as_ptr(), view.as_mut_ptr(), pyo3::ffi::PyBUF_SIMPLE);
+                    let mut view = view.assume_init();
+
+                    let result = $hasher(
+                        std::slice::from_raw_parts(view.buf as *const u8, view.len as usize),
+                        self.seed,
+                    );
+
+                    pyo3::ffi::PyBuffer_Release(&mut view);
+                    result
+                }
             }
 
             #[pyo3(signature = (data, /))]
