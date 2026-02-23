@@ -1,6 +1,8 @@
+use crate::buffer::PyBufferExt;
+
 use pyo3::Py;
 use pyo3::PyResult;
-use pyo3::Python;
+use pyo3::buffer::PyBuffer;
 use pyo3::pyclass;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
@@ -49,7 +51,7 @@ macro_rules! impl_gxhash_methods {
         #[pymethods]
         impl $name {
             #[new]
-            fn new(py: Python, seed: i64) -> PyResult<Self> {
+            fn new(py: pyo3::Python, seed: i64) -> PyResult<Self> {
                 let runtime = py
                     .import("gxhash.core")?
                     .getattr("runtime")?
@@ -62,20 +64,19 @@ macro_rules! impl_gxhash_methods {
             }
 
             #[pyo3(signature = (data, /))]
-            fn hash(&self, data: &[u8]) -> $return_type {
-                $hasher(data, self.seed)
+            fn hash(&self, data: PyBuffer<u8>) -> $return_type {
+                $hasher(data.as_bytes(), self.seed)
             }
 
             #[pyo3(signature = (data, /))]
-            async fn hash_async(&self, data: Py<pyo3::types::PyBytes>) -> PyResult<$return_type> {
+            async fn hash_async(&self, data: PyBuffer<u8>) -> PyResult<$return_type> {
                 let seed = self.seed;
-                let bytes_slice = Python::attach(|py| data.as_bytes(py));
 
-                match bytes_slice.len() < 4 << 20 {
-                    true => Ok($hasher(bytes_slice, seed)),
+                match data.len_bytes() < 4 << 20 {
+                    true => Ok($hasher(data.as_bytes(), seed)),
                     false => self
                         .runtime
-                        .spawn_blocking(move || $hasher(Python::attach(|py| data.as_bytes(py)), seed))
+                        .spawn_blocking(move || $hasher(data.as_bytes(), seed))
                         .await
                         .map_err(|e| GxHashAsyncError::new_err(e.to_string())),
                 }
