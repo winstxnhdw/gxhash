@@ -1,51 +1,40 @@
+use std::fmt;
+use std::fs::write;
+use std::io;
 use std::ops::Div;
 use std::ops::Mul;
-use std::path::Path;
 
-use anyhow::Result;
 use polars::prelude::*;
-use resvg::tiny_skia;
-use resvg::usvg;
-use resvg::usvg::fontdb::Database;
 use tagu::build::raw;
 use tagu::elem::Elem;
 
-fn write_png_from_svg(data: &str, path: &Path, fontdb: &Database) -> Result<()> {
-    let options = usvg::Options {
-        fontdb: fontdb.clone().into(),
-        ..Default::default()
-    };
-
-    let tree = usvg::Tree::from_str(data, &options)?;
-    let size = tree.size();
-    let width = 1600f32;
-    let scale: f32 = width / size.width();
-    let target_width = width.round() as u32;
-    let target_height = (size.height() * scale).round() as u32;
-    let mut pixmap = tiny_skia::Pixmap::new(target_width, target_height).expect("Failed to allocate pixmap");
-    let transform = tiny_skia::Transform::from_scale(scale, scale);
-    let mut pixmap_mut = pixmap.as_mut();
-    resvg::render(&tree, transform, &mut pixmap_mut);
-    std::fs::create_dir_all(path.parent().unwrap())?;
-    pixmap.save_png(path)?;
-
-    Ok(())
+#[derive(Debug)]
+#[allow(dead_code)]
+enum Error {
+    Polars(PolarsError),
+    Io(io::Error),
+    Fmt(fmt::Error),
 }
 
-fn load_fonts() -> Database {
-    let mut fontdb = Database::new();
-
-    fontdb.load_system_fonts();
-    fontdb.set_serif_family("Times New Roman");
-    fontdb.set_sans_serif_family("Arial");
-    fontdb.set_cursive_family("Comic Sans MS");
-    fontdb.set_fantasy_family("Impact");
-    fontdb.set_monospace_family("Courier New");
-
-    fontdb
+impl From<PolarsError> for Error {
+    fn from(e: PolarsError) -> Self {
+        Error::Polars(e)
+    }
 }
 
-fn generate_benchmark_bar_plot(heading: &str, lazyframe: LazyFrame) -> Result<String> {
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error::Io(e)
+    }
+}
+
+impl From<fmt::Error> for Error {
+    fn from(e: fmt::Error) -> Self {
+        Error::Fmt(e)
+    }
+}
+
+fn generate_benchmark_bar_plot(heading: &str, lazyframe: LazyFrame) -> Result<String, Error> {
     let dataframe = lazyframe.select([col("name"), col("throughput")]).collect()?;
     let data = dataframe["throughput"]
         .f64()?
@@ -65,7 +54,7 @@ fn generate_benchmark_bar_plot(heading: &str, lazyframe: LazyFrame) -> Result<St
     Ok(svg)
 }
 
-fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<String> {
+fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<String, Error> {
     let dataframe = lazyframe
         .select([col("name"), col("payload_size"), col("throughput")])
         .sort(["payload_size"], SortMultipleOptions::default())
@@ -154,7 +143,7 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
     Ok(svg)
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Error> {
     let path = "benchmarks.parquet";
 
     let duration_to_throughput = col("payload_size")
@@ -191,9 +180,10 @@ fn main() -> Result<()> {
         throughtput_batched_dataframe.clone(),
     )?;
 
-    let fonts = load_fonts();
-    write_png_from_svg(&throughput_32bit_svg, Path::new("throughput-32bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_64bit_svg, Path::new("throughput-64bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_128bit_svg, Path::new("throughput-128bit.png"), &fonts)?;
-    write_png_from_svg(&throughput_batched_svg, Path::new("throughput-batched.png"), &fonts)
+    write("throughput-32bit.svg", &throughput_32bit_svg)?;
+    write("throughput-64bit.svg", &throughput_64bit_svg)?;
+    write("throughput-128bit.svg", &throughput_128bit_svg)?;
+    write("throughput-batched.svg", &throughput_batched_svg)?;
+
+    Ok(())
 }
