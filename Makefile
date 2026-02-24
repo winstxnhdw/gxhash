@@ -17,9 +17,10 @@ sync:
 
 clean:
 	rm -rf dist target .venv
+	rm -rf bench/target bench/.venv
 
 benchmark:
-	cd bench && sudo nice -n -20 uv run --reinstall --no-cache --no-dev --locked bench && cargo run --locked
+	cd bench && sudo nice -n -20 ionice -c 1 -n 0 su -c "uv run --reinstall --refresh --no-dev --locked bench" $$(whoami) && cargo run --locked
 
 performance:
 	cargo bench --locked
