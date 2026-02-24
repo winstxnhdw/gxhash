@@ -15,6 +15,9 @@ env:
   UV_PROJECT: ${{ github.workspace }}/bench
   MATURIN_PEP517_ARGS: --features hybrid
   WIKI_PATH: wiki
+  PYTHONDONTWRITEBYTECODE: 1
+  PYTHONOPTIMIZE: 2
+  PYTHONMALLOC: mimalloc
 
 jobs:
   benchmark:
@@ -45,9 +48,6 @@ jobs:
       - name: Generate benchmark results
         run: sudo -E nice -n -20 $(which uv) run bench
 
-      - name: Install fonts
-        run: sudo apt install -y fonts-roboto
-
       - name: Generate plots
         run: cargo run --locked --manifest-path ${{ env.UV_PROJECT }}/Cargo.toml
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Commit changes
         run: |
-          git add *.png
+          git add *.svg
           git commit -m "chore: update benchmarks"
           git pull --autostash --rebase
           git push
