@@ -66,19 +66,20 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## Reproduction
 
-To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. The benchmark may take a few hours to complete, depending on your hardware.
+To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. Depending on your hardware, The benchmark may take up to an hour to complete.
 
 > [!IMPORTANT]\
 > You will need 6 GiB of RAM to avoid OOM errors.
 
 ```bash
-MATURIN_PEP517_ARGS="--features hybrid" uv run bench
+MATURIN_PEP517_ARGS="--features hybrid" sudo -E nice -n -20 ionice -c 1 -n 0 su -c \
+  "uv run --reinstall --no-cache --no-dev --locked bench || echo 'SIGILL - Unsupported platform'" $USER
 ```
 
 You can observe the progress of the benchmark by setting the log level to `DEBUG`.
 
 ```bash
-MATURIN_PEP517_ARGS="--features hybrid" PYTHONUNBUFFERED=1 uv run bench DEBUG
+PYTHONUNBUFFERED=1 uv run bench DEBUG
 ```
 
 To generate the plots from the parquet file, run the following command. This will produce the benchmark plots in the current directory.
