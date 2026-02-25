@@ -13,10 +13,24 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## 32-bit
 
+Without `--features hybrid`.
+
 <div align="center">
-    <img alt="Shows a bar chart with benchmark results for 32-bit hashes."
-         src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-32bit.svg"
-    />
+  <img alt="Shows a bar chart with benchmark results for 32-bit hashes."
+    src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-32bit.svg"
+  />
+</div>
+
+<p align="center">
+  <i>Higher is better</i>
+</p>
+
+With `--features hybrid`.
+
+<div align="center">
+  <img alt="Shows a bar chart with benchmark results for 32-bit hashes with VAES."
+    src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-32bit-vaes.svg"
+  />
 </div>
 
 <p align="center">
@@ -25,10 +39,24 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## 64-bit
 
+Without `--features hybrid`.
+
 <div align="center">
-    <img alt="Shows a bar chart with benchmark results for 64-bit hashes."
-         src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-64bit.svg"
-    />
+  <img alt="Shows a bar chart with benchmark results for 64-bit hashes."
+    src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-64bit.svg"
+  />
+</div>
+
+<p align="center">
+  <i>Higher is better</i>
+</p>
+
+With `--features hybrid`.
+
+<div align="center">
+  <img alt="Shows a bar chart with benchmark results for 64-bit hashes with VAES."
+    src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-64bit-vaes.svg"
+  />
 </div>
 
 <p align="center">
@@ -37,10 +65,24 @@ All benchmarks are updated regularly and the latest results can be found below. 
 
 ## 128-bit
 
+Without `--features hybrid`.
+
 <div align="center">
     <img alt="Shows a bar chart with benchmark results for 128-bit hashes."
          src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-128bit.svg"
     />
+</div>
+
+<p align="center">
+  <i>Higher is better</i>
+</p>
+
+With `--features hybrid`.
+
+<div align="center">
+  <img alt="Shows a bar chart with benchmark results for 128-bit hashes with VAES."
+    src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-128bit-vaes.svg"
+  />
 </div>
 
 <p align="center">
@@ -54,6 +96,8 @@ All benchmarks are updated regularly and the latest results can be found below. 
 > [!NOTE]\
 > Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking xxHash asynchronously.
 
+Without `--features hybrid`.
+
 <div align="center">
     <img alt="Shows a line chart with benchmark results for asynchronous hashing."
          src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-batched.svg"
@@ -63,6 +107,14 @@ All benchmarks are updated regularly and the latest results can be found below. 
 <p align="center">
   <i>Higher is better</i>
 </p>
+
+With `--features hybrid`.
+
+<div align="center">
+    <img alt="Shows a line chart with benchmark results for asynchronous hashing with VAES."
+         src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-batched-vaes.svg"
+    />
+</div>
 
 ## Reproduction
 

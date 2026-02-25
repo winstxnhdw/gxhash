@@ -13,7 +13,6 @@ env:
   UV_LOCKED: 1
   UV_NO_DEV: 1
   UV_PROJECT: ${{ github.workspace }}/bench
-  MATURIN_PEP517_ARGS: --features hybrid
   WIKI_PATH: wiki
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONOPTIMIZE: 2
@@ -50,6 +49,14 @@ jobs:
 
       - name: Generate plots
         run: cargo run --locked --manifest-path ${{ env.UV_PROJECT }}/Cargo.toml
+
+      - name: Generate benchmark results with VAES
+        run: sudo -E nice -n -20 ionice -c 1 -n 0 $(which uv) run --reinstall bench
+        env:
+          MATURIN_PEP517_ARGS: --features hybrid
+
+      - name: Generate plots
+        run: cargo run --locked --manifest-path ${{ env.UV_PROJECT }}/Cargo.toml -- vaes
 
       - name: Set Git config
         run: |

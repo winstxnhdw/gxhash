@@ -145,6 +145,7 @@ fn generate_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) -> Result<S
 
 fn main() -> Result<(), Error> {
     let path = "benchmarks.parquet";
+    let postfix = std::env::args().nth(1).map(|s| format!("-{s}")).unwrap_or_default();
 
     let duration_to_throughput = col("payload_size")
         .mul(lit(1e9))
@@ -180,10 +181,10 @@ fn main() -> Result<(), Error> {
         throughtput_batched_dataframe.clone(),
     )?;
 
-    write("throughput-32bit.svg", &throughput_32bit_svg)?;
-    write("throughput-64bit.svg", &throughput_64bit_svg)?;
-    write("throughput-128bit.svg", &throughput_128bit_svg)?;
-    write("throughput-batched.svg", &throughput_batched_svg)?;
+    write(format!("throughput-32bit{postfix}.svg"), &throughput_32bit_svg)?;
+    write(format!("throughput-64bit{postfix}.svg"), &throughput_64bit_svg)?;
+    write(format!("throughput-128bit{postfix}.svg"), &throughput_128bit_svg)?;
+    write(format!("throughput-batched{postfix}.svg"), &throughput_batched_svg)?;
 
     Ok(())
 }
