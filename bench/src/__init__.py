@@ -276,7 +276,7 @@ def main() -> None:
 
     sizes = 14
     counts = 3
-    repeats = 30
+    repeats = 50
     steps = sum(1 for _ in create_evaluands(payload_size=0, payload_count=0, progress=Progress(total=0), logger=logger))
     progress = Progress(total=sizes * counts * repeats * steps, step=steps)
 
