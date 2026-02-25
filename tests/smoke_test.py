@@ -1,7 +1,11 @@
 # ruff: noqa: S101, PLR2004, PLR0915
 
+from __future__ import annotations
+
 from _hashlib import HASH
 from asyncio import run
+from collections.abc import Generator
+from contextlib import contextmanager
 from hashlib import md5
 from io import BytesIO
 from tempfile import NamedTemporaryFile
@@ -26,6 +30,17 @@ def equal(hasher1: HASH, hasher2: HASH) -> bool:
         and hasher1.block_size == hasher2.block_size
         and hasher1.digest_size == hasher2.digest_size
     )
+
+
+@contextmanager
+def raises(exception: type[BaseException]) -> Generator[None]:
+    raised = False
+    try:
+        yield
+    except exception:
+        raised = True
+    finally:
+        assert raised
 
 
 async def main() -> None:
@@ -99,6 +114,17 @@ async def main() -> None:
         assert isinstance(gxhashlib128, hashlib_md5.__class__)
         assert algorithms_available == algorithms_guaranteed == {"gxhash32", "gxhash64", "gxhash128"}
         temporary_file.close()
+        with raises(AttributeError):
+            hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+        with raises(TypeError):
+            GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            GxHash64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            GxHash128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            type(gxhashlib32).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            type(gxhashlib64).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            type(gxhashlib128).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
         raise GxHashAsyncError  # noqa: TRY301
     except GxHashAsyncError:
         pass

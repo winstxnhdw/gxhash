@@ -174,31 +174,22 @@ impl HexDigest for u128 {
     }
 }
 
-#[cfg_attr(
-    not(any(Py_3_8, Py_3_9)),
-    pyclass(name = "HASH", module = "_hashlib", immutable_type)
-)]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(name = "HASH", module = "_hashlib"))]
+#[cfg_attr(Py_3_10, pyclass(name = "HASH", module = "_hashlib", immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(name = "HASH", module = "_hashlib"))]
 pub(crate) struct GxHashLib32 {
     seed: i64,
     buffer: PyBuffer<u8>,
 }
 
-#[cfg_attr(
-    not(any(Py_3_8, Py_3_9)),
-    pyclass(name = "HASH", module = "_hashlib", immutable_type)
-)]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(name = "HASH", module = "_hashlib"))]
+#[cfg_attr(Py_3_10, pyclass(name = "HASH", module = "_hashlib", immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(name = "HASH", module = "_hashlib"))]
 pub(crate) struct GxHashLib64 {
     seed: i64,
     buffer: PyBuffer<u8>,
 }
 
-#[cfg_attr(
-    not(any(Py_3_8, Py_3_9)),
-    pyclass(name = "HASH", module = "_hashlib", immutable_type)
-)]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(name = "HASH", module = "_hashlib"))]
+#[cfg_attr(Py_3_10, pyclass(name = "HASH", module = "_hashlib", immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(name = "HASH", module = "_hashlib"))]
 pub(crate) struct GxHashLib128 {
     seed: i64,
     buffer: PyBuffer<u8>,

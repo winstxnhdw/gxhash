@@ -8,29 +8,29 @@ use tokio::runtime::Handle;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
 
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
+#[cfg_attr(Py_3_10, pyclass(frozen, immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(frozen))]
 pub struct GxHash32 {
     seed: i64,
     runtime: Handle,
 }
 
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
+#[cfg_attr(Py_3_10, pyclass(frozen, immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(frozen))]
 pub struct GxHash64 {
     seed: i64,
     runtime: Handle,
 }
 
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
+#[cfg_attr(Py_3_10, pyclass(frozen, immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(frozen))]
 pub struct GxHash128 {
     seed: i64,
     runtime: Handle,
 }
 
-#[cfg_attr(not(any(Py_3_8, Py_3_9)), pyclass(frozen, immutable_type))]
-#[cfg_attr(any(Py_3_8, Py_3_9), pyclass(frozen))]
+#[cfg_attr(Py_3_10, pyclass(frozen, immutable_type))]
+#[cfg_attr(not(Py_3_10), pyclass(frozen))]
 struct TokioRuntime {
     runtime: tokio::runtime::Runtime,
 }
