@@ -46,6 +46,8 @@ def raises(exception: type[BaseException]) -> Generator[None]:
 async def main() -> None:
     try:
         data = bytes(range(256))
+        data_bytearray = bytearray(data)
+        data_memoryview = memoryview(data)
         hashlib_md5 = md5(usedforsecurity=False)
         file = BytesIO(data)
         temporary_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
@@ -113,6 +115,20 @@ async def main() -> None:
         assert isinstance(gxhashlib64, hashlib_md5.__class__)
         assert isinstance(gxhashlib128, hashlib_md5.__class__)
         assert algorithms_available == algorithms_guaranteed == {"gxhash32", "gxhash64", "gxhash128"}
+        assert hasher32.hash(data_bytearray) == hasher32.hash(data)
+        assert hasher64.hash(data_bytearray) == hasher64.hash(data)
+        assert hasher128.hash(data_bytearray) == hasher128.hash(data)
+        assert hasher32.hash(data_memoryview) == hasher32.hash(data)
+        assert hasher64.hash(data_memoryview) == hasher64.hash(data)
+        assert hasher128.hash(data_memoryview) == hasher128.hash(data)
+        assert await hasher32.hash_async(data_bytearray) == hasher32.hash(data)
+        assert await hasher64.hash_async(data_bytearray) == hasher64.hash(data)
+        assert await hasher128.hash_async(data_bytearray) == hasher128.hash(data)
+        assert await hasher32.hash_async(data_memoryview) == hasher32.hash(data)
+        assert await hasher64.hash_async(data_memoryview) == hasher64.hash(data)
+        assert await hasher128.hash_async(data_memoryview) == hasher128.hash(data)
+        assert gxhash128(data_bytearray).hexdigest() == gxhashlib128.hexdigest()
+        assert gxhash128(data_memoryview).hexdigest() == gxhashlib128.hexdigest()
         temporary_file.close()
         with raises(AttributeError):
             hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
