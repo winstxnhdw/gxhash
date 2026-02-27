@@ -93,7 +93,7 @@ jobs:
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.3.0
+        uses: astral-sh/setup-uv@v7.3.1
         with:
           python-version: ${{ matrix.python-version }}-${{ matrix.arch }}
           activate-environment: true
@@ -190,7 +190,7 @@ jobs:
           show-progress: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.3.0
+        uses: astral-sh/setup-uv@v7.3.1
         with:
           activate-environment: true
 
