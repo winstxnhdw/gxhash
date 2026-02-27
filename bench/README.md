@@ -93,7 +93,7 @@ With `--features hybrid`.
 
 `gxhash` includes first-class support for asynchronous hashing. As the previous benchmarks above show, the asynchronous variant performs significantly worse in single-hash scenarios because it incurs the overhead of spawning a thread per operation. However, when hashing many items concurrently, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads consistently across all payload sizes.
 
-> [!NOTE]\
+> [!NOTE]
 > Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking xxHash asynchronously.
 
 Without `--features hybrid`.
@@ -120,7 +120,7 @@ With `--features hybrid`.
 
 To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. Depending on your hardware, The benchmark may take up to an hour to complete.
 
-> [!IMPORTANT]\
+> [!IMPORTANT]
 > You will need 6 GiB of RAM to avoid OOM errors.
 
 ```bash

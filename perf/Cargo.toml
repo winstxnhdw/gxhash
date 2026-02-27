@@ -1,0 +1,16 @@
+bench = [
+    { name = "hash", harness = false, path = "hash.rs" },
+    { name = "hashlib", harness = false, path = "hashlib.rs" },
+    { name = "workload", harness = false, path = "workload.rs" },
+]
+
+[package]
+name = "gxhash-perf"
+edition = "2024"
+
+[dependencies]
+gxhash = { path = "..", package = "gxhash-py" }
+pyo3 = { version = "0.28.2", default-features = false, features = ["macros"] }
+
+[dev-dependencies]
+divan = { version = "=4.3.0", package = "codspeed-divan-compat" }

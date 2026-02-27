@@ -171,7 +171,7 @@ jobs:
           architecture: ${{ matrix.arch }}
 
       - name: Test
-        run: cargo test
+        run: cargo test --manifest-path tests/Cargo.toml
 
   coverage:
     runs-on: ubuntu-latest
