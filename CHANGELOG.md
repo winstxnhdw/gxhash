@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1]
+
+Released on 2026-02-27
+
+### Fixed
+
+- ensure that `frozen` and `immutable_type` are applied
+
 ## [0.5.0]
 
 Released on 2026-02-21

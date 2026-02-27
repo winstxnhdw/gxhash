@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "gxhash-py"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "gxhash",
  "pyo3",
