@@ -90,8 +90,8 @@ major_version_zero = true
 [tool.commitizen.customize]
 example = "feat(parser): add support for arrays"
 schema = "<type>(<scope>): <subject>"
-schema_pattern = "^(feat|fix|refactor|perf|build)(\\(.+\\))?: .+"
-commit_parser = "^(?P<change_type>feat|fix|refactor|perf|build)(\\((?P<scope>[^)]+)\\))?: (?P<message>.*)$"
+schema_pattern = "^(feat|fix|refactor|perf|build|ci|chore|docs|internal|test)(/\\w+)?(\\(.+\\))?: .+"
+commit_parser = "^(?P<change_type>feat|fix|refactor|perf|build)(/\\w+)?(\\((?P<scope>[^)]+)\\))?: (?P<message>.*)$"
 change_type_map = { feat = "Added", fix = "Fixed", refactor = "Changed", perf = "Changed", build = "Changed" }
 change_type_order = ["Added", "Fixed", "Changed"]
-changelog_pattern = "^(?P<change_type>feat|fix|refactor|perf|build)(\\((?P<scope>[^)]+)\\))?: (?P<message>.*)$"
+changelog_pattern = "^(?P<change_type>feat|fix|refactor|perf|build)(/\\w+)?(\\((?P<scope>[^)]+)\\))?: (?P<message>.*)$"

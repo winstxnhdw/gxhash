@@ -50,19 +50,20 @@ jobs:
                   --git-output-to-stderr \
                   --changelog-to-stdout >body.md
 
-      - name: Push
-        run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
-
       - name: Remove redundant release header
         run: sed -i '1d' body.md
 
+      - name: Push
+        run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
+
       - name: Create GitHub release
+        id: release
         run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Revert changelog and tag on failure
-        if: failure()
+        if: failure() && steps.release.outcome == 'failure'
         run: |
           git revert HEAD --no-commit
           git commit -m "revert: release ${{ steps.get-revision.outputs.REVISION }}"

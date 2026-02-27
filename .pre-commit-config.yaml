@@ -14,6 +14,17 @@ repos:
 
   - repo: local
     hooks:
+      - id: commit-body
+        name: commit body blank line
+        language: system
+        stages: [commit-msg]
+        entry: |
+          uv run --python 3.14 python -c "
+            from sys import argv
+            lines = [line for line in open(argv[1]) if not line.startswith('#')]
+            exit('line 2 must be blank' if len(lines) > 1 and lines[1].strip() else 0)
+          "
+
       - id: cargo
         name: cargo test
         entry: cargo test --manifest-path tests/Cargo.toml

@@ -26,7 +26,7 @@ performance:
 	cargo bench --locked --manifest-path perf/Cargo.toml
 
 pre-commit:
-	uv run prek install
+	uv run prek install -t pre-commit -t commit-msg
 
 test:
 	uv run prek run
