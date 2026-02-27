@@ -32,7 +32,7 @@ jobs:
           python-version: 3.14.3
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.68.11
+        uses: taiki-e/install-action@v2.68.12
         with:
           tool: cargo-codspeed
 
