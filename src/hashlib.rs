@@ -1,16 +1,19 @@
 use crate::buffer::PyBufferExt;
 
-use pyo3::Bound;
-use pyo3::IntoPyObjectExt;
-use pyo3::PyAny;
-use pyo3::PyResult;
-use pyo3::Python;
 use pyo3::buffer::PyBuffer;
 use pyo3::intern;
 use pyo3::pyclass;
 use pyo3::pyfunction;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
+use pyo3::types::PyDict;
+use pyo3::types::PyString;
+use pyo3::Bound;
+use pyo3::IntoPyObjectExt;
+use pyo3::PyAny;
+use pyo3::PyResult;
+use pyo3::Python;
+
 use std::fs::File;
 use std::io::Read;
 use std::io::Seek;
@@ -255,7 +258,7 @@ macro_rules! impl_hashlib {
             py: Python<'_>,
             data: Option<PyBuffer<u8>>,
             seed: i64,
-            _kwargs: Option<Bound<'_, pyo3::types::PyDict>>,
+            _kwargs: Option<Bound<'_, PyDict>>,
         ) -> PyResult<$name> {
             let buffer = data.map_or_else(|| PyBuffer::get(&b"".into_bound_py_any(py)?), Ok)?;
             Ok($name { seed, buffer })
@@ -263,33 +266,24 @@ macro_rules! impl_hashlib {
     };
 }
 
-macro_rules! hashlib_algorithms {
-    ($($function_name:ident),+) => {
-        const ALGORITHMS: &[&str] = &[$(stringify!($function_name)),+];
-
-        #[pyfunction]
-        #[pyo3(signature = (name, data = None, *, seed = 0, **kwargs))]
-        fn new<'py>(
-            py: Python<'py>,
-            name: &str,
-            data: Option<PyBuffer<u8>>,
-            seed: i64,
-            kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
-        ) -> PyResult<Bound<'py, PyAny>> {
-            match name {
-                $(stringify!($function_name) => $function_name(py, data, seed, kwargs)?.into_bound_py_any(py),)+
-                _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
-                    "unsupported hash type: {name}",
-                ))),
-            }
-        }
-    };
+#[pyfunction]
+#[pyo3(signature = (name, data = None, *, seed = 0, **kwargs))]
+fn new<'py>(
+    py: Python<'py>,
+    name: &str,
+    data: Option<PyBuffer<u8>>,
+    seed: i64,
+    kwargs: Option<Bound<'py, PyDict>>,
+) -> PyResult<Bound<'py, PyAny>> {
+    match name {
+        "gxhash32" => gxhash32(py, data, seed, kwargs)?.into_bound_py_any(py),
+        "gxhash64" => gxhash64(py, data, seed, kwargs)?.into_bound_py_any(py),
+        "gxhash128" => gxhash128(py, data, seed, kwargs)?.into_bound_py_any(py),
+        _ => Err(pyo3::exceptions::PyValueError::new_err(format!(
+            "unsupported hash type: {name}",
+        ))),
+    }
 }
-
-impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
-impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
-impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
-hashlib_algorithms!(gxhash32, gxhash64, gxhash128);
 
 #[pyfunction]
 #[pyo3(signature = (fileobj, digest, /, *, seed = 0, **kwargs))]
@@ -298,35 +292,30 @@ fn file_digest<'py>(
     fileobj: Bound<'py, PyAny>,
     digest: Bound<'py, PyAny>,
     seed: i64,
-    kwargs: Option<Bound<'py, pyo3::types::PyDict>>,
+    kwargs: Option<Bound<'py, PyDict>>,
 ) -> PyResult<Bound<'py, PyAny>> {
-    if let Ok(buffer) = fileobj.call_method0(intern!(py, "getbuffer")) {
-        return match digest.cast::<pyo3::types::PyString>() {
-            Ok(name) => new(py, name.extract()?, Some(PyBuffer::get(&buffer)?), seed, kwargs),
-            _ => digest
-                .call0()
-                .and_then(|hasher| hasher.call_method1(intern!(py, "update"), (&buffer,)).map(|_| hasher)),
-        };
-    }
+    let data = fileobj.call_method0(intern!(py, "getbuffer")).or_else(|_| {
+        let mut file = ManuallyDrop::new(unsafe {
+            let fileno = fileobj.call_method0(intern!(py, "fileno"))?.extract::<i32>()?;
 
-    let mut file = ManuallyDrop::new(unsafe {
-        let fileno = fileobj.call_method0(intern!(py, "fileno"))?.extract::<i32>()?;
+            #[cfg(unix)]
+            {
+                File::from_raw_fd(fileno)
+            }
+            #[cfg(windows)]
+            {
+                File::from_raw_handle(_get_osfhandle(fileno) as *mut std::ffi::c_void)
+            }
+        });
 
-        #[cfg(unix)]
-        {
-            File::from_raw_fd(fileno)
-        }
-        #[cfg(windows)]
-        {
-            File::from_raw_handle(_get_osfhandle(fileno) as *mut std::ffi::c_void)
-        }
-    });
+        let bytes = pyo3::types::PyBytes::new_with(
+            py,
+            (file.metadata()?.len() - file.stream_position()?) as usize,
+            |buffer| py.detach(|| (&*file).read_exact(buffer).map_err(Into::into)),
+        );
 
-    let data = pyo3::types::PyBytes::new_with(
-        py,
-        (file.metadata()?.len() - file.stream_position()?) as usize,
-        |buffer| py.detach(|| (&*file).read_exact(buffer).map_err(Into::into)),
-    )?;
+        bytes.map(Bound::into_any)
+    })?;
 
     match digest.cast::<pyo3::types::PyString>() {
         Ok(name) => new(py, name.extract()?, Some(PyBuffer::get(&data)?), seed, kwargs),
@@ -335,6 +324,10 @@ fn file_digest<'py>(
             .and_then(|hasher| hasher.call_method1(intern!(py, "update"), (&data,)).map(|_| hasher)),
     }
 }
+
+impl_hashlib!(GxHashLib32, gxhash32, 4, gxhash_core::gxhash32);
+impl_hashlib!(GxHashLib64, gxhash64, 8, gxhash_core::gxhash64);
+impl_hashlib!(GxHashLib128, gxhash128, 16, gxhash_core::gxhash128);
 
 /// hashlib-compatible GxHash API
 ///
@@ -370,18 +363,18 @@ pub mod hashlib_module {
     #[pymodule_export]
     use super::file_digest;
     #[pymodule_export]
+    use super::gxhash128;
+    #[pymodule_export]
     use super::gxhash32;
     #[pymodule_export]
     use super::gxhash64;
-    #[pymodule_export]
-    use super::gxhash128;
     #[pymodule_export]
     use super::new;
 
     #[pymodule_init]
     fn init(m: &pyo3::Bound<'_, types::PyModule>) -> pyo3::PyResult<()> {
         let py = m.py();
-        let algorithms_available = types::PySet::new(py, super::ALGORITHMS)?;
+        let algorithms_available = types::PySet::new(py, ["gxhash32", "gxhash64", "gxhash128"])?;
 
         m.add("algorithms_available", &algorithms_available)?;
         m.add("algorithms_guaranteed", &algorithms_available)
