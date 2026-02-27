@@ -23,7 +23,7 @@ benchmark:
 	cd bench && sudo nice -n -20 ionice -c 1 -n 0 su -c "uv run --reinstall --refresh --no-dev --locked bench" $$(whoami) && cargo run --locked
 
 performance:
-	cargo bench --locked
+	cargo bench --locked --manifest-path perf/Cargo.toml
 
 pre-commit:
 	uv run prek install

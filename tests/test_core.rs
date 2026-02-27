@@ -1,11 +1,11 @@
-use crate::helpers::PythonExt;
 use crate::helpers::call_hash;
 use crate::helpers::call_hash_async;
+use crate::helpers::PythonExt;
 use crate::pytest;
 use gxhash::gxhash_py;
-use pyo3::PyResult;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
+use pyo3::PyResult;
 use quickcheck_macros::quickcheck;
 
 #[test]

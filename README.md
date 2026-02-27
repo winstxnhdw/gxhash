@@ -42,9 +42,9 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 pip install gxhash
 ```
 
-For the best throughput, you can allow `gxhash` to use wider registers by installing with the `MATURIN_PEP517_ARGS` environment variable.
+For the best throughput, you can allow `gxhash` to use wider registers by installing with the `MATURIN_PEP517_ARGS` variable.
 
-> [!WARNING]\
+> [!WARNING]
 > This is only possible on systems that support `VAES` and `AVX2` instruction sets. Running on unsupported hardware will result in an illegal instruction error at **runtime**.
 
 ```bash
@@ -61,6 +61,15 @@ For ARM64 systems, the minimum required features are `aes` and `neon`.
 
 ```bash
 RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
+```
+
+`gxhash` uses a nightly Rust toolchain out of the box. If you are restricted to a stable minimum Rust version, you can override the default toolchain with the `RUSTUP_TOOLCHAIN` variable.
+
+> [!NOTE]
+> The `hybrid` feature cannot be used alongside a stable toolchain.
+
+```bash
+RUSTUP_TOOLCHAIN=1.83.0 pip install gxhash
 ```
 
 ## Supported Platforms
@@ -91,7 +100,7 @@ if __name__ == "__main__":
 
 Hashing bytes asynchronously.
 
-> [!IMPORTANT]\
+> [!IMPORTANT]
 > As with Python's `hashlib`, callers must not mutate the input buffer during a hash operation.
 
 ```python
@@ -108,7 +117,7 @@ if __name__ == "__main__":
 
 As a drop-in replacement for `hashlib`.
 
-> [!WARNING]\
+> [!WARNING]
 > [GxHash](https://github.com/ogxd/gxhash) is not an incremental hasher, and all inputs provided to the `update` method will be accumulated internally. This can lead to an unexpected increase in memory usage if you are expecting streaming behaviour.
 > Also note that hash computation in `gxhash.hashlib` functions are deferred and only computed when `digest` or `hexdigest` is called.
 
