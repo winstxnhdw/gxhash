@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-black?logo=github)](https://github.com/winstxnhdw/gxhash)
 [![PyPi](https://img.shields.io/pypi/v/gxhash)](https://pypi.python.org/pypi/gxhash)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/gxhash)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/gxhash)](https://pypi.python.org/pypi/gxhash)
 [![python](https://img.shields.io/badge/python-3.8%20|%203.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue)](https://www.python.org/)
 [![codecov](https://codecov.io/github/winstxnhdw/gxhash/graph/badge.svg?token=L5FVMJTQUB)](https://codecov.io/github/winstxnhdw/gxhash)
 [![main.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml)
@@ -63,13 +63,13 @@ For ARM64 systems, the minimum required features are `aes` and `neon`.
 RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
 ```
 
-`gxhash` uses a nightly Rust toolchain out of the box. If you are restricted to a stable minimum Rust version, you can override the default toolchain with the `RUSTUP_TOOLCHAIN` variable.
+`gxhash` compiles with a pinned nightly toolchain. If you are restricted to a minimum Rust version, you can override the default toolchain with the `RUSTUP_TOOLCHAIN` variable.
 
 > [!NOTE]
-> The `hybrid` feature cannot be used alongside a stable toolchain.
+> The `hybrid` feature cannot be used alongside stable Rust.
 
 ```bash
-RUSTUP_TOOLCHAIN=1.83.0 pip install gxhash
+RUSTUP_TOOLCHAIN="1.83.0" pip install gxhash
 ```
 
 ## Supported Platforms
