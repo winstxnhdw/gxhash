@@ -1,6 +1,7 @@
 name: Lint
 
 on:
+  workflow_call:
   pull_request:
   push:
     paths:
@@ -16,7 +17,7 @@ jobs:
   clippy:
     strategy:
       matrix:
-        working-directory: [., bench]
+        working-directory: [., bench, perf, tests]
 
     uses: winstxnhdw/actions/.github/workflows/rust.yml@main
     with:

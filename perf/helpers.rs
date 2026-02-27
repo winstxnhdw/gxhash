@@ -1,3 +1,4 @@
+use gxhash::gxhash_py;
 use pyo3::Bound;
 use pyo3::PyAny;
 use pyo3::PyResult;
@@ -5,8 +6,6 @@ use pyo3::Python;
 use pyo3::intern;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyModule;
-
-pub static ONCE: std::sync::Once = std::sync::Once::new();
 
 #[derive(Clone, Copy)]
 pub enum Memory {
@@ -19,6 +18,28 @@ impl From<Memory> for usize {
     fn from(m: Memory) -> usize {
         m as usize
     }
+}
+
+pub fn initialise_python() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+
+    ONCE.call_once(|| {
+        pyo3::append_to_inittab!(gxhash_py);
+        pyo3::Python::initialize();
+    });
+}
+
+macro_rules! python {
+    ($py:ident, $body:block) => {{
+        helpers::initialise_python();
+
+        let result = pyo3::Python::attach(|$py| -> pyo3::PyResult<()> {
+            $body
+            Ok(())
+        });
+
+        result.expect("Something went wrong with Python!")
+    }};
 }
 
 pub fn generate_bytes(seed: u64, output_size: impl Into<usize>) -> Vec<u8> {
@@ -35,22 +56,7 @@ pub fn generate_bytes(seed: u64, output_size: impl Into<usize>) -> Vec<u8> {
     out
 }
 
-macro_rules! python {
-    ($py:ident, $body:block) => {{
-        helpers::ONCE.call_once(|| {
-            pyo3::append_to_inittab!(gxhash_py);
-            pyo3::Python::initialize();
-        });
-
-        let result = pyo3::Python::attach(|$py| -> pyo3::PyResult<()> {
-            $body
-            Ok(())
-        });
-
-        result.expect("Something went wrong with Python!")
-    }};
-}
-
+#[allow(dead_code)]
 pub trait PythonExt<'py> {
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>>;
     fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>>;

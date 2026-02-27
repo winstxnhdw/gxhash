@@ -25,7 +25,21 @@ repos:
         name: clippy
         entry: cargo clippy
         language: system
-        files: \.rs$
+        files: ^(src/|build\.rs)
+        pass_filenames: false
+
+      - id: clippy-perf
+        name: clippy (perf)
+        entry: cargo clippy --manifest-path perf/Cargo.toml --benches
+        language: system
+        files: ^perf/.*\.rs$
+        pass_filenames: false
+
+      - id: clippy-tests
+        name: clippy (tests)
+        entry: cargo clippy --manifest-path tests/Cargo.toml --tests
+        language: system
+        files: ^tests/.*\.rs$
         pass_filenames: false
 
       - id: pyright

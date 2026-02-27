@@ -7,7 +7,6 @@ use pyo3::pyfunction;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyDict;
-use pyo3::types::PyString;
 use pyo3::Bound;
 use pyo3::IntoPyObjectExt;
 use pyo3::PyAny;

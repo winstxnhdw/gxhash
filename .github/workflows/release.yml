@@ -14,8 +14,14 @@ jobs:
     uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
     secrets: inherit
 
+  clippy:
+    uses: winstxnhdw/gxhash/.github/workflows/clippy.yml@main
+
+  typecheck:
+    uses: winstxnhdw/gxhash/.github/workflows/typecheck.yml@main
+
   release:
-    needs: main
+    needs: [main, clippy, typecheck]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -47,9 +53,17 @@ jobs:
       - name: Push
         run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
 
+      - name: Remove redundant release header
+        run: sed -i '1d' body.md
+
       - name: Create GitHub release
+        run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ github.token }}
+
+      - name: Revert changelog and tag on failure
+        if: failure()
         run: |
-          sed -i '1d' body.md
-          gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
+          git revert HEAD --no-commit
+          git commit -m "revert: release ${{ steps.get-revision.outputs.REVISION }}"
+          git push --atomic origin main --delete ${{ steps.get-revision.outputs.REVISION }}

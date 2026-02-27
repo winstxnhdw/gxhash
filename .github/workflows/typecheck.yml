@@ -1,6 +1,7 @@
 name: Typecheck
 
 on:
+  workflow_call:
   pull_request:
   push:
     paths:

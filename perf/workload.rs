@@ -2,7 +2,6 @@
 mod helpers;
 
 use divan::Bencher;
-use gxhash::gxhash_py;
 use helpers::generate_bytes;
 use helpers::PythonExt;
 
