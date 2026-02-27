@@ -10,6 +10,10 @@ Released on 2026-02-27
 
 - ensure that `frozen` and `immutable_type` are applied
 
+### Changed
+
+- allow rust toolchain override
+
 ## [0.5.0]
 
 Released on 2026-02-21
