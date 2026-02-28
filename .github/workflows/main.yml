@@ -133,7 +133,7 @@ jobs:
     strategy:
       matrix:
         runs-on:
-          - ubuntu-latest
+          - ubuntu-slim
           - ubuntu-24.04-arm
           - macos-latest
           - macos-26-intel
