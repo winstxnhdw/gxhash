@@ -51,8 +51,11 @@ def new(
     Example
     -------
     ```python
-    hasher = new("gxhash32", b"hello", seed=1234)
-    print(f"Hash is {hasher.hexdigest()}!")
+    >>> from gxhash.hashlib import new
+    >>> hasher = new("gxhash32", b"hello", seed=42)
+    >>> hasher.hexdigest()
+    '9ffaa800'
+
     ```
     """
 
@@ -83,6 +86,18 @@ def file_digest(
     -------
     gxhash (`HASH`)
         the hash object with the file's hash
+
+    Example
+    -------
+    ```python
+    >>> from gxhash.hashlib import file_digest
+    >>> from io import BytesIO
+    >>> file = BytesIO(b"hello")
+    >>> hasher = file_digest(file, "gxhash32", seed=42)
+    >>> hasher.digest()
+    b'\x9f\xfa\xa8\x00'
+
+    ```
     """
 
 def gxhash32(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False, **kwargs: object) -> HASH:
@@ -112,8 +127,11 @@ def gxhash32(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     Example
     -------
     ```python
-    hasher = gxhash32(b"hello", seed=1234)
-    print(f"Hash is {hasher.hexdigest()}!")
+    >>> from gxhash.hashlib import gxhash32
+    >>> hasher = gxhash32(b"hello", seed=1234)
+    >>> hasher.hexdigest()
+    '72d987dc'
+
     ```
     """
 
@@ -144,8 +162,11 @@ def gxhash64(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = False
     Example
     -------
     ```python
-    hasher = gxhash64(b"hello", seed=1234)
-    print(f"Hash is {hasher.hexdigest()}!")
+    >>> from gxhash.hashlib import gxhash64
+    >>> hasher = gxhash64(b"hello", seed=1234)
+    >>> hasher.hexdigest()
+    '72d987dc0ecdfa46'
+
     ```
     """
 
@@ -176,7 +197,10 @@ def gxhash128(data: Buffer = b"", *, seed: int = 0, usedforsecurity: bool = Fals
     Example
     -------
     ```python
-    hasher = gxhash128(b"hello", seed=1234)
-    print(f"Hash is {hasher.hexdigest()}!")
+    >>> from gxhash.hashlib import gxhash128
+    >>> hasher = gxhash128(b"hello", seed=1234)
+    >>> hasher.hexdigest()
+    '72d987dc0ecdfa46a11353e202d601bc'
+
     ```
     """

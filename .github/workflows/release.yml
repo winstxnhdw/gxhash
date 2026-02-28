@@ -19,11 +19,11 @@ jobs:
   clippy:
     uses: winstxnhdw/gxhash/.github/workflows/clippy.yml@main
 
-  typecheck:
-    uses: winstxnhdw/gxhash/.github/workflows/typecheck.yml@main
+  python:
+    uses: winstxnhdw/gxhash/.github/workflows/python.yml@main
 
   release:
-    needs: [main, clippy, typecheck]
+    needs: [main, clippy, python]
     runs-on: ubuntu-slim
 
     steps:

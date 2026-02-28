@@ -1,0 +1,41 @@
+name: Python
+
+on:
+  workflow_call:
+  pull_request:
+  push:
+    paths:
+      - .github/workflows/python.yml
+      - "**/pyproject.toml"
+      - "**/uv.lock"
+      - "**.py"
+      - "**.pyi"
+
+permissions: {}
+
+jobs:
+  uv:
+    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
+    with:
+      python-version: ${{ matrix.python-version }}
+
+    strategy:
+      matrix:
+        python-version:
+          - 3.8
+          - 3.9
+          - "3.10"
+          - 3.11
+          - 3.12
+          - 3.13
+          - 3.14
+
+  python:
+    if: always()
+    needs: uv
+    runs-on: ubuntu-slim
+
+    steps:
+      - name: Fail if any dependency failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1

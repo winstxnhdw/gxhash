@@ -23,7 +23,10 @@ class Hasher(Protocol[T_co]):
         Example
         -------
         ```python
-        hasher = GxHash32(seed=2**63 - 1)
+        >>> from gxhash import GxHash32
+        >>> GxHash32(seed=2**63 - 1)
+        <builtins.GxHash32 object at 0x...>
+
         ```
         """
 
@@ -47,8 +50,11 @@ class Hasher(Protocol[T_co]):
         Example
         -------
         ```python
-        hasher = GxHash64(seed=1234)
-        print(f"Hash is {hasher.hash(bytes(range(256)))}!")
+        >>> from gxhash import GxHash64
+        >>> hasher = GxHash64(seed=1234)
+        >>> hasher.hash(bytes(range(256)))
+        12522596144082598891
+
         ```
         """
 
@@ -74,8 +80,12 @@ class Hasher(Protocol[T_co]):
         Example
         -------
         ```python
-        hasher = GxHash128(seed=1234)
-        print(f"Hash is {await hasher.hash_async(bytes(range(256)))}!")
+        >>> from gxhash import GxHash128
+        >>> from asyncio import run
+        >>> hasher = GxHash128(seed=1234)
+        >>> run(hasher.hash_async(bytes(range(256))))
+        117181821629540739333037011138327886827
+
         ```
         """
 

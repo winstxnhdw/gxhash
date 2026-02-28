@@ -10,6 +10,7 @@ permissions:
 
 env:
   UV_ISOLATED: 1
+  PYTHONDONTWRITEBYTECODE: 1
 
 jobs:
   publish:
