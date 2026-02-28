@@ -42,6 +42,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install dependencies
+        run: uv sync --no-install-project
+
       - name: Run type checker
         run: uv run pyright
 

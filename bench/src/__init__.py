@@ -2,8 +2,9 @@ from asyncio import gather, run
 from collections.abc import Awaitable, Callable, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
-from itertools import product
+from itertools import count, product, takewhile
 from logging import INFO, Formatter, Logger, StreamHandler, getLogger
+from math import log
 from os import urandom
 from random import randint
 from sys import argv
@@ -258,8 +259,8 @@ def create_evaluands(
     logger.debug("\rRuns: %s/%s", *next(progress))
 
 
-def generate_sizes(sizes: int) -> Iterator[int]:
-    return (4**i for i in range(1, sizes + 1))
+def generate_sizes(base: int, max_size: int) -> Iterator[int]:
+    return takewhile(max_size.__ge__, (base**i for i in count(0)))
 
 
 def payload_counts(counts: int) -> Iterator[int]:
@@ -274,22 +275,31 @@ def main() -> None:
     logger.setLevel(INFO if len(argv) <= 1 else argv[1])
     logger.addHandler(handler)
 
-    sizes = 14
+    base = 4
+    max_size = 256 << 20
+    sizes = int(log(max_size, base)) + 1
     counts = 3
-    repeats = 50
+    repeats = 60
     steps = sum(1 for _ in create_evaluands(payload_size=0, payload_count=0, progress=Progress(total=0), logger=logger))
     progress = Progress(total=sizes * counts * repeats * steps, step=steps)
 
     results = (
         run(benchmark(evaluand))
-        for size, count in product(generate_sizes(sizes), payload_counts(counts))
+        for size, count in product(generate_sizes(base, max_size), payload_counts(counts))
         for evaluand in create_evaluands(payload_size=size, payload_count=count, progress=progress, logger=logger)
         for _ in range(repeats)
     )
 
+    columns = ("name", "payload_size", "length", "batch_size")
+    trimmed = (
+        col(duration).is_between(col(duration).quantile(0.05).over(columns), col(duration).quantile(0.95).over(columns))
+        for duration in ("cold_duration", "hot_duration")
+    )
+
     dataframe = (
         LazyFrame(results)
-        .group_by(col("name"), col("payload_size"), col("length"), col("batch_size"))
+        .filter(*trimmed)
+        .group_by(columns)
         .agg(col("cold_duration").mean(), col("hot_duration").mean())
         .collect(engine="streaming")
     )

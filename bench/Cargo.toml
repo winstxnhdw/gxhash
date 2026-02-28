@@ -10,4 +10,4 @@ tagu = { version = "0.1.6", default-features = false }
 [dependencies.polars]
 version = "0.53.0"
 default-features = false
-features = ["lazy", "parquet", "nightly", "cse", "fmt"]
+features = ["lazy", "parquet", "nightly", "cse", "fmt", "log"]
