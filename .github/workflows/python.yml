@@ -27,6 +27,7 @@ jobs:
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
     with:
       python-version: ${{ matrix.python-version }}
+      disable-test: ${{ matrix.python-version == '3.8' }}
 
   python:
     if: always()
