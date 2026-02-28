@@ -148,6 +148,7 @@ fn main() -> Result<(), Error> {
     let postfix = std::env::args().nth(1).map(|s| format!("-{s}")).unwrap_or_default();
 
     let duration_to_throughput = col("payload_size")
+        .mul(col("batch_size"))
         .mul(lit(1e9))
         .div(col("hot_duration").mul(lit(1 << 20)));
 
@@ -155,20 +156,20 @@ fn main() -> Result<(), Error> {
         .with_column(duration_to_throughput.alias("throughput"))
         .sort(["throughput"], SortMultipleOptions::default());
 
-    let throughtput_dataframe = dataframe
+    let throughput_dataframe = dataframe
         .clone()
         .filter(col("batch_size").eq(1))
         .filter(col("payload_size").eq(64 << 10));
 
-    let throughtput_batched_dataframe = dataframe
+    let throughput_batched_dataframe = dataframe
         .clone()
         .filter(col("batch_size").eq(16))
-        .filter(col("length").eq(128))
-        .filter(col("payload_size").gt_eq(256));
+        .filter(col("payload_size").gt_eq(256))
+        .filter(col("length").eq(128));
 
-    let throughput_32bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(32));
-    let throughput_64bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(64));
-    let throughput_128bit_dataframe = throughtput_dataframe.clone().filter(col("length").eq(128));
+    let throughput_32bit_dataframe = throughput_dataframe.clone().filter(col("length").eq(32));
+    let throughput_64bit_dataframe = throughput_dataframe.clone().filter(col("length").eq(64));
+    let throughput_128bit_dataframe = throughput_dataframe.clone().filter(col("length").eq(128));
 
     let throughput_32bit_svg =
         generate_benchmark_bar_plot("32-bit hash with 64KiB payload", throughput_32bit_dataframe.clone())?;
@@ -178,7 +179,7 @@ fn main() -> Result<(), Error> {
         generate_benchmark_bar_plot("128-bit hash with 64KiB payload", throughput_128bit_dataframe.clone())?;
     let throughput_batched_svg = generate_benchmark_line_plot(
         "128-bit hash with batch size of 16",
-        throughtput_batched_dataframe.clone(),
+        throughput_batched_dataframe.clone(),
     )?;
 
     write(format!("throughput-32bit{postfix}.svg"), &throughput_32bit_svg)?;
