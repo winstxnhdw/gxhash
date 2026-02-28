@@ -8,6 +8,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from hashlib import md5
 from io import BytesIO
+from sys import version_info
 from tempfile import NamedTemporaryFile
 
 from gxhash import GxHash32, GxHash64, GxHash128, GxHashAsyncError
@@ -118,13 +119,14 @@ async def test_smoke() -> None:
             hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
             hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
             hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-        with raises(TypeError):
-            GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            GxHash64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            GxHash128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            type(gxhashlib32).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            type(gxhashlib64).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            type(gxhashlib128).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+        if version_info >= (3, 10):
+            with raises(TypeError):
+                GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                GxHash64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                GxHash128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                type(gxhashlib32).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                type(gxhashlib64).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                type(gxhashlib128).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
         raise GxHashAsyncError  # noqa: TRY301
     except GxHashAsyncError:
         pass

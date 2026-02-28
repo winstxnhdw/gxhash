@@ -14,30 +14,23 @@ on:
 permissions: {}
 
 jobs:
-  uv:
+  bench:
+    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
+    with:
+      disable-test: true
+
+  core:
     strategy:
       matrix:
-        working-directory: [., bench]
-        python-version:
-          - 3.8
-          - 3.9
-          - "3.10"
-          - 3.11
-          - 3.12
-          - 3.13
-          - 3.14
+        python-version: [3.8, 3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
 
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
     with:
       python-version: ${{ matrix.python-version }}
-      working-directory: ${{ matrix.working-directory }}
-      disable-test: ${{ matrix.working-directory == 'bench' }}
-      disable-type-check: ${{ matrix.working-directory == 'bench' && matrix.python-version != 3.14 }}
-      disable-lint: ${{ matrix.working-directory == 'bench' && matrix.python-version != 3.14 }}
 
   python:
     if: always()
-    needs: uv
+    needs: [bench, core]
     runs-on: ubuntu-slim
 
     steps:
