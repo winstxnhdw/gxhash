@@ -4,7 +4,7 @@ requires-python = ">=3.14.3"
 
 [[package]]
 name = "bench"
-version = "0.1.0"
+version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "cityhash" },
@@ -58,6 +58,9 @@ dev = [
     { name = "nodejs-wheel-binaries", specifier = ">=24.13.1" },
     { name = "prek", specifier = ">=0.3.3" },
     { name = "pyright", specifier = ">=1.1.408" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-asyncio", specifier = ">=0.24.0" },
+    { name = "pytest-doctestplus", specifier = ">=1.3.0" },
     { name = "ruff", specifier = ">=0.15.1" },
 ]
 

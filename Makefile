@@ -10,7 +10,7 @@ inspect: all
 	tar -xvf dist/*.tar.gz
 
 smoke-test: all
-	uv run --reinstall --no-cache --isolated --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+	uv run --reinstall --no-cache --isolated --no-project --with dist/gxhash-*.tar.gz tests/test_smoke.py
 
 sync:
 	uv sync --reinstall

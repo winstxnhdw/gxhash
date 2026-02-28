@@ -15,12 +15,9 @@ permissions: {}
 
 jobs:
   uv:
-    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
-    with:
-      python-version: ${{ matrix.python-version }}
-
     strategy:
       matrix:
+        working-directory: [., bench]
         python-version:
           - 3.8
           - 3.9
@@ -29,6 +26,14 @@ jobs:
           - 3.12
           - 3.13
           - 3.14
+
+    uses: winstxnhdw/actions/.github/workflows/uv.yml@main
+    with:
+      python-version: ${{ matrix.python-version }}
+      working-directory: ${{ matrix.working-directory }}
+      disable-test: ${{ matrix.working-directory == 'bench' }}
+      disable-type-check: ${{ matrix.working-directory == 'bench' && matrix.python-version != 3.14 }}
+      disable-lint: ${{ matrix.working-directory == 'bench' && matrix.python-version != 3.14 }}
 
   python:
     if: always()

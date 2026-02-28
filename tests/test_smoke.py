@@ -43,7 +43,7 @@ def raises(exception: type[BaseException]) -> Generator[None]:
         assert raised
 
 
-async def main() -> None:
+async def test_smoke() -> None:
     try:
         data = bytes(range(256))
         hashlib_md5 = md5(usedforsecurity=False)
@@ -131,4 +131,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    run(main())
+    run(test_smoke())

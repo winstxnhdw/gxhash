@@ -32,7 +32,7 @@ jobs:
         run: uv build -v --sdist
 
       - name: Smoke test
-        run: uv run -v --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+        run: uv run -v --no-project --with dist/gxhash-*.tar.gz tests/test_smoke.py
 
       - name: Publish to PyPI
         run: uv publish
