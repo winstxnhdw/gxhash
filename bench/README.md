@@ -91,10 +91,10 @@ With `--features hybrid`.
 
 ## Asynchronous Hashing
 
-`gxhash` includes first-class support for asynchronous hashing. As the previous benchmarks above show, the asynchronous variant performs significantly worse in single-hash scenarios because it incurs the overhead of spawning a thread per operation. However, when hashing many items concurrently, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads consistently across all payload sizes.
+`gxhash` includes first-class support for asynchronous hashing. As the bar plots above show, the asynchronous variant is expected to perform worse in single-hash scenarios because it **may** incur the overhead of spawning a thread. However, when there are concurrent hashing requests, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads consistently across all payload sizes.
 
 > [!NOTE]
-> Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking xxHash asynchronously.
+> Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking these third-party hashers asynchronously.
 
 Without `--features hybrid`.
 
