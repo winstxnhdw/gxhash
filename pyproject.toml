@@ -82,8 +82,13 @@ stubPath = "./python"
 [tool.pytest.ini_options]
 testpaths = ["python", "tests"]
 filterwarnings = ["ignore::UserWarning:pytest_doctestplus"]
-addopts = "--doctest-plus --doctest-glob='*.pyi'"
 asyncio_mode = "auto"
+addopts = """
+    --doctest-plus
+    --doctest-glob='*.pyi'
+    --import-mode=importlib
+    --ignore=python/gxhash/buffer.pyi
+"""
 
 [tool.commitizen]
 name = "cz_customize"

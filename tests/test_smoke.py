@@ -47,7 +47,7 @@ def raises(exception: type[BaseException]) -> Generator[None]:
 async def test_smoke() -> None:
     try:
         data = bytes(range(256))
-        hashlib_md5 = md5(usedforsecurity=False)
+        hashlib_md5 = md5()  # noqa: S324
         file = BytesIO(data)
         temporary_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
         temporary_file.write(data)
