@@ -18,7 +18,7 @@ env:
 
 jobs:
   performance:
-    if: github.actor != 'renovate[bot]'
+    if: ${{ !endsWith(github.actor, '[bot]') }}
     runs-on: ubuntu-latest
 
     steps:

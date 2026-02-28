@@ -28,10 +28,10 @@ jobs:
         uses: astral-sh/setup-uv@v7.3.1
 
       - name: Build sdist
-        run: uv build --sdist
+        run: uv build -v --sdist
 
       - name: Smoke test
-        run: uv run --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
+        run: uv run -v --no-project --with dist/gxhash-*.tar.gz tests/smoke_test.py
 
       - name: Publish to PyPI
         run: uv publish

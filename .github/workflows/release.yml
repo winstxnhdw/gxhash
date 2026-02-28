@@ -9,6 +9,8 @@ on:
         default: patch
         options: [patch, minor, major]
 
+permissions: {}
+
 jobs:
   main:
     uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
@@ -22,9 +24,7 @@ jobs:
 
   release:
     needs: [main, clippy, typecheck]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    runs-on: ubuntu-slim
 
     steps:
       - name: Checkout repository
@@ -37,7 +37,7 @@ jobs:
       - name: Install commitizen
         uses: commitizen-tools/setup-cz@v0.7.0
 
-      - name: Get next revision
+      - name: Get next ${{ inputs.release-type }} revision
         id: get-revision
         run: echo "REVISION=$(cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_OUTPUT
 
@@ -48,15 +48,17 @@ jobs:
                   --changelog \
                   --no-verify \
                   --git-output-to-stderr \
-                  --changelog-to-stdout >body.md
+                  --changelog-to-stdout | sed '1d' >body.md
 
-      - name: Remove redundant release header
-        run: sed -i '1d' body.md
+      - name: Update lockfiles
+        run: |
+          cargo update --manifest-path tests/Cargo.toml
+          cargo update --manifest-path perf/Cargo.toml
 
-      - name: Push
+      - name: Push changelog and tag
         run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
 
-      - name: Create GitHub release
+      - name: Create GitHub release ${{ steps.get-revision.outputs.REVISION }}
         id: release
         run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
         env:

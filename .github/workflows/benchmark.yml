@@ -1,6 +1,6 @@
 name: Benchmark
 
-on: [workflow_dispatch]
+on: workflow_dispatch
 
 permissions:
   contents: write
@@ -10,8 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  UV_LOCKED: 1
   UV_NO_DEV: 1
+  UV_LOCKED: 1
+  UV_NO_SYNC: 1
   UV_PROJECT: ${{ github.workspace }}/bench
   WIKI_PATH: wiki
   PYTHONDONTWRITEBYTECODE: 1
@@ -55,7 +56,7 @@ jobs:
         env:
           MATURIN_PEP517_ARGS: --features hybrid
 
-      - name: Generate plots
+      - name: Generate VAES plots
         run: cargo run --locked --manifest-path ${{ env.UV_PROJECT }}/Cargo.toml -- vaes
 
       - name: Set Git config

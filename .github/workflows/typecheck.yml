@@ -11,9 +11,11 @@ on:
       - "**.py"
       - "**.pyi"
 
+permissions: {}
+
 jobs:
   pyright:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     strategy:
       matrix:
         python-version:
@@ -27,6 +29,7 @@ jobs:
 
     env:
       UV_LOCKED: 1
+      UV_NO_SYNC: 1
 
     steps:
       - name: Checkout repository
@@ -34,7 +37,7 @@ jobs:
         with:
           show-progress: false
 
-      - name: Install uv
+      - name: Install uv with Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v7.3.1
         with:
           python-version: ${{ matrix.python-version }}
@@ -45,7 +48,7 @@ jobs:
   typecheck:
     if: always()
     needs: pyright
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Fail if any dependency failed or was cancelled

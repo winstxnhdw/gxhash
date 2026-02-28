@@ -1,12 +1,26 @@
 repos:
+  - repo: builtin
+    hooks:
+      - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: check-toml
+      - id: check-yaml
+      - id: mixed-line-ending
+      - id: check-symlinks
+      - id: check-merge-conflict
+      - id: detect-private-key
+
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.12.0
+    rev: v4.13.9
     hooks:
       - id: commitizen
         stages: [commit-msg]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.13
+    rev: v0.15.4
     hooks:
       - id: ruff-format
       - id: ruff-check
@@ -19,39 +33,57 @@ repos:
         language: system
         stages: [commit-msg]
         entry: |
-          uv run --python 3.14 python -c "
+          uv run --no-project --python 3.14 python -c "
             from sys import argv
             lines = [line for line in open(argv[1]) if not line.startswith('#')]
             exit('line 2 must be blank' if len(lines) > 1 and lines[1].strip() else 0)
           "
 
+      - id: cargo-lock
+        name: update cargo lockfiles
+        language: system
+        files: ^Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: cargo-lock-tests
+        name: update tests cargo lockfiles
+        language: system
+        files: ^tests/Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: cargo-lock-perf
+        name: update perf cargo lockfiles
+        language: system
+        files: ^perf/Cargo\.toml$
+        entry: cargo update --manifest-path
+
       - id: cargo
         name: cargo test
-        entry: cargo test --manifest-path tests/Cargo.toml
         language: system
-        files: ^(src|tests)/.*\.rs$
+        files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
         pass_filenames: false
+        entry: cargo test --manifest-path tests/Cargo.toml
 
       - id: clippy
         name: clippy
-        entry: cargo clippy
         language: system
         files: ^(src/|build\.rs)
         pass_filenames: false
-
-      - id: clippy-perf
-        name: clippy (perf)
-        entry: cargo clippy --manifest-path perf/Cargo.toml --benches
-        language: system
-        files: ^perf/.*\.rs$
-        pass_filenames: false
+        entry: cargo clippy --fix --allow-dirty
 
       - id: clippy-tests
         name: clippy (tests)
-        entry: cargo clippy --manifest-path tests/Cargo.toml --tests
         language: system
         files: ^tests/.*\.rs$
         pass_filenames: false
+        entry: cargo clippy --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
+
+      - id: clippy-perf
+        name: clippy (perf)
+        language: system
+        files: ^perf/.*\.rs$
+        pass_filenames: false
+        entry: cargo clippy --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
 
       - id: pyright
         name: pyright
@@ -59,3 +91,5 @@ repos:
         language: system
         files: \.py$
         pass_filenames: false
+        env:
+          UV_LOCKED: "1"

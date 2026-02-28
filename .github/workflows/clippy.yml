@@ -10,6 +10,7 @@ on:
       - "**/Cargo.lock"
       - "**.rs"
 
+permissions: {}
 env:
   RUSTFLAGS: -C target-feature=+aes,+ssse3
 
@@ -27,7 +28,7 @@ jobs:
   lint:
     if: always()
     needs: clippy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
 
     steps:
       - name: Fail if any dependency failed or was cancelled
