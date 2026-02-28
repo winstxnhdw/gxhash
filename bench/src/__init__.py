@@ -1,7 +1,9 @@
+from ast import Yield, parse, walk
 from asyncio import gather, run
 from collections.abc import Awaitable, Callable, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
+from inspect import getsource
 from itertools import count, product, takewhile
 from logging import INFO, Formatter, Logger, StreamHandler, getLogger
 from math import log
@@ -264,7 +266,7 @@ def generate_sizes(base: int, max_size: int) -> Iterator[int]:
 
 
 def payload_counts(counts: int) -> Iterator[int]:
-    return iter(4**i for i in range(counts))
+    return (4**i for i in range(counts))
 
 
 def main() -> None:
@@ -280,7 +282,7 @@ def main() -> None:
     sizes = int(log(max_size, base)) + 1
     counts = 3
     repeats = 60
-    steps = sum(1 for _ in create_evaluands(payload_size=0, payload_count=0, progress=Progress(total=0), logger=logger))
+    steps = sum(1 for node in walk(parse(getsource(create_evaluands))) if type(node) is Yield)
     progress = Progress(total=sizes * counts * repeats * steps, step=steps)
 
     results = (
@@ -298,7 +300,7 @@ def main() -> None:
 
     dataframe = (
         LazyFrame(results)
-        .filter(*trimmed)
+        .filter(trimmed)
         .group_by(columns)
         .agg(col("cold_duration").mean(), col("hot_duration").mean())
         .collect(engine="streaming")
