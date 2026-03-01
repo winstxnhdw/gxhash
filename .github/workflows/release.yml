@@ -39,7 +39,7 @@ jobs:
 
       - name: Get next ${{ inputs.release-type }} revision
         id: get-revision
-        run: echo "REVISION=$(cz bump --get-next --increment ${{ inputs.release-type }})" >> $GITHUB_OUTPUT
+        run: echo "revision=$(cz bump --get-next --increment ${{ inputs.release-type }})" > $GITHUB_OUTPUT
 
       - name: Create bump and changelog
         run: |
@@ -56,11 +56,11 @@ jobs:
           cargo update --manifest-path perf/Cargo.toml
 
       - name: Push changelog and tag
-        run: git push --atomic origin main ${{ steps.get-revision.outputs.REVISION }}
+        run: git push --atomic origin main ${{ steps.get-revision.outputs.revision }}
 
-      - name: Create GitHub release ${{ steps.get-revision.outputs.REVISION }}
+      - name: Create GitHub release ${{ steps.get-revision.outputs.revision }}
         id: release
-        run: gh release create ${{ steps.get-revision.outputs.REVISION }} -t ${{ steps.get-revision.outputs.REVISION }} -F body.md --verify-tag
+        run: gh release create ${{ steps.get-revision.outputs.revision }} -t ${{ steps.get-revision.outputs.revision }} -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -68,5 +68,5 @@ jobs:
         if: failure() && steps.release.outcome == 'failure'
         run: |
           git revert HEAD --no-commit
-          git commit -m "revert: release ${{ steps.get-revision.outputs.REVISION }}"
-          git push --atomic origin main --delete ${{ steps.get-revision.outputs.REVISION }}
+          git commit -m "revert: release ${{ steps.get-revision.outputs.revision }}"
+          git push --atomic origin main --delete ${{ steps.get-revision.outputs.revision }}
