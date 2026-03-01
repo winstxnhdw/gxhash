@@ -2,6 +2,8 @@
 
 All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries. If you suspect any bias or  would like to see another library included, please submit an [issue](https://github.com/winstxnhdw/gxhash/issues/new) or a [pull request](https://github.com/winstxnhdw/gxhash/compare).
 
+## Contents
+
 - [Fairness](#fairness)
 - [Throughput](#throughput)
   - [32-bit Throughput](#32-bit-throughput)

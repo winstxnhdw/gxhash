@@ -87,9 +87,16 @@ repos:
 
       - id: pyright
         name: pyright
-        entry: uv run pyright
         language: system
         files: \.py$
         pass_filenames: false
+        entry: uv run pyright
         env:
           UV_LOCKED: "1"
+
+      - id: pytest
+        name: pytest
+        language: system
+        files: ^(python/|tests/).*\.py$
+        pass_filenames: false
+        entry: uv run pytest
