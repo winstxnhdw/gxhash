@@ -12,6 +12,7 @@ dependencies = [
     { name = "metrohash" },
     { name = "mmh3" },
     { name = "polars" },
+    { name = "stringzilla" },
     { name = "xxhash" },
 ]
 
@@ -29,6 +30,7 @@ requires-dist = [
     { name = "metrohash", specifier = ">=0.4.1" },
     { name = "mmh3", specifier = ">=5.2.0" },
     { name = "polars", specifier = ">=1.38.0" },
+    { name = "stringzilla", specifier = ">=4.6.0" },
     { name = "xxhash", specifier = ">=3.6.0" },
 ]
 
@@ -203,6 +205,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/a8/c688ef7e29983976820d18710f955751d9f4d4eb69df658af3d006e2ba3e/ruff-0.15.4-py3-none-win_amd64.whl", hash = "sha256:04196ad44f0df220c2ece5b0e959c2f37c777375ec744397d21d15b50a75264f", size = 11651048, upload-time = "2026-02-26T20:04:17.191Z" },
     { url = "https://files.pythonhosted.org/packages/3e/0a/9e1be9035b37448ce2e68c978f0591da94389ade5a5abafa4cf99985d1b2/ruff-0.15.4-py3-none-win_arm64.whl", hash = "sha256:60d5177e8cfc70e51b9c5fad936c634872a74209f934c1e79107d11787ad5453", size = 10966776, upload-time = "2026-02-26T20:03:56.908Z" },
 ]
+
+[[package]]
+name = "stringzilla"
+version = "4.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/61/68/475518f6f4af8273ecd619a5d37d715d36908973f9970faf21571a296821/stringzilla-4.6.0.tar.gz", hash = "sha256:640c0fb5b6a2ad77b7721bff98f00a3c524ca60dc202f552e486831a751d4bbd", size = 646335, upload-time = "2025-12-26T23:44:43.956Z" }
 
 [[package]]
 name = "typing-extensions"

@@ -20,6 +20,7 @@ from gxhash.hashlib import gxhash32, gxhash64, gxhash128
 from metrohash import hash64_int, hash128_int
 from mmh3 import mmh3_32_uintdigest, mmh3_x64_128_uintdigest
 from polars import LazyFrame, col
+from stringzilla import hash as stringzilla_hash
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
 Nanoseconds = NewType("Nanoseconds", int)
@@ -202,6 +203,12 @@ def create_evaluands(
         "name": "MetroHash64",
         "length": Length.BIT_64,
         "hasher": async_wrapper(hash64_int, seed=seed),
+    }
+    yield {
+        **metadata,
+        "name": "StringZilla",
+        "length": Length.BIT_64,
+        "hasher": async_wrapper(stringzilla_hash, seed=seed),
     }
     yield {
         **metadata,
