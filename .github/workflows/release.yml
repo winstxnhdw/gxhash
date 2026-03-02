@@ -60,9 +60,10 @@ jobs:
 
       - name: Create GitHub release ${{ steps.get-revision.outputs.revision }}
         id: release
-        run: gh release create ${{ steps.get-revision.outputs.revision }} -t ${{ steps.get-revision.outputs.revision }} -F body.md --verify-tag
+        run: gh release create $REVISION -t $REVISION -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          REVISION: ${{ steps.get-revision.outputs.revision }}
 
       - name: Revert changelog and tag on failure
         if: failure() && steps.release.outcome == 'failure'

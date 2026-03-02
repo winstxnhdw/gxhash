@@ -19,6 +19,7 @@ We welcome all kinds of contributions. _You don't need to be an expert in Python
 - Smoke test with privileged approval gate on publish
 - Smart release rollback on publish failure
 - Automated version bump and changelog/release body generation with commitizen
+- CodeQL analysis for Python, Rust, and GitHub Actions
 - Mandatory lockfile updates
 - Commitizen conventional commit message validation
 - Trailing whitespace check
