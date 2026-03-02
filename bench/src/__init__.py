@@ -1,10 +1,10 @@
 from ast import Yield, parse, walk
-from asyncio import gather, run
-from collections.abc import Awaitable, Callable, Iterable, Iterator
+from asyncio import AbstractEventLoop, eager_task_factory, get_running_loop, run
+from collections.abc import Callable, Coroutine, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
 from inspect import getsource
-from itertools import count, product, takewhile
+from itertools import count, product, repeat, takewhile
 from logging import INFO, Formatter, Logger, StreamHandler, getLogger
 from math import log
 from os import urandom
@@ -51,7 +51,7 @@ class EvaluandMetadata(TypedDict):
 class Evaluand(EvaluandMetadata):
     name: str
     length: Length
-    hasher: Callable[[bytes], Awaitable[int]]
+    hasher: Callable[[bytes], Coroutine[None, None, int]]
 
 
 class Progress:
@@ -80,22 +80,30 @@ def async_wrapper[**P](
     hasher: Callable[Concatenate[bytes, P], int],
     *args: P.args,
     **kwargs: P.kwargs,
-) -> Callable[[bytes], Awaitable[int]]:
+) -> Callable[[bytes], Coroutine[None, None, int]]:
     return lambda payload: wrap_async(hasher, payload, *args, **kwargs)
 
 
+async def gather[T](coroutines: Iterable[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
+    for future in tuple(map(loop.create_task, coroutines)):
+        await future
+
+
 async def benchmark(kwargs: Evaluand) -> EvaluationResult:
+    loop = get_running_loop()
+    loop.set_task_factory(eager_task_factory)
+
     hasher = kwargs["hasher"]
-    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"])
-    hash_futures = map(hasher, kwargs["payloads"])
+    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"], strict=True)
+    hash_futures = map(hasher, kwargs["payloads"], strict=True)
 
     start = perf_counter_ns()
-    await gather(*hash_warmup_futures)
+    await gather(hash_warmup_futures, loop=loop)
     end = perf_counter_ns()
     cold_duration = Nanoseconds(end - start)
 
     start = perf_counter_ns()
-    await gather(*hash_futures)
+    await gather(hash_futures, loop=loop)
     end = perf_counter_ns()
     hot_duration = Nanoseconds(end - start)
 
@@ -117,8 +125,8 @@ def create_evaluands(
     logger: Logger,
 ) -> Iterator[Evaluand]:
     seed = randint(0, 256)  # noqa: S311
-    payloads_warmup = tuple(urandom(payload_size) for _ in range(payload_count))
-    payloads = tuple(urandom(payload_size) for _ in range(payload_count))
+    payloads_warmup = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
+    payloads = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
     metadata: EvaluandMetadata = {
         "payload_size": payload_size,
         "payloads_warmup": payloads_warmup,
@@ -269,11 +277,11 @@ def create_evaluands(
 
 
 def generate_sizes(base: int, max_size: int) -> Iterator[int]:
-    return takewhile(max_size.__ge__, (base**i for i in count(0)))
+    return takewhile(max_size.__ge__, map(pow, repeat(base), count(0)))
 
 
 def payload_counts(counts: int) -> Iterator[int]:
-    return (4**i for i in range(counts))
+    return map(pow, repeat(4), range(counts))
 
 
 def main() -> None:
@@ -289,14 +297,14 @@ def main() -> None:
     sizes = int(log(max_size, base)) + 1
     counts = 3
     repeats = 60
-    steps = sum(1 for node in walk(parse(getsource(create_evaluands))) if type(node) is Yield)
+    steps = sum(type(node) is Yield for node in walk(parse(getsource(create_evaluands))))
     progress = Progress(total=sizes * counts * repeats * steps, step=steps)
 
     results = (
         run(benchmark(evaluand))
         for size, count in product(generate_sizes(base, max_size), payload_counts(counts))
         for evaluand in create_evaluands(payload_size=size, payload_count=count, progress=progress, logger=logger)
-        for _ in range(repeats)
+        for _ in repeat(None, repeats)
     )
 
     columns = ("name", "payload_size", "length", "batch_size")
