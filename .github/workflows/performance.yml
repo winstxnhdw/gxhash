@@ -12,6 +12,7 @@ on:
       - perf/**
       - "!bench/**"
 
+permissions: {}
 env:
   RUSTFLAGS: -C target-feature=+aes,+ssse3
   BENCHMARK_PATH: perf
