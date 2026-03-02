@@ -94,8 +94,8 @@ async def benchmark(kwargs: Evaluand) -> EvaluationResult:
     loop.set_task_factory(eager_task_factory)
 
     hasher = kwargs["hasher"]
-    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"], strict=True)
-    hash_futures = map(hasher, kwargs["payloads"], strict=True)
+    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"])
+    hash_futures = map(hasher, kwargs["payloads"])
 
     start = perf_counter_ns()
     await gather(hash_warmup_futures, loop=loop)
