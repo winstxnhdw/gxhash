@@ -38,6 +38,9 @@ line-length = 120
 select = ["ALL"]
 ignore = ["D", "TC003", "COM812"]
 
+[tool.ruff.lint.flake8-annotations]
+suppress-dummy-args = true
+
 [tool.pyright]
 typeCheckingMode = "strict"
 reportUnknownMemberType = false

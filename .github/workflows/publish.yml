@@ -90,6 +90,6 @@ jobs:
 
       - name: Undo release
         if: failure()
-        run: gh release delete $TAG_NAME -y --cleanup-tag
+        run: gh release delete "$TAG_NAME" -y --cleanup-tag
         env:
           GH_TOKEN: ${{ github.token }}

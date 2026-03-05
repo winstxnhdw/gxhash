@@ -39,27 +39,18 @@ repos:
             exit('line 2 must be blank' if len(lines) > 1 and lines[1].strip() else 0)
           "
 
-      - id: cargo-lock
-        name: update cargo lockfiles
+      - id: pytest
+        name: pytest
         language: system
-        files: ^Cargo\.toml$
-        entry: cargo update --manifest-path
-
-      - id: cargo-lock-tests
-        name: update tests cargo lockfiles
-        language: system
-        files: ^tests/Cargo\.toml$
-        entry: cargo update --manifest-path
-
-      - id: cargo-lock-perf
-        name: update perf cargo lockfiles
-        language: system
-        files: ^perf/Cargo\.toml$
-        entry: cargo update --manifest-path
+        stages: [post-commit]
+        files: ^(python/|tests/).*\.py$
+        pass_filenames: false
+        entry: uv run pytest
 
       - id: cargo
         name: cargo test
         language: system
+        stages: [post-commit]
         files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
         pass_filenames: false
         entry: cargo test --manifest-path tests/Cargo.toml
@@ -69,34 +60,34 @@ repos:
         language: system
         files: ^(src/|build\.rs)
         pass_filenames: false
-        entry: cargo clippy --fix --allow-dirty
+        entry: cargo clippy --frozen --fix --allow-dirty
+
+      - id: clippy-bench
+        name: clippy (bench)
+        language: system
+        files: ^bench/.*\.rs$
+        pass_filenames: false
+        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path bench/Cargo.toml
 
       - id: clippy-tests
         name: clippy (tests)
         language: system
         files: ^tests/.*\.rs$
         pass_filenames: false
-        entry: cargo clippy --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
+        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
 
       - id: clippy-perf
         name: clippy (perf)
         language: system
         files: ^perf/.*\.rs$
         pass_filenames: false
-        entry: cargo clippy --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
+        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
 
       - id: pyright
         name: pyright
         language: system
         files: \.py$
         pass_filenames: false
-        entry: uv run pyright
+        entry: uv run --locked pyright
         env:
           UV_LOCKED: "1"
-
-      - id: pytest
-        name: pytest
-        language: system
-        files: ^(python/|tests/).*\.py$
-        pass_filenames: false
-        entry: uv run pytest

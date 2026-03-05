@@ -1,6 +1,7 @@
 from ast import Yield, parse, walk
 from asyncio import AbstractEventLoop, eager_task_factory, get_running_loop, run
-from collections.abc import Callable, Coroutine, Iterable, Iterator
+from collections import deque
+from collections.abc import Callable, Coroutine, Generator, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
 from inspect import getsource
@@ -11,7 +12,7 @@ from os import urandom
 from random import randint
 from sys import argv
 from time import perf_counter_ns
-from typing import Concatenate, NewType, TypedDict
+from typing import Concatenate, NewType, Self, TypedDict
 
 from cityhash import CityHash64WithSeed, CityHash128WithSeed
 from farmhash import FarmHash32WithSeed, FarmHash64WithSeed, FarmHash128WithSeed
@@ -67,21 +68,31 @@ class Progress:
         return self.current, self.total
 
 
-async def wrap_async[**P](
-    hasher: Callable[Concatenate[bytes, P], int],
-    payload: bytes,
-    *args: P.args,
-    **kwargs: P.kwargs,
-) -> int:
-    return hasher(payload, *args, **kwargs)
+class CoroutineWrapper[**P, R](Coroutine[None, None, R]):
+    __slots__ = ("args", "hasher", "kwargs", "queue")
 
+    def __init__(self, hasher: Callable[Concatenate[bytes, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
+        self.queue: deque[bytes] = deque()
+        self.hasher = hasher
+        self.args = args
+        self.kwargs = kwargs
 
-def async_wrapper[**P](
-    hasher: Callable[Concatenate[bytes, P], int],
-    *args: P.args,
-    **kwargs: P.kwargs,
-) -> Callable[[bytes], Coroutine[None, None, int]]:
-    return lambda payload: wrap_async(hasher, payload, *args, **kwargs)
+    def __call__(self, data: bytes, /) -> Self:
+        self.queue.append(data)
+        return self
+
+    def __await__(self) -> Generator[None, None, R]:
+        return self.hasher(self.queue[0], *self.args, **self.kwargs)
+        yield
+
+    def send(self, _: None) -> None:
+        raise StopIteration(self.hasher(self.queue.popleft(), *self.args, **self.kwargs))
+
+    def throw(self, typ: type[BaseException] | BaseException, *_) -> None:
+        raise typ
+
+    def close(self) -> None:
+        return
 
 
 async def gather[T](coroutines: Iterable[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
@@ -138,7 +149,7 @@ def create_evaluands(
         **metadata,
         "name": "GxHash32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(GxHash32(seed=seed).hash),
+        "hasher": CoroutineWrapper(GxHash32(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -150,31 +161,31 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
+        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(xxh32_intdigest, seed=seed),
+        "hasher": CoroutineWrapper(xxh32_intdigest, seed=seed),
     }
     yield {  # MurmurHash3 does not support kwargs
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(lambda payload: mmh3_32_uintdigest(payload, seed)),
+        "hasher": CoroutineWrapper(lambda payload: mmh3_32_uintdigest(payload, seed)),
     }
     yield {
         **metadata,
         "name": "FarmHash32",
         "length": Length.BIT_32,
-        "hasher": async_wrapper(FarmHash32WithSeed, seed=seed),
+        "hasher": CoroutineWrapper(FarmHash32WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "GxHash64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(GxHash64(seed=seed).hash),
+        "hasher": CoroutineWrapper(GxHash64(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -186,43 +197,43 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
+        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH3",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(xxh64_intdigest, seed=seed),
+        "hasher": CoroutineWrapper(xxh64_intdigest, seed=seed),
     }
     yield {
         **metadata,
         "name": "CityHash64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(CityHash64WithSeed, seed=seed),
+        "hasher": CoroutineWrapper(CityHash64WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "FarmHash64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(FarmHash64WithSeed, seed=seed),
+        "hasher": CoroutineWrapper(FarmHash64WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "MetroHash64",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(hash64_int, seed=seed),
+        "hasher": CoroutineWrapper(hash64_int, seed=seed),
     }
     yield {
         **metadata,
         "name": "StringZilla",
         "length": Length.BIT_64,
-        "hasher": async_wrapper(stringzilla_hash, seed=seed),
+        "hasher": CoroutineWrapper(stringzilla_hash, seed=seed),
     }
     yield {
         **metadata,
         "name": "GxHash128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(GxHash128(seed=seed).hash),
+        "hasher": CoroutineWrapper(GxHash128(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -234,43 +245,45 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
+        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(xxh128_intdigest, seed=seed),
+        "hasher": CoroutineWrapper(xxh128_intdigest, seed=seed),
     }
     yield {  # MurmurHash3 does not support kwargs
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payload: mmh3_x64_128_uintdigest(payload, seed)),
+        "hasher": CoroutineWrapper(lambda payload: mmh3_x64_128_uintdigest(payload, seed)),
     }
     yield {
         **metadata,
         "name": "CityHash128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(CityHash128WithSeed, seed=seed),
+        "hasher": CoroutineWrapper(CityHash128WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "FarmHash128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(FarmHash128WithSeed, seed=seed),
+        "hasher": CoroutineWrapper(FarmHash128WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "MetroHash128",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(hash128_int, seed=seed),
+        "hasher": CoroutineWrapper(hash128_int, seed=seed),
     }
     yield {
         **metadata,
         "name": "MD5",
         "length": Length.BIT_128,
-        "hasher": async_wrapper(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")),
+        "hasher": CoroutineWrapper(
+            lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")
+        ),
     }
 
     logger.debug("\rRuns: %s/%s", *next(progress))

@@ -39,11 +39,15 @@ jobs:
 
       - name: Get next ${{ inputs.release-type }} revision
         id: get-revision
-        run: echo "revision=$(cz bump --get-next --increment ${{ inputs.release-type }})" > $GITHUB_OUTPUT
+        run: echo "revision=$(cz bump --get-next --increment "$RELEASE_TYPE")" > "$GITHUB_OUTPUT"
+        env:
+          RELEASE_TYPE: ${{ inputs.release-type }}
 
       - name: Create bump and changelog
+        env:
+          RELEASE_TYPE: ${{ inputs.release-type }}
         run: |
-          cz bump --increment ${{ inputs.release-type }} \
+          cz bump --increment "$RELEASE_TYPE" \
                   --yes \
                   --changelog \
                   --no-verify \
@@ -56,18 +60,22 @@ jobs:
           cargo update --manifest-path perf/Cargo.toml
 
       - name: Push changelog and tag
-        run: git push --atomic origin main ${{ steps.get-revision.outputs.revision }}
+        run: git push --atomic origin main "$REVISION"
+        env:
+          REVISION: ${{ steps.get-revision.outputs.revision }}
 
       - name: Create GitHub release ${{ steps.get-revision.outputs.revision }}
         id: release
-        run: gh release create $REVISION -t $REVISION -F body.md --verify-tag
+        run: gh release create "$REVISION" -t "$REVISION" -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           REVISION: ${{ steps.get-revision.outputs.revision }}
 
       - name: Revert changelog and tag on failure
         if: failure() && steps.release.outcome == 'failure'
+        env:
+          REVISION: ${{ steps.get-revision.outputs.revision }}
         run: |
           git revert HEAD --no-commit
-          git commit -m "revert: release ${{ steps.get-revision.outputs.revision }}"
-          git push --atomic origin main --delete ${{ steps.get-revision.outputs.revision }}
+          git commit -m "revert: release $REVISION"
+          git push --atomic origin main --delete "$REVISION"
