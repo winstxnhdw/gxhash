@@ -39,6 +39,50 @@ repos:
             exit('line 2 must be blank' if len(lines) > 1 and lines[1].strip() else 0)
           "
 
+      - id: cargo-lock
+        name: update cargo lockfiles
+        language: system
+        stages: [manual]
+        files: ^Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: cargo-lock-bench
+        name: update bench cargo lockfiles
+        language: system
+        stages: [manual]
+        files: ^bench/Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: cargo-lock-tests
+        name: update tests cargo lockfiles
+        language: system
+        stages: [manual]
+        files: ^tests/Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: cargo-lock-perf
+        name: update perf cargo lockfiles
+        language: system
+        stages: [manual]
+        files: ^perf/Cargo\.toml$
+        entry: cargo update --manifest-path
+
+      - id: uv-lock
+        name: update uv lockfiles
+        language: system
+        stages: [manual]
+        files: ^pyproject\.toml$
+        pass_filenames: false
+        entry: uv lock
+
+      - id: uv-lock-bench
+        name: update bench uv lockfiles
+        language: system
+        stages: [manual]
+        files: ^bench/pyproject\.toml$
+        pass_filenames: false
+        entry: uv lock --directory bench
+
       - id: pytest
         name: pytest
         language: system

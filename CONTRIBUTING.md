@@ -63,6 +63,12 @@ After you are done finalising your changes, you can run all the necessary linter
 uv run prek run
 ```
 
+You can update all lockfiles by running the following.
+
+```bash
+uv run prek --hook-stage manual
+```
+
 If you are working on a performance-sensitive change, you can run the benchmarks with `cargo`.
 
 ```bash
