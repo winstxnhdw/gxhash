@@ -6,6 +6,7 @@ use pyo3::Python;
 use pyo3::intern;
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyModule;
+use std::ffi::CString;
 
 #[derive(Clone, Copy)]
 pub enum Memory {
@@ -59,6 +60,7 @@ pub fn generate_bytes(seed: u64, output_size: impl Into<usize>) -> Vec<u8> {
 #[allow(dead_code)]
 pub trait PythonExt<'py> {
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>>;
+    fn import_gather(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_gxhash64(&self) -> PyResult<Bound<'_, PyAny>>;
     fn import_gxhash128(&self) -> PyResult<Bound<'_, PyAny>>;
@@ -81,6 +83,17 @@ impl<'py> PythonExt<'py> for Python<'py> {
         }
 
         Ok(asyncio)
+    }
+
+    fn import_gather(&self) -> PyResult<Bound<'_, PyAny>> {
+        let source = [
+            "async def gather(tasks):",
+            "    for task in tasks:",
+            "        await task",
+        ];
+
+        PyModule::from_code(*self, &CString::new(source.join("\n"))?, c"gather.py", c"gather")?
+            .getattr(intern!(*self, "gather"))
     }
 
     fn import_gxhash32(&self) -> PyResult<Bound<'_, PyAny>> {

@@ -2,12 +2,11 @@
 mod helpers;
 
 use divan::Bencher;
-use helpers::generate_bytes;
 use helpers::PythonExt;
+use helpers::generate_bytes;
 
 use pyo3::types::PyAnyMethods;
 use pyo3::types::PyBytes;
-use pyo3::types::PyTuple;
 
 struct PseudoRNG {
     state: u64,
@@ -88,9 +87,12 @@ fn workload_simulation(bencher: Bencher) {
         let hash_async = py.import_gxhash64()?.call1((seed,))?.getattr("hash_async")?;
         let asyncio = py.import_asyncio()?;
         let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
-        let asyncio_gather = asyncio.getattr("gather")?;
+        let create_task = asyncio_loop.getattr("create_task")?;
         let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
+        let gather = py.import_gather()?;
+
         asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
+        asyncio_loop.call_method1("set_task_factory", (asyncio.getattr("eager_task_factory")?,))?;
 
         for _ in 0..50 {
             run_until_complete.call1((hash_async.call1((&warmup_payload,))?,))?;
@@ -98,12 +100,13 @@ fn workload_simulation(bencher: Bencher) {
 
         bencher.bench_local(|| -> pyo3::PyResult<()> {
             for (payloads, &delay) in payload_batches.iter().zip(&delays) {
-                let coroutines: Vec<_> = payloads
+                let tasks = payloads
                     .iter()
                     .flat_map(|payload| hash_async.call1((payload,)))
-                    .collect();
+                    .flat_map(|c| create_task.call1((c,)))
+                    .collect::<Vec<_>>();
 
-                run_until_complete.call1((asyncio_gather.call1(PyTuple::new(py, &coroutines)?)?,))?;
+                run_until_complete.call1((gather.call1((tasks,))?,))?;
                 std::thread::sleep(std::time::Duration::from_nanos_u128(delay));
             }
 

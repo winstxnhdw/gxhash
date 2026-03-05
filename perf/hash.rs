@@ -2,12 +2,11 @@
 mod helpers;
 
 use divan::Bencher;
-use helpers::generate_bytes;
 use helpers::Memory;
 use helpers::PythonExt;
+use helpers::generate_bytes;
 
 use pyo3::types::PyAnyMethods;
-use pyo3::types::PyTuple;
 
 macro_rules! bench_hash {
     ($name:ident, $import:ident, $memory:expr) => {
@@ -56,19 +55,22 @@ macro_rules! bench_hash_async_batch {
                     .collect::<Vec<_>>();
 
                 let asyncio = py.import_asyncio()?;
+                let gather = py.import_gather()?;
                 let asyncio_loop = asyncio.getattr("new_event_loop")?.call0()?;
-                let asyncio_gather = asyncio.getattr("gather")?;
+                let create_task = asyncio_loop.getattr("create_task")?;
                 let run_until_complete = asyncio_loop.getattr("run_until_complete")?;
                 let hash_async = py.$import()?.call1((seed,))?.getattr("hash_async")?;
 
                 asyncio.call_method1("set_event_loop", (&asyncio_loop,))?;
+                asyncio_loop.call_method1("set_task_factory", (asyncio.getattr("eager_task_factory")?,))?;
                 bencher.bench_local(|| {
-                    let coroutines: Vec<_> = payloads
+                    let tasks = payloads
                         .iter()
                         .flat_map(|bytes| hash_async.call1((bytes.as_slice(),)))
-                        .collect();
+                        .flat_map(|coroutine| create_task.call1((coroutine,)))
+                        .collect::<Vec<_>>();
 
-                    run_until_complete.call1((asyncio_gather.call1(PyTuple::new(py, &coroutines)?)?,))
+                    run_until_complete.call1((gather.call1((tasks,))?,))
                 });
             })
         }
