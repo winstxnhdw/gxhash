@@ -18,6 +18,7 @@ jobs:
     uses: winstxnhdw/actions/.github/workflows/uv.yml@main
     with:
       disable-test: true
+      install-project: true
 
   core:
     strategy:

@@ -19,7 +19,8 @@ from farmhash import FarmHash32WithSeed, FarmHash64WithSeed, FarmHash128WithSeed
 from gxhash import GxHash32, GxHash64, GxHash128
 from gxhash.hashlib import gxhash32, gxhash64, gxhash128
 from metrohash import hash64_int, hash128_int
-from mmh3 import mmh3_32_uintdigest, mmh3_x64_128_uintdigest
+from mmh3 import hash as hash32
+from mmh3 import hash128
 from polars import LazyFrame, col
 from stringzilla import hash as stringzilla_hash
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
@@ -169,11 +170,11 @@ def create_evaluands(
         "length": Length.BIT_32,
         "hasher": CoroutineWrapper(xxh32_intdigest, seed=seed),
     }
-    yield {  # MurmurHash3 does not support kwargs
+    yield {
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(lambda payload: mmh3_32_uintdigest(payload, seed)),
+        "hasher": CoroutineWrapper(hash32, seed=seed),
     }
     yield {
         **metadata,
@@ -253,11 +254,11 @@ def create_evaluands(
         "length": Length.BIT_128,
         "hasher": CoroutineWrapper(xxh128_intdigest, seed=seed),
     }
-    yield {  # MurmurHash3 does not support kwargs
+    yield {
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(lambda payload: mmh3_x64_128_uintdigest(payload, seed)),
+        "hasher": CoroutineWrapper(hash128, seed=seed),
     }
     yield {
         **metadata,
