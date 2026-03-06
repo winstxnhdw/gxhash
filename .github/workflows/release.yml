@@ -24,7 +24,7 @@ jobs:
 
   release:
     needs: [main, clippy, python]
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
