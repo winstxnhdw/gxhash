@@ -5,6 +5,7 @@ on:
       - Cargo.toml
       - Cargo.lock
 
+permissions: {}
 concurrency: 
   group: update-lockfile-${{ github.ref }}
   cancel-in-progress: true
@@ -53,6 +54,7 @@ jobs:
         with:
           show-progress: false
           ref: ${{ env.BRANCH }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Download artifact
         uses: actions/download-artifact@v8.0.0
