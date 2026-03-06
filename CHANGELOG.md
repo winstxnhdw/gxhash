@@ -4,6 +4,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2]
+
+Released on 2026-03-06
+
+### Fixed
+
+- update all dependencies (#114)
+
 ## [0.5.1]
 
 Released on 2026-02-27
