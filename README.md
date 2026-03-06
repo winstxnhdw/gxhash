@@ -7,19 +7,19 @@
 [![codecov](https://codecov.io/github/winstxnhdw/gxhash/graph/badge.svg?token=L5FVMJTQUB)](https://codecov.io/github/winstxnhdw/gxhash)
 [![main.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml)
 
+Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast and robust non-cryptographic hashing algorithm.
+
 <p align="center">
   <picture align="center">
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-dark.png" width=50%>
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png" width=50%>
-    <img alt="Shows a bar chart with benchmark results." src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/throughput-cropped-light.png">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-dark.svg" width=70%>
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-light.svg" width=70%>
+    <img alt="Shows a bar chart with benchmark results." src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-light.svg">
   </picture>
 </p>
 
 <p align="center">
-  <i>128-bit hash throughput (MiB/s)</i>
+  <i>Latency of 128-bit hash functions on a 4 MiB payload</i>
 </p>
-
-Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast and robust non-cryptographic hashing algorithm.
 
 ## Highlights
 
