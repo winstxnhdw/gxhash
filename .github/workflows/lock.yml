@@ -1,0 +1,72 @@
+name: Lock
+on:
+  pull_request:
+    paths:
+      - Cargo.toml
+      - Cargo.lock
+
+concurrency: 
+  group: update-lockfile-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BRANCH: ${{ github.head_ref }}
+  PATCH_NAME: lockfile.patch
+  ARTIFACT_NAME: lockfile-patch
+
+jobs:
+  lock:
+    if: github.event.pull_request.user.login == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          show-progress: false
+          persist-credentials: false
+          ref: ${{ env.BRANCH }}
+
+      - name: Update gxhash-perf lockfile
+        run: cargo update --manifest-path perf/Cargo.toml
+
+      - name: Update gxhash-tests lockfile
+        run: cargo update --manifest-path tests/Cargo.toml
+
+      - name: Create patch
+        run: git diff > "$PATCH_NAME"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.PATCH_NAME }}
+
+  push:
+    needs: lock
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          show-progress: false
+          ref: ${{ env.BRANCH }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v8.0.0
+        with:
+          pattern: ${{ env.ARTIFACT_NAME }}
+
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+
+      - name: Commit changes
+        run: |
+          git apply "$PATCH_NAME" || true
+          git commit -am "build: update perf lockfile" || true
+          git pull --rebase origin "$BRANCH"
+          git push origin "HEAD:$BRANCH"
