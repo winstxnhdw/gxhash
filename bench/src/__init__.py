@@ -1,6 +1,5 @@
 from ast import Yield, parse, walk
 from asyncio import AbstractEventLoop, eager_task_factory, get_running_loop, run
-from collections import deque
 from collections.abc import Callable, Coroutine, Generator, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
@@ -69,25 +68,24 @@ class Progress:
         return self.current, self.total
 
 
-class CoroutineWrapper[**P, R](Coroutine[None, None, R]):
-    __slots__ = ("args", "hasher", "kwargs", "queue")
+class EagerCoroutine[**P, R](Coroutine[None, None, R]):
+    __slots__ = ("args", "data", "hasher", "kwargs")
 
     def __init__(self, hasher: Callable[Concatenate[bytes, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
-        self.queue: deque[bytes] = deque()
         self.hasher = hasher
         self.args = args
         self.kwargs = kwargs
 
     def __call__(self, data: bytes, /) -> Self:
-        self.queue.append(data)
+        self.data = data
         return self
 
     def __await__(self) -> Generator[None, None, R]:
-        return self.hasher(self.queue[0], *self.args, **self.kwargs)
+        return self.hasher(self.data, *self.args, **self.kwargs)
         yield
 
     def send(self, _: None) -> None:
-        raise StopIteration(self.hasher(self.queue.popleft(), *self.args, **self.kwargs))
+        raise StopIteration(self.hasher(self.data, *self.args, **self.kwargs))
 
     def throw(self, typ: type[BaseException] | BaseException, *_) -> None:
         raise typ
@@ -96,7 +94,7 @@ class CoroutineWrapper[**P, R](Coroutine[None, None, R]):
         return
 
 
-async def gather[T](coroutines: Iterable[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
+async def gather[T](coroutines: Iterator[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
     for future in tuple(map(loop.create_task, coroutines)):
         await future
 
@@ -150,7 +148,7 @@ def create_evaluands(
         **metadata,
         "name": "GxHash32",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(GxHash32(seed=seed).hash),
+        "hasher": EagerCoroutine(GxHash32(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -162,31 +160,31 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib32",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
+        "hasher": EagerCoroutine(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH32",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(xxh32_intdigest, seed=seed),
+        "hasher": EagerCoroutine(xxh32_intdigest, seed=seed),
     }
     yield {
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(hash32, seed=seed),
+        "hasher": EagerCoroutine(hash32, seed=seed),
     }
     yield {
         **metadata,
         "name": "FarmHash32",
         "length": Length.BIT_32,
-        "hasher": CoroutineWrapper(FarmHash32WithSeed, seed=seed),
+        "hasher": EagerCoroutine(FarmHash32WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "GxHash64",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(GxHash64(seed=seed).hash),
+        "hasher": EagerCoroutine(GxHash64(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -198,43 +196,43 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib64",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
+        "hasher": EagerCoroutine(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH3",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(xxh64_intdigest, seed=seed),
+        "hasher": EagerCoroutine(xxh64_intdigest, seed=seed),
     }
     yield {
         **metadata,
         "name": "CityHash64",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(CityHash64WithSeed, seed=seed),
+        "hasher": EagerCoroutine(CityHash64WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "FarmHash64",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(FarmHash64WithSeed, seed=seed),
+        "hasher": EagerCoroutine(FarmHash64WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "MetroHash64",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(hash64_int, seed=seed),
+        "hasher": EagerCoroutine(hash64_int, seed=seed),
     }
     yield {
         **metadata,
         "name": "StringZilla",
         "length": Length.BIT_64,
-        "hasher": CoroutineWrapper(stringzilla_hash, seed=seed),
+        "hasher": EagerCoroutine(stringzilla_hash, seed=seed),
     }
     yield {
         **metadata,
         "name": "GxHash128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(GxHash128(seed=seed).hash),
+        "hasher": EagerCoroutine(GxHash128(seed=seed).hash),
     }
     yield {
         **metadata,
@@ -246,43 +244,43 @@ def create_evaluands(
         **metadata,
         "name": "GxHashLib128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
+        "hasher": EagerCoroutine(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
     }
     yield {
         **metadata,
         "name": "XXH128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(xxh128_intdigest, seed=seed),
+        "hasher": EagerCoroutine(xxh128_intdigest, seed=seed),
     }
     yield {
         **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(hash128, seed=seed),
+        "hasher": EagerCoroutine(hash128, seed=seed),
     }
     yield {
         **metadata,
         "name": "CityHash128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(CityHash128WithSeed, seed=seed),
+        "hasher": EagerCoroutine(CityHash128WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "FarmHash128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(FarmHash128WithSeed, seed=seed),
+        "hasher": EagerCoroutine(FarmHash128WithSeed, seed=seed),
     }
     yield {
         **metadata,
         "name": "MetroHash128",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(hash128_int, seed=seed),
+        "hasher": EagerCoroutine(hash128_int, seed=seed),
     }
     yield {
         **metadata,
         "name": "MD5",
         "length": Length.BIT_128,
-        "hasher": CoroutineWrapper(
+        "hasher": EagerCoroutine(
             lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")
         ),
     }
