@@ -5,6 +5,8 @@ on:
     types: published
 
 permissions: {}
+env:
+  TAG_NAME: ${{ github.event.release.tag_name }}
 
 jobs:
   compare:
@@ -65,7 +67,6 @@ jobs:
     env:
       UV_ISOLATED: 1
       PYTHONDONTWRITEBYTECODE: 1
-      TAG_NAME: ${{ github.event.release.tag_name }}
 
     steps:
       - name: Checkout repository
@@ -95,7 +96,24 @@ jobs:
       contents: write
     
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          show-progress: false
+          fetch-depth: 0
+
+      - name: Set Git config
+        run: |
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+
+      - name: Undo commit
+        run: |
+          git revert $(git rev-list -n 1 "$TAG_NAME") --no-commit
+          git commit -m "revert: release $TAG_NAME"
+          git push
+
       - name: Undo release
-        run: gh release delete "$TAG_NAME" -y --cleanup-tag -R "$GITHUB_REPOSITORY"
+        run: gh release delete "$TAG_NAME" -y --cleanup-tag
         env:
           GH_TOKEN: ${{ github.token }}
