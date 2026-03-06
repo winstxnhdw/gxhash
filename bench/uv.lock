@@ -28,7 +28,7 @@ requires-dist = [
     { name = "cityhash", specifier = ">=0.4.10" },
     { name = "gxhash", directory = "../" },
     { name = "metrohash", specifier = ">=0.4.1" },
-    { name = "mmh3", specifier = ">=5.2.0" },
+    { name = "mmh3", specifier = ">=5.2.1" },
     { name = "polars", specifier = ">=1.38.0" },
     { name = "stringzilla", specifier = ">=4.6.0" },
     { name = "xxhash", specifier = ">=3.6.0" },
@@ -38,7 +38,7 @@ requires-dist = [
 dev = [
     { name = "nodejs-wheel-binaries", specifier = ">=24.14.0" },
     { name = "pyright", specifier = ">=1.1.408" },
-    { name = "ruff", specifier = ">=0.15.4" },
+    { name = "ruff", specifier = ">=0.15.5" },
 ]
 
 [[package]]

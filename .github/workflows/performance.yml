@@ -35,7 +35,7 @@ jobs:
           python-version: 3.14.3
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.68.16
+        uses: taiki-e/install-action@v2.68.20
         with:
           tool: cargo-codspeed
 
@@ -44,7 +44,7 @@ jobs:
         working-directory: ${{ env.BENCHMARK_PATH }}
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v4.11.0
+        uses: CodSpeedHQ/action@v4.11.1
         with:
           working-directory: ${{ env.BENCHMARK_PATH }}
           mode: simulation
