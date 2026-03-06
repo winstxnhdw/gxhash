@@ -24,6 +24,7 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 ## Highlights
 
 - [Fastest non-cryptographic hash algorithm](https://github.com/winstxnhdw/gxhash/blob/main/bench/README.md) of its class.
+- [100x faster than MD5](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit-throughput) and up to [3x faster than xxHash](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing-throughput) on larger payloads.
 - Support for [async hashing](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing-throughput) with multithreaded parallelism for non-blocking applications.
 - Provides a [performant](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit-throughput), drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
 - Guaranteed [stable hashes](https://github.com/ogxd/gxhash?tab=readme-ov-file#hashes-stability) across all supported platforms.
