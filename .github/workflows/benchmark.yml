@@ -50,8 +50,10 @@ jobs:
         uses: actions/upload-artifact@v7.0.0
         with:
           name: charts
-          path: "*.svg"
           if-no-files-found: error
+          path: |
+            *.svg
+            benchmark.parquet
 
   push:
     needs: benchmark
