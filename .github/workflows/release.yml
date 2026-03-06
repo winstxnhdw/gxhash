@@ -32,7 +32,7 @@ jobs:
         with:
           show-progress: false
           fetch-depth: 0
-          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          ssh-key: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Install commitizen
         uses: commitizen-tools/setup-cz@v0.7.0
@@ -54,30 +54,32 @@ jobs:
                   --git-output-to-stderr \
                   --changelog-to-stdout | sed '1d' >body.md
 
-      - name: Update lockfiles
-        run: |
-          cargo update --manifest-path tests/Cargo.toml
-          cargo update --manifest-path perf/Cargo.toml
+      - name: Update gxhash-tests lockfile
+        run: cargo update --manifest-path tests/Cargo.toml
+
+      - name: Update gxhash-perf lockfile
+        run: cargo update --manifest-path perf/Cargo.toml
+
+      - name: Commit lockfile updates
+        run: git commit -a --amend --no-edit
 
       - name: Push changelog and tag
+        id: push
+        run: git push --atomic origin main "$REVISION"
         env:
           REVISION: ${{ steps.get-revision.outputs.revision }}
-        run: |
-          git commit -a --amend --no-edit
-          git push --atomic origin main "$REVISION"
 
       - name: Create GitHub release ${{ steps.get-revision.outputs.revision }}
-        id: release
         run: gh release create "$REVISION" -t "$REVISION" -F body.md --verify-tag
         env:
           GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           REVISION: ${{ steps.get-revision.outputs.revision }}
 
       - name: Revert changelog and tag on failure
-        if: failure() && steps.release.outcome == 'failure'
+        if: failure() && steps.push.outcome == 'success'
         env:
           REVISION: ${{ steps.get-revision.outputs.revision }}
         run: |
-          git revert HEAD --no-commit
+          git revert --no-commit HEAD
           git commit -m "revert: release $REVISION"
           git push --atomic origin main --delete "$REVISION"

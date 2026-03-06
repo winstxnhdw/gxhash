@@ -6,6 +6,8 @@ on:
 
 permissions: {}
 env:
+  UV_ISOLATED: 1
+  PYTHONDONTWRITEBYTECODE: 1
   TAG_NAME: ${{ github.event.release.tag_name }}
 
 jobs:
@@ -51,7 +53,7 @@ jobs:
         run: |
           echo "New files detected in sdist. Please review the changes."
           echo "Added files:"
-          echo "${{ needs.compare.outputs.added }}" | tr ' ' '\n'
+          echo "${{ needs.compare.outputs.added }}" | tr ' ' '\n' | sed 's/^/- /'
 
   publish:
     if: ${{ !cancelled() && needs.compare.result == 'success' }}
@@ -63,10 +65,6 @@ jobs:
 
     permissions:
       id-token: write
-
-    env:
-      UV_ISOLATED: 1
-      PYTHONDONTWRITEBYTECODE: 1
 
     steps:
       - name: Checkout repository
@@ -109,7 +107,7 @@ jobs:
 
       - name: Undo commit
         run: |
-          git revert $(git rev-list -n 1 "$TAG_NAME") --no-commit
+          git revert --no-commit "$(git rev-list -n 1 "$TAG_NAME")"
           git commit -m "revert: release $TAG_NAME"
           git push
 
