@@ -52,8 +52,8 @@ jobs:
           name: charts
           if-no-files-found: error
           path: |
+            benchmarks.parquet
             *.svg
-            benchmark.parquet
 
   push:
     needs: benchmark

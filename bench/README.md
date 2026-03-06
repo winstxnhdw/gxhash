@@ -224,7 +224,7 @@ With `--features hybrid`.
 
 ## Reproduction
 
-To produce the benchmark parquet file, run the following command. This will produce a `benchmark.parquet` file in the current directory. Depending on your hardware, The benchmark may take up to an hour to complete.
+To produce the benchmark parquet file, run the following command. This will produce a `benchmarks.parquet` file in the current directory. Depending on your hardware, The benchmark may take up to an hour to complete.
 
 > [!IMPORTANT]
 > You will need 6 GiB of RAM to avoid OOM errors.
