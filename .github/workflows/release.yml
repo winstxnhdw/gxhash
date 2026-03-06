@@ -60,9 +60,11 @@ jobs:
           cargo update --manifest-path perf/Cargo.toml
 
       - name: Push changelog and tag
-        run: git push --atomic origin main "$REVISION"
         env:
           REVISION: ${{ steps.get-revision.outputs.revision }}
+        run: |
+          git commit -a --amend --no-edit
+          git push --atomic origin main "$REVISION"
 
       - name: Create GitHub release ${{ steps.get-revision.outputs.revision }}
         id: release

@@ -23,16 +23,16 @@ jobs:
         uses: astral-sh/setup-uv@v7.3.1
 
       - name: Download sdist from previous release
-        run: pip download gxhash --pre -d previous
+        run: pip download gxhash --pre -d /tmp/previous
 
       - name: Build sdist from current commit
-        run: uv build --sdist -o current
+        run: uv build --sdist -o /tmp/current
 
       - name: List previous sdist files
-        run: tar -tf previous/gxhash-*.tar.gz | sed 's|^[^/]*/||' | sort > previous.txt
+        run: tar -tf /tmp/previous/gxhash-*.tar.gz | sed 's|^[^/]*/||' | sort > previous.txt
 
       - name: List current sdist files
-        run: tar -tf current/gxhash-*.tar.gz | sed 's|^[^/]*/||' | sort > current.txt
+        run: tar -tf /tmp/current/gxhash-*.tar.gz | sed 's|^[^/]*/||' | sort > current.txt
 
       - name: Compare sdist files
         id: new-files
@@ -60,7 +60,6 @@ jobs:
       url: https://pypi.org/project/gxhash/${{ env.TAG_NAME }}/
 
     permissions:
-      contents: write
       id-token: write
 
     env:
@@ -88,8 +87,15 @@ jobs:
       - name: Publish to PyPI
         run: uv publish
 
+  undo:
+    if: failure()
+    needs: [compare, review, publish]
+    runs-on: ubuntu-slim
+    permissions:
+      contents: write
+    
+    steps:
       - name: Undo release
-        if: failure()
-        run: gh release delete "$TAG_NAME" -y --cleanup-tag
+        run: gh release delete "$TAG_NAME" -y --cleanup-tag -R "$GITHUB_REPOSITORY"
         env:
           GH_TOKEN: ${{ github.token }}
