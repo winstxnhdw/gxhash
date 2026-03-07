@@ -11,19 +11,19 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 
 <p align="center">
   <picture align="center">
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-dark.svg" width=70%>
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-light.svg" width=70%>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-dark.svg" width=80%>
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-light.svg" width=80%>
     <img alt="Shows a bar chart with benchmark results." src="https://raw.githubusercontent.com/wiki/winstxnhdw/gxhash/resources/latency-128bit-light.svg">
   </picture>
 </p>
 
 <p align="center">
-  <i>Latency of 128-bit hash functions on a 4 MiB payload</i>
+  <i>Hashing a 4 MiB payload</i>
 </p>
 
 ## Highlights
 
-- [Fastest non-cryptographic hash algorithm](https://github.com/winstxnhdw/gxhash/blob/main/bench/README.md) of its class.
+- [Fastest non-cryptographic hash algorithm](https://github.com/winstxnhdw/gxhash/blob/main/bench/README.md) of its class[^1].
 - [100x faster than MD5](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit-throughput) and up to [3x faster than xxHash](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing-throughput) on larger payloads.
 - Support for [async hashing](https://github.com/winstxnhdw/gxhash/tree/main/bench#asynchronous-hashing-throughput) with multithreaded parallelism for non-blocking applications.
 - Provides a [performant](https://github.com/winstxnhdw/gxhash/tree/main/bench#128-bit-throughput), drop-in replacement for the built-in [hashlib](https://docs.python.org/3/library/hashlib.html) module.
@@ -34,6 +34,8 @@ Python bindings for [GxHash](https://github.com/ogxd/gxhash), a blazingly fast a
 - Zero-copy data access across the FFI boundary via the [buffer protocol](https://docs.python.org/3/c-api/buffer.html).
 - SIMD-accelerated [hexdigest](https://docs.python.org/3/library/hashlib.html#hashlib.hash.hexdigest) encoding with SSSE3/NEON intrinsics.
 - Zero-dependency installations on all platforms supported by [maturin](https://github.com/PyO3/maturin) and [puccinialin](https://github.com/konstin/puccinialin).
+
+[^1]: Highest throughput across every payload size, compared against non-cryptographic hash algorithms that pass the SMHasher quality tests.
 
 ## Installation
 
@@ -52,7 +54,7 @@ For the best throughput, you can allow `gxhash` to use wider registers by instal
 MATURIN_PEP517_ARGS="--features hybrid" pip install gxhash
 ```
 
-By default, `gxhash` attempts to detect and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x64 systems, the minimum required features are `aes` and `ssse3`.
+By default, `gxhash` [attempts to detect](https://github.com/winstxnhdw/gxhash/blob/main/.cargo/config.toml) and use your system's vectorisation features. You can manually control this by setting the specific `RUSTFLAGS` for your machine. For x64 systems, the minimum required features are `aes` and `ssse3`.
 
 ```bash
 RUSTFLAGS="-C target-feature=+aes,+ssse3" pip install gxhash
@@ -79,7 +81,7 @@ RUSTUP_TOOLCHAIN="1.83.0" pip install gxhash
 
 - Ubuntu 24.04 x64
 - Ubuntu 24.04 ARM64
-- macOS 15 x64
+- macOS 26 x64
 - macOS 15 ARM64
 - Windows Server 2025 x64
 - Windows 11 ARM64
