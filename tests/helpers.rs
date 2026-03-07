@@ -116,15 +116,20 @@ pub fn call_hash<'py, T>(py: Python<'py>, obj: &Bound<'py, PyAny>, bytes: &[u8])
 where
     for<'s> T: pyo3::FromPyObject<'s, 's, Error = pyo3::PyErr>,
 {
-    obj.call_method1(intern!(py, "hash"), (bytes,))?.extract()
+    let memoryview = PyMemoryView::from(&PyBytes::new(py, bytes))?;
+
+    obj.call_method1(intern!(py, "hash"), (&memoryview,))?
+        .extract()
 }
 
 pub fn call_hash_async<'py, T>(py: Python<'py>, obj: &Bound<'py, PyAny>, bytes: &[u8]) -> PyResult<T>
 where
     for<'s> T: pyo3::FromPyObject<'s, 's, Error = pyo3::PyErr>,
 {
+    let memoryview = PyMemoryView::from(&PyBytes::new(py, bytes))?;
+
     py.import_asyncio()?
         .getattr(intern!(py, "run"))?
-        .call1((obj.call_method1(intern!(py, "hash_async"), (bytes,))?,))?
+        .call1((obj.call_method1(intern!(py, "hash_async"), (&memoryview,))?,))?
         .extract()
 }
