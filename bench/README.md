@@ -1,6 +1,6 @@
 # Benchmarks
 
-All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries. If you suspect any bias or  would like to see another library included, please submit an [issue](https://github.com/winstxnhdw/gxhash/issues/new) or a [pull request](https://github.com/winstxnhdw/gxhash/compare).
+All benchmarks are updated regularly and the latest results can be found below. The benchmarks compare `gxhash` against other popular hashing Python libraries. If you suspect any bias or would like to see another library included, please submit an [issue](https://github.com/winstxnhdw/gxhash/issues/new) or a [pull request](https://github.com/winstxnhdw/gxhash/compare).
 
 ## Contents
 
@@ -22,10 +22,14 @@ All benchmarks are updated regularly and the latest results can be found below. 
 - All benchmarks are measured before and after a warm-up phase.
 - Each benchmark is run multiple times and the average wall time is reported.
 - The top and bottom 5% of the results are discarded to mitigate outliers.
-- The most performant configuration for each library is used.
-- Event loop is torn down between each benchmark.
-- Seed and payload(s) are randomly shuffled between each run to avoid caching effects.
+- The most[^1] performant configuration for each library is used.
+- The event loop is torn down between each benchmark.
+- Seed and payload(s) are randomly shuffled between each run[^2] to avoid caching effects.
 - No long-lived reference cycles to avoid interference from the garbage collector.
+
+[^1]: This is on a best-effort basis based on their API documentation and our understanding of their source code.
+
+[^2]: A run is defined by $n$ consecutive evaluations against a static set of unique inputs.
 
 ## Throughput
 
@@ -111,10 +115,14 @@ With `--features hybrid`.
 
 ### Asynchronous Hashing Throughput
 
-`gxhash` includes first-class support for asynchronous hashing. As the bar charts above illustrate, the asynchronous variant is expected to perform worse in single-hash scenarios because it **may** incur the overhead of spawning a thread. However, when there are concurrent hashing requests, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads across all payload sizes.
+`gxhash` includes first-class support for asynchronous hashing. As the bar charts above illustrate[^3], the asynchronous variant is expected to perform worse in single-hash scenarios because it may[^4] incur some overhead. However, when there are concurrent hashing requests, `gxhash` can keep all CPU cores busy and outperform the synchronous variant. In the benchmark below, we used batches of 16 payloads across all payload sizes.
+
+[^3]: The charts above may not always show this as noise during evaluations can cause the non-async variant to be a minutiae slower.
+
+[^4]: `hash_async` will never spawn a thread for payload sizes below 4 MiB, but there will be additional overhead from attaching to the GIL, setting up the async stack frame, and additional branch instructions.
 
 > [!NOTE]
-> Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. The best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking these third-party hashers asynchronously.
+> Although xxHash and MD5 drop the GIL, and can technically perform multithreaded hashing, they do not provide a native async API. Our best attempts at using `ThreadPoolExecutor` led to worse performance than their synchronous counterparts. Please submit a PR if you have a better approach for benchmarking these third-party hashers asynchronously.
 
 Without `--features hybrid`.
 
@@ -224,7 +232,7 @@ With `--features hybrid`.
 
 ## Reproduction
 
-To produce the benchmark parquet file, run the following command. This will produce a `benchmarks.parquet` file in the current directory. Depending on your hardware, The benchmark may take up to an hour to complete.
+To produce the benchmark parquet file, run the following command. This will produce a `benchmarks.parquet` file in the current directory. Depending on your hardware, the benchmark may take up to an hour to complete.
 
 > [!IMPORTANT]
 > You will need 6 GiB of RAM to avoid OOM errors.

@@ -1,6 +1,6 @@
 from ast import Yield, parse, walk
 from asyncio import AbstractEventLoop, eager_task_factory, get_running_loop, run
-from collections.abc import Callable, Coroutine, Generator, Iterable, Iterator
+from collections.abc import Buffer, Callable, Coroutine, Iterable, Iterator
 from enum import IntEnum
 from hashlib import md5
 from inspect import getsource
@@ -11,7 +11,7 @@ from os import urandom
 from random import randint
 from sys import argv
 from time import perf_counter_ns
-from typing import Concatenate, NewType, Self, TypedDict
+from typing import Concatenate, NewType, NoReturn, Self, TypedDict
 
 from cityhash import CityHash64WithSeed, CityHash128WithSeed
 from farmhash import FarmHash32WithSeed, FarmHash64WithSeed, FarmHash128WithSeed
@@ -42,17 +42,17 @@ class EvaluationResult(TypedDict):
     hot_duration: Nanoseconds
 
 
-class EvaluandMetadata(TypedDict):
+class EvaluandMetadata[I](TypedDict):
     batch_size: int
     payload_size: int
-    payloads_warmup: Iterable[bytes]
-    payloads: Iterable[bytes]
+    payloads_warmup: Iterable[I]
+    payloads: Iterable[I]
 
 
-class Evaluand(EvaluandMetadata):
+class Evaluand[R, I](EvaluandMetadata[I]):
     name: str
     length: Length
-    hasher: Callable[[bytes], Coroutine[None, None, int]]
+    hasher: Callable[[I], Coroutine[None, None, R]]
 
 
 class Progress:
@@ -68,30 +68,31 @@ class Progress:
         return self.current, self.total
 
 
-class EagerCoroutine[**P, R](Coroutine[None, None, R]):
+class EagerCoroutine[**P, R, I: Buffer](Coroutine[None, None, R]):
+    stop_iteration = StopIteration()
     __slots__ = ("args", "data", "hasher", "kwargs")
 
-    def __init__(self, hasher: Callable[Concatenate[bytes, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
+    def __init__(self, hasher: Callable[Concatenate[I, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
         self.hasher = hasher
         self.args = args
         self.kwargs = kwargs
 
-    def __call__(self, data: bytes, /) -> Self:
+    def __call__(self, data: I, /) -> Self:
         self.data = data
         return self
 
-    def __await__(self) -> Generator[None, None, R]:
-        return self.hasher(self.data, *self.args, **self.kwargs)
-        yield
+    def __await__(self) -> NoReturn:
+        raise NotImplementedError
 
-    def send(self, _: None) -> None:
-        raise StopIteration(self.hasher(self.data, *self.args, **self.kwargs))
+    def send(self, _: None) -> NoReturn:
+        self.stop_iteration.value = self.hasher(self.data, *self.args, **self.kwargs)
+        raise self.stop_iteration
 
-    def throw(self, typ: type[BaseException] | BaseException, *_) -> None:
-        raise typ
+    def throw(self, *_) -> NoReturn:
+        raise NotImplementedError
 
-    def close(self) -> None:
-        return
+    def close(self) -> NoReturn:
+        raise NotImplementedError
 
 
 async def gather[T](coroutines: Iterator[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
@@ -99,7 +100,7 @@ async def gather[T](coroutines: Iterator[Coroutine[None, None, T]], /, *, loop: 
         await future
 
 
-async def benchmark(kwargs: Evaluand) -> EvaluationResult:
+async def benchmark[R, I](kwargs: Evaluand[R, I]) -> EvaluationResult:
     loop = get_running_loop()
     loop.set_task_factory(eager_task_factory)
 
@@ -133,11 +134,11 @@ def create_evaluands(
     payload_count: int,
     progress: Progress,
     logger: Logger,
-) -> Iterator[Evaluand]:
+) -> Iterator[Evaluand[int, bytes]]:
     seed = randint(0, 256)  # noqa: S311
     payloads_warmup = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
     payloads = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
-    metadata: EvaluandMetadata = {
+    metadata: EvaluandMetadata[bytes] = {
         "payload_size": payload_size,
         "payloads_warmup": payloads_warmup,
         "payloads": payloads,
@@ -310,7 +311,8 @@ def main() -> None:
     counts = 3
     repeats = 60
     steps = sum(type(node) is Yield for node in walk(parse(getsource(create_evaluands))))
-    progress = Progress(total=sizes * counts * repeats * steps, step=steps)
+    rows = sizes * counts * steps
+    progress = Progress(total=rows * repeats, step=steps)
 
     results = (
         run(benchmark(evaluand))
@@ -333,5 +335,5 @@ def main() -> None:
         .collect(engine="streaming")
     )
 
-    dataframe.sort("batch_size", "payload_size", "length", "hot_duration").show(10_000)
+    dataframe.sort("batch_size", "payload_size", "length", "hot_duration").show(rows)
     dataframe.write_parquet("benchmarks.parquet")
