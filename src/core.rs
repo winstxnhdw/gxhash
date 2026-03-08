@@ -99,16 +99,16 @@ impl_gxhash_methods!(GxHash128, u128, gxhash_core::gxhash128);
 /// Each class provides methods for hashing byte sequences both synchronously and asynchronously.
 ///
 /// * GxHash32(seed: int)
-/// * hash(bytes: bytes) -> Uint32
-/// * hash_async(bytes: bytes) -> Awaitable[Uint32]
+/// * hash(data: bytes) -> Uint32
+/// * hash_async(data: bytes) -> Awaitable[Uint32]
 ///
 /// * GxHash64(seed: int)
-/// * hash(bytes: bytes) -> Uint64
-/// * hash_async(bytes: bytes) -> Awaitable[Uint64]
+/// * hash(data: bytes) -> Uint64
+/// * hash_async(data: bytes) -> Awaitable[Uint64]
 ///
 /// * GxHash128(seed: int)
-/// * hash(bytes: bytes) -> Uint128
-/// * hash_async(bytes: bytes) -> Awaitable[Uint128]
+/// * hash(data: bytes) -> Uint128
+/// * hash_async(data: bytes) -> Awaitable[Uint128]
 ///
 #[pyo3::pymodule(submodule, name = "core", gil_used = false)]
 pub mod core_module {

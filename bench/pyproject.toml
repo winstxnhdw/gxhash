@@ -5,13 +5,13 @@ description = "Benchmark suite for GxHash"
 readme = "README.md"
 requires-python = ">=3.14.3"
 dependencies = [
-    "cityhash>=0.4.10",
-    "gxhash",
-    "metrohash>=0.4.1",
-    "mmh3>=5.2.1",
-    "polars>=1.38.0",
-    "stringzilla>=4.6.0",
-    "xxhash>=3.6.0",
+  "cityhash>=0.4.10",
+  "gxhash",
+  "metrohash>=0.4.1",
+  "mmh3>=5.2.1",
+  "polars>=1.38.0",
+  "stringzilla>=4.6.0",
+  "xxhash>=3.6.0",
 ]
 
 [project.scripts]
@@ -21,8 +21,8 @@ bench = "src:main"
 dev = ["nodejs-wheel-binaries>=24.14.0", "pyright>=1.1.408", "ruff>=0.15.5"]
 
 [build-system]
-requires = ["uv_build"]
 build-backend = "uv_build"
+requires = ["uv_build"]
 
 [tool.uv.build-backend]
 module-root = ""
@@ -36,12 +36,16 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D", "TC003", "COM812"]
+ignore = [
+  "D",      # pydocstyle (all docstring rules)
+  "COM812", # missing-trailing-comma (conflict with ruff format)
+  "TC003",  # typing-only-standard-library-import
+]
 
 [tool.ruff.lint.flake8-annotations]
 suppress-dummy-args = true
 
 [tool.pyright]
+stubPath = "./typings"
 typeCheckingMode = "strict"
 reportUnknownMemberType = false
-stubPath = "./typings"

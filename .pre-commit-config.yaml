@@ -95,6 +95,9 @@ repos:
         files: ^(python/|test/).*\.py$|^pyproject\.toml$
         pass_filenames: false
         entry: uv run pytest
+        env:
+          UV_LOCKED: "1"
+          PYTHONDONTWRITEBYTECODE: "1"
 
       - id: cargo
         name: cargo test
@@ -103,9 +106,10 @@ repos:
         files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
         pass_filenames: false
         entry: >-
-          bash -c "PATH=$(echo $PATH | tr ':' '\n' |
-          grep -v '.venv' | tr '\n' ':')
-          cargo test --manifest-path tests/Cargo.toml"
+          sh -c "
+            PATH=$(echo $PATH | tr ':' '\n' | grep -v '.venv' | tr '\n' ':')
+            cargo test --manifest-path tests/Cargo.toml
+          "
 
       - id: rustfmt
         name: rustfmt
@@ -169,7 +173,7 @@ repos:
         files: ^(python/|test/).*\.py$|^pyproject\.toml$
         exclude: ^bench/
         pass_filenames: false
-        entry: uv run --locked pyright
+        entry: uv run pyright
         env:
           UV_LOCKED: "1"
 
@@ -178,6 +182,22 @@ repos:
         language: system
         files: ^bench/.*\.py$|^bench/pyproject\.toml$
         pass_filenames: false
-        entry: uv run --locked --directory bench pyright
+        entry: uv run --directory bench pyright
+        env:
+          UV_LOCKED: "1"
+
+      - id: taplo-fmt
+        name: taplo fmt
+        language: system
+        types: [toml]
+        entry: uv run taplo fmt
+        env:
+          UV_LOCKED: "1"
+
+      - id: taplo-lint
+        name: taplo lint
+        language: system
+        types: [toml]
+        entry: uv run taplo lint
         env:
           UV_LOCKED: "1"

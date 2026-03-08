@@ -7,18 +7,18 @@ requires-python = ">=3.8"
 dynamic = ["version"]
 keywords = ["hash"]
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Programming Language :: Rust",
-    "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Rust",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -29,20 +29,21 @@ Issues = "https://github.com/winstxnhdw/gxhash/issues"
 
 [dependency-groups]
 dev = [
-    "commitizen>=3.31.0",
-    "maturin>=1.12.0",
-    "nodejs-wheel-binaries>=24.13.1",
-    "prek>=0.3.3",
-    "pyright>=1.1.408",
-    "pytest>=8.3.5",
-    "pytest-asyncio>=0.24.0",
-    "pytest-doctestplus>=1.3.0",
-    "ruff>=0.15.1",
+  "commitizen>=3.31.0",
+  "maturin>=1.12.0",
+  "nodejs-wheel-binaries>=24.13.1",
+  "prek>=0.3.3",
+  "pyright>=1.1.408",
+  "pytest>=8.3.5",
+  "pytest-asyncio>=0.24.0",
+  "pytest-doctestplus>=1.3.0",
+  "ruff>=0.15.1",
+  "taplo>=0.9.3",
 ]
 
 [build-system]
-requires = ["maturin>=1.12.0, <2.0.0"]
 build-backend = "maturin"
+requires = ["maturin>=1.12.0, <2.0.0"]
 
 [tool.maturin]
 python-source = "python"
@@ -51,18 +52,19 @@ locked = true
 strip = true
 features = ["pyo3/extension-module"]
 exclude = [
-    "tests/**",
-    "benchmark/**/*",
-    "perf/**/*",
-    ".github/**/*",
-    "**/.gitignore",
-    "**/.pre-commit-config.yaml",
-    "**/uv.lock",
-    "**/rustfmt.toml",
-    "**/Makefile",
-    "**/changelog.jinja",
-    "**/CHANGELOG.md",
-    "**/CONTRIBUTING.md",
+  "tests/**",
+  "benchmark/**/*",
+  "perf/**/*",
+  ".github/**/*",
+  "**/.gitignore",
+  "**/.pre-commit-config.yaml",
+  "**/.markdownlint.yaml",
+  "**/uv.lock",
+  "**/rustfmt.toml",
+  "**/Makefile",
+  "**/changelog.jinja",
+  "**/CHANGELOG.md",
+  "**/CONTRIBUTING.md",
 ]
 
 [tool.ruff]
@@ -70,14 +72,29 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["A004", "A002", "D", "COM812", "PYI001", "PYI021", "TC003", "INP001", "PLC0414"]
+ignore = [
+  "D",      # pydocstyle (all docstring rules)
+  "COM812", # missing-trailing-comma (conflict with ruff format)
+  "A004",   # import-shadowing-builtin
+  "PYI001", # unprefixed-type-param
+  "PYI021", # docstring-in-stub
+  "INP001", # implicit-namespace-package
+  "TC003",  # typing-only-standard-library-import
+]
 
 [tool.pyright]
-exclude = ["**/node_modules", "**/__pycache__", "**/.*", "**/.venv", "bench", "**/gxhash-*"]
 typeCheckingMode = "strict"
 reportMissingModuleSource = false
 reportPrivateUsage = false
 stubPath = "./python"
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+  "**/.*",
+  "**/.venv",
+  "bench",
+  "**/gxhash-*",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["python", "tests"]

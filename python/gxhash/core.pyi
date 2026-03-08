@@ -30,22 +30,22 @@ class Hasher(Protocol[T_co]):
         ```
         """
 
-    def hash(self, bytes: bytes, /) -> T_co:
+    def hash(self, data: bytes, /) -> T_co:
         """
         Summary
         -------
-        Hashes `bytes` to an `int`.
+        Hashes `data` to an `int`.
         This method has less overhead than `hash_async`.
 
         Parameters
         ----------
-        bytes (`bytes`)
-            input bytes
+        data (`bytes`)
+            input data
 
         Returns
         -------
         hash (`int`)
-            the hash of the input bytes
+            the hash of the input data
 
         Example
         -------
@@ -58,24 +58,24 @@ class Hasher(Protocol[T_co]):
         ```
         """
 
-    async def hash_async(self, bytes: bytes, /) -> T_co:
+    async def hash_async(self, data: bytes, /) -> T_co:
         """
         Summary
         -------
-        Hashes `bytes` to an `int` asynchronously.
+        Hashes `data` to an `int` asynchronously.
         This method allows you to compute multiple hashes with true multi-threaded parallelism.
         If called sequentially, this method is slightly less performant than the default `hash` method.
         Otherwise, this variant offers the highest throughput.
 
         Parameters
         ----------
-        bytes (`bytes`)
-            input bytes
+        data (`bytes`)
+            input data
 
         Returns
         -------
         hash (`int`)
-            the hash of the input bytes
+            the hash of the input data
 
         Example
         -------
