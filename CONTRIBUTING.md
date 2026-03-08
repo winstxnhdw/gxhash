@@ -38,10 +38,17 @@ We welcome all kinds of contributions. _You don't need to be an expert in Python
 
 ## Prerequisites
 
+- [Python](https://www.python.org/)
 - [Rust](https://rustup.rs/) (nightly)
 - [uv](https://docs.astral.sh/uv/)
 
 ## Setup
+
+Configure `rustup` to be on the `default` profile.
+
+```bash
+rustup set profile default
+```
 
 Install all pre-commit hooks.
 
@@ -60,13 +67,13 @@ uv run prek install -t pre-commit
 After you are done finalising your changes, you can run all the necessary linter(s) and test(s) with the following.
 
 ```bash
-uv run prek run
+uv run prek --stage pre-push
 ```
 
 You can update all lockfiles by running the following.
 
 ```bash
-uv run prek --hook-stage manual
+uv run prek --stage manual
 ```
 
 If you are working on a performance-sensitive change, you can run the benchmarks with `cargo`.

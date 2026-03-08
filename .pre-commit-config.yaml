@@ -26,6 +26,11 @@ repos:
       - id: ruff-check
         args: [--fix]
 
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.21.0
+    hooks:
+      - id: markdownlint-cli2
+
   - repo: local
     hooks:
       - id: commit-body
@@ -86,52 +91,93 @@ repos:
       - id: pytest
         name: pytest
         language: system
-        stages: [post-commit]
-        files: ^(python/|tests/).*\.py$
+        stages: [pre-push]
+        files: ^(python/|test/).*\.py$|^pyproject\.toml$
         pass_filenames: false
         entry: uv run pytest
 
       - id: cargo
         name: cargo test
         language: system
-        stages: [post-commit]
+        stages: [pre-push]
         files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
         pass_filenames: false
-        entry: cargo test --manifest-path tests/Cargo.toml
+        entry: >-
+          bash -c "PATH=$(echo $PATH | tr ':' '\n' |
+          grep -v '.venv' | tr '\n' ':')
+          cargo test --manifest-path tests/Cargo.toml"
+
+      - id: rustfmt
+        name: rustfmt
+        language: system
+        files: ^src/.*\.rs$|^build\.rs$
+        pass_filenames: false
+        entry: cargo fmt --all
+
+      - id: rustfmt-bench
+        name: rustfmt (bench)
+        language: system
+        files: ^bench/.*\.rs$
+        pass_filenames: false
+        entry: cargo fmt --all --manifest-path bench/Cargo.toml
+
+      - id: rustfmt-tests
+        name: rustfmt (tests)
+        language: system
+        files: ^tests/.*\.rs$
+        pass_filenames: false
+        entry: cargo fmt --all --manifest-path tests/Cargo.toml
+
+      - id: rustfmt-perf
+        name: rustfmt (perf)
+        language: system
+        files: ^perf/.*\.rs$
+        pass_filenames: false
+        entry: cargo fmt --all --manifest-path perf/Cargo.toml
 
       - id: clippy
         name: clippy
         language: system
-        files: ^(src/|build\.rs)
+        files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
-        entry: cargo clippy --frozen --fix --allow-dirty
+        entry: cargo clippy --locked --fix --allow-dirty
 
       - id: clippy-bench
         name: clippy (bench)
         language: system
-        files: ^bench/.*\.rs$
+        files: ^bench/.*\.rs$|^bench/Cargo\.toml$
         pass_filenames: false
-        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path bench/Cargo.toml
+        entry: cargo clippy --locked --fix --allow-dirty --manifest-path bench/Cargo.toml
 
       - id: clippy-tests
         name: clippy (tests)
         language: system
-        files: ^tests/.*\.rs$
+        files: ^tests/.*\.rs$|^tests/Cargo\.toml$
         pass_filenames: false
-        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
+        entry: cargo clippy --locked --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
 
       - id: clippy-perf
         name: clippy (perf)
         language: system
-        files: ^perf/.*\.rs$
+        files: ^perf/.*\.rs$|^perf/Cargo\.toml$
         pass_filenames: false
-        entry: cargo clippy --frozen --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
+        entry: cargo clippy --locked --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
 
       - id: pyright
         name: pyright
         language: system
-        files: \.py$
+        files: ^(python/|test/).*\.py$|^pyproject\.toml$
+        exclude: ^bench/
         pass_filenames: false
         entry: uv run --locked pyright
+        env:
+          UV_LOCKED: "1"
+
+      - id: pyright-bench
+        name: pyright (bench)
+        language: system
+        files: ^bench/.*\.py$|^bench/pyproject\.toml$
+        pass_filenames: false
+        entry: uv run --locked --directory bench pyright
         env:
           UV_LOCKED: "1"

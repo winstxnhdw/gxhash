@@ -16,14 +16,11 @@ jobs:
     uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
     secrets: inherit
 
-  clippy:
-    uses: winstxnhdw/gxhash/.github/workflows/clippy.yml@main
-
   python:
     uses: winstxnhdw/gxhash/.github/workflows/python.yml@main
 
   release:
-    needs: [main, clippy, python]
+    needs: [main, python]
     runs-on: ubuntu-latest
 
     steps:

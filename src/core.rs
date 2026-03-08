@@ -1,9 +1,9 @@
-use pyo3::Py;
-use pyo3::PyResult;
-use pyo3::Python;
 use pyo3::pyclass;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
+use pyo3::Py;
+use pyo3::PyResult;
+use pyo3::Python;
 use tokio::runtime::Handle;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
@@ -115,11 +115,11 @@ pub mod core_module {
     use pyo3::prelude::PyModuleMethods;
 
     #[pymodule_export]
+    use super::GxHash128;
+    #[pymodule_export]
     use super::GxHash32;
     #[pymodule_export]
     use super::GxHash64;
-    #[pymodule_export]
-    use super::GxHash128;
     #[pymodule_export]
     use super::GxHashAsyncError;
 

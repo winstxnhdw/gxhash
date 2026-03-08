@@ -1,0 +1,2 @@
+MD013: false # disable line length
+MD033: false # allow inline HTML

@@ -5,7 +5,7 @@ on:
     paths: [Cargo.toml, Cargo.lock]
 
 permissions: {}
-concurrency: 
+concurrency:
   group: update-lockfile-${{ github.ref }}
   cancel-in-progress: true
 
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-slim
     permissions:
       contents: write
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2

@@ -2,9 +2,9 @@
 mod helpers;
 
 use divan::Bencher;
-use helpers::generate_bytes;
 use helpers::Memory;
 use helpers::PythonExt;
+use helpers::generate_bytes;
 
 use pyo3::intern;
 use pyo3::types::IntoPyDict;
