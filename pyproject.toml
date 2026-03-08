@@ -52,17 +52,16 @@ locked = true
 strip = true
 features = ["pyo3/extension-module"]
 exclude = [
-  "tests/**",
-  "benchmark/**/*",
   "perf/**/*",
-  ".github/**/*",
+  "tests/**/*",
+  "benchmark/**/*",
+  "**/*.jinja",
+  "**/*.yaml",
+  "**/.github/**/*",
   "**/.gitignore",
-  "**/.pre-commit-config.yaml",
-  "**/.markdownlint.yaml",
   "**/uv.lock",
   "**/rustfmt.toml",
   "**/Makefile",
-  "**/changelog.jinja",
   "**/CHANGELOG.md",
   "**/CONTRIBUTING.md",
 ]

@@ -1,17 +1,34 @@
+default_install_hook_types:
+  - pre-commit
+  - post-checkout
+  - post-merge
+  - post-rewrite
+
 repos:
   - repo: builtin
     hooks:
       - id: trailing-whitespace
+        stages: [pre-commit]
       - id: check-added-large-files
+        stages: [pre-commit]
       - id: check-case-conflict
+        stages: [pre-commit]
       - id: end-of-file-fixer
+        stages: [pre-commit]
       - id: fix-byte-order-marker
+        stages: [pre-commit]
       - id: check-toml
+        stages: [pre-commit]
       - id: check-yaml
+        stages: [pre-commit]
       - id: mixed-line-ending
+        stages: [pre-commit]
       - id: check-symlinks
+        stages: [pre-commit]
       - id: check-merge-conflict
+        stages: [pre-commit]
       - id: detect-private-key
+        stages: [pre-commit]
 
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.13.9
@@ -19,24 +36,48 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.10.9
+    hooks:
+      - id: uv-lock
+        name: uv lock
+
+      - id: uv-lock
+        name: uv lock bench
+        args: [--project, bench]
+
+      - id: uv-sync
+        name: uv sync
+
+      - id: uv-sync
+        name: uv sync bench
+        args: [--project, bench]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.4
     hooks:
       - id: ruff-format
+        name: ruff format
+        stages: [pre-commit]
+
       - id: ruff-check
+        name: ruff check
+        stages: [pre-commit]
         args: [--fix]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.21.0
     hooks:
       - id: markdownlint-cli2
+        name: markdownlint
+        stages: [pre-commit]
 
   - repo: local
     hooks:
       - id: commit-body
         name: commit body blank line
-        language: system
         stages: [commit-msg]
+        language: system
         entry: |
           uv run --no-project --python 3.14 python -c "
             from sys import argv
@@ -46,52 +87,36 @@ repos:
 
       - id: cargo-lock
         name: update cargo lockfiles
-        language: system
         stages: [manual]
+        language: system
         files: ^Cargo\.toml$
         entry: cargo update --manifest-path
 
       - id: cargo-lock-bench
         name: update bench cargo lockfiles
-        language: system
         stages: [manual]
+        language: system
         files: ^bench/Cargo\.toml$
         entry: cargo update --manifest-path
 
       - id: cargo-lock-tests
         name: update tests cargo lockfiles
-        language: system
         stages: [manual]
+        language: system
         files: ^tests/Cargo\.toml$
         entry: cargo update --manifest-path
 
       - id: cargo-lock-perf
         name: update perf cargo lockfiles
-        language: system
         stages: [manual]
+        language: system
         files: ^perf/Cargo\.toml$
         entry: cargo update --manifest-path
 
-      - id: uv-lock
-        name: update uv lockfiles
-        language: system
-        stages: [manual]
-        files: ^pyproject\.toml$
-        pass_filenames: false
-        entry: uv lock
-
-      - id: uv-lock-bench
-        name: update bench uv lockfiles
-        language: system
-        stages: [manual]
-        files: ^bench/pyproject\.toml$
-        pass_filenames: false
-        entry: uv lock --directory bench
-
       - id: pytest
         name: pytest
-        language: system
         stages: [pre-push]
+        language: system
         files: ^(python/|test/).*\.py$|^pyproject\.toml$
         pass_filenames: false
         entry: uv run pytest
@@ -101,8 +126,8 @@ repos:
 
       - id: cargo
         name: cargo test
-        language: system
         stages: [pre-push]
+        language: system
         files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
         pass_filenames: false
         entry: >-
@@ -113,6 +138,7 @@ repos:
 
       - id: rustfmt
         name: rustfmt
+        stages: [pre-commit]
         language: system
         files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
@@ -120,6 +146,7 @@ repos:
 
       - id: rustfmt-bench
         name: rustfmt (bench)
+        stages: [pre-commit]
         language: system
         files: ^bench/.*\.rs$
         pass_filenames: false
@@ -127,6 +154,7 @@ repos:
 
       - id: rustfmt-tests
         name: rustfmt (tests)
+        stages: [pre-commit]
         language: system
         files: ^tests/.*\.rs$
         pass_filenames: false
@@ -134,6 +162,7 @@ repos:
 
       - id: rustfmt-perf
         name: rustfmt (perf)
+        stages: [pre-commit]
         language: system
         files: ^perf/.*\.rs$
         pass_filenames: false
@@ -141,6 +170,7 @@ repos:
 
       - id: clippy
         name: clippy
+        stages: [pre-commit]
         language: system
         files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
@@ -148,6 +178,7 @@ repos:
 
       - id: clippy-bench
         name: clippy (bench)
+        stages: [pre-commit]
         language: system
         files: ^bench/.*\.rs$|^bench/Cargo\.toml$
         pass_filenames: false
@@ -155,6 +186,7 @@ repos:
 
       - id: clippy-tests
         name: clippy (tests)
+        stages: [pre-commit]
         language: system
         files: ^tests/.*\.rs$|^tests/Cargo\.toml$
         pass_filenames: false
@@ -162,6 +194,7 @@ repos:
 
       - id: clippy-perf
         name: clippy (perf)
+        stages: [pre-commit]
         language: system
         files: ^perf/.*\.rs$|^perf/Cargo\.toml$
         pass_filenames: false
@@ -169,6 +202,7 @@ repos:
 
       - id: pyright
         name: pyright
+        stages: [pre-commit]
         language: system
         files: ^(python/|test/).*\.py$|^pyproject\.toml$
         exclude: ^bench/
@@ -179,15 +213,17 @@ repos:
 
       - id: pyright-bench
         name: pyright (bench)
+        stages: [pre-commit]
         language: system
         files: ^bench/.*\.py$|^bench/pyproject\.toml$
         pass_filenames: false
-        entry: uv run --directory bench pyright
+        entry: uv run --project bench pyright
         env:
           UV_LOCKED: "1"
 
       - id: taplo-fmt
         name: taplo fmt
+        stages: [pre-commit]
         language: system
         types: [toml]
         entry: uv run taplo fmt
@@ -196,6 +232,7 @@ repos:
 
       - id: taplo-lint
         name: taplo lint
+        stages: [pre-commit]
         language: system
         types: [toml]
         entry: uv run taplo lint

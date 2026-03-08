@@ -69,13 +69,13 @@ class Progress:
         return self.current, self.total
 
 
-class EagerRoutine[**P, R, I: Buffer](Coroutine[None, None, R]):
+class EagerRoutine[R, I: Buffer](Coroutine[None, None, R]):
     __slots__ = ("hasher", "result")
 
     def __await__(self) -> NoReturn:
         raise NotImplementedError
 
-    def __init__(self, hasher: Callable[Concatenate[I, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
+    def __init__[**P](self, hasher: Callable[Concatenate[I, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
         self.hasher = partial(hasher, *args, **kwargs)
 
     def __call__(self, data: I, /) -> Self:
