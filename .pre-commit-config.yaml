@@ -8,27 +8,37 @@ repos:
   - repo: builtin
     hooks:
       - id: trailing-whitespace
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-added-large-files
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-case-conflict
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: end-of-file-fixer
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: fix-byte-order-marker
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-toml
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-yaml
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: mixed-line-ending
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-symlinks
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: check-merge-conflict
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
+
       - id: detect-private-key
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
 
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.13.9
@@ -58,11 +68,11 @@ repos:
     hooks:
       - id: ruff-format
         name: ruff format
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
 
       - id: ruff-check
         name: ruff check
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         args: [--fix]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
@@ -70,7 +80,7 @@ repos:
     hooks:
       - id: markdownlint-cli2
         name: markdownlint
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
 
   - repo: local
     hooks:
@@ -138,7 +148,7 @@ repos:
 
       - id: rustfmt
         name: rustfmt
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
@@ -146,7 +156,7 @@ repos:
 
       - id: rustfmt-bench
         name: rustfmt (bench)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^bench/.*\.rs$
         pass_filenames: false
@@ -154,7 +164,7 @@ repos:
 
       - id: rustfmt-tests
         name: rustfmt (tests)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^tests/.*\.rs$
         pass_filenames: false
@@ -162,7 +172,7 @@ repos:
 
       - id: rustfmt-perf
         name: rustfmt (perf)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^perf/.*\.rs$
         pass_filenames: false
@@ -170,7 +180,7 @@ repos:
 
       - id: clippy
         name: clippy
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
@@ -178,7 +188,7 @@ repos:
 
       - id: clippy-bench
         name: clippy (bench)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^bench/.*\.rs$|^bench/Cargo\.toml$
         pass_filenames: false
@@ -186,7 +196,7 @@ repos:
 
       - id: clippy-tests
         name: clippy (tests)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^tests/.*\.rs$|^tests/Cargo\.toml$
         pass_filenames: false
@@ -194,7 +204,7 @@ repos:
 
       - id: clippy-perf
         name: clippy (perf)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^perf/.*\.rs$|^perf/Cargo\.toml$
         pass_filenames: false
@@ -202,7 +212,7 @@ repos:
 
       - id: pyright
         name: pyright
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^(python/|test/).*\.py$|^pyproject\.toml$
         exclude: ^bench/
@@ -213,7 +223,7 @@ repos:
 
       - id: pyright-bench
         name: pyright (bench)
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         files: ^bench/.*\.py$|^bench/pyproject\.toml$
         pass_filenames: false
@@ -223,7 +233,7 @@ repos:
 
       - id: taplo-fmt
         name: taplo fmt
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         types: [toml]
         entry: uv run taplo fmt
@@ -232,7 +242,7 @@ repos:
 
       - id: taplo-lint
         name: taplo lint
-        stages: [pre-commit]
+        stages: [pre-commit, pre-push]
         language: system
         types: [toml]
         entry: uv run taplo lint

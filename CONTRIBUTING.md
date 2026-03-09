@@ -79,7 +79,7 @@ uv run prek --stage manual
 If you are working on a performance-sensitive change, you can run the benchmarks with `cargo`.
 
 ```bash
-cargo bench --locked --manifest-path=perf/Cargo.toml
+cargo bench --locked --manifest-path perf/Cargo.toml
 ```
 
 ## Miscellaneous

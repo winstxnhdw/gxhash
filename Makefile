@@ -2,9 +2,6 @@ all:
 	rm -rf dist
 	uv build --sdist
 
-publish: all
-	uv publish
-
 inspect: all
 	rm -rf gxhash-*/
 	tar -xvf dist/*.tar.gz
@@ -26,7 +23,9 @@ performance:
 	cargo bench --locked --manifest-path perf/Cargo.toml
 
 pre-commit:
-	uv run prek install -t pre-commit -t commit-msg
+	uv run prek install
+	uv run prek install -t commit-msg
 
 test:
-	uv run prek run
+	uv run prek
+	uv run prek --stage manual
