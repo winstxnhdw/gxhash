@@ -16,7 +16,7 @@ env:
 
 jobs:
   lock:
-    if: github.event.pull_request.user.login == 'renovate[bot]'
+    if: github.actor_id == '29139614'
     runs-on: ubuntu-latest
     outputs:
       patched: ${{ steps.patch.outputs.patched }}
