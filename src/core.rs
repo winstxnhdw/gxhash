@@ -1,13 +1,12 @@
 use crate::buffer::PyBufferExt;
 
-use pyo3::Py;
-use pyo3::PyResult;
-use pyo3::Python;
 use pyo3::buffer::PyBuffer;
 use pyo3::ffi;
 use pyo3::pyclass;
 use pyo3::pymethods;
 use pyo3::types::PyAnyMethods;
+use pyo3::Py;
+use pyo3::PyResult;
 use tokio::runtime::Handle;
 
 pyo3::create_exception!(gxhash_py, GxHashAsyncError, pyo3::exceptions::PyException);
