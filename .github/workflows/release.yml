@@ -40,6 +40,15 @@ jobs:
         env:
           RELEASE_TYPE: ${{ inputs.release-type }}
 
+      - name: Update gxhash-tests lockfile
+        run: cargo update --manifest-path tests/Cargo.toml
+
+      - name: Update gxhash-perf lockfile
+        run: cargo update --manifest-path perf/Cargo.toml
+
+      - name: Stage lockfile updates
+        run: git add "**/Cargo.lock"
+
       - name: Create bump and changelog
         env:
           RELEASE_TYPE: ${{ inputs.release-type }}
@@ -49,15 +58,6 @@ jobs:
                   --changelog
                   --git-output-to-stderr
                   --changelog-to-stdout | tail -n +2 > body.md
-
-      - name: Update gxhash-tests lockfile
-        run: cargo update --manifest-path tests/Cargo.toml
-
-      - name: Update gxhash-perf lockfile
-        run: cargo update --manifest-path perf/Cargo.toml
-
-      - name: Commit lockfile updates
-        run: git commit -a --amend --no-edit
 
       - name: Push changelog and tag
         id: push
