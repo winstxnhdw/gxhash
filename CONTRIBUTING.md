@@ -39,7 +39,7 @@ We welcome all kinds of contributions. _You don't need to be an expert in Python
 ## Prerequisites
 
 - [Python](https://www.python.org/)
-- [Rust](https://rustup.rs/) (nightly)
+- [Rustup](https://rustup.rs/)
 - [uv](https://docs.astral.sh/uv/)
 
 ## Setup

@@ -43,13 +43,12 @@ jobs:
       - name: Create bump and changelog
         env:
           RELEASE_TYPE: ${{ inputs.release-type }}
-        run: |
-          cz bump --increment "$RELEASE_TYPE" \
-                  --yes \
-                  --changelog \
-                  --no-verify \
-                  --git-output-to-stderr \
-                  --changelog-to-stdout | sed '1d' >body.md
+        run: >-
+          cz bump --increment "$RELEASE_TYPE"
+                  --yes
+                  --changelog
+                  --git-output-to-stderr
+                  --changelog-to-stdout | tail -n +2 > body.md
 
       - name: Update gxhash-tests lockfile
         run: cargo update --manifest-path tests/Cargo.toml
