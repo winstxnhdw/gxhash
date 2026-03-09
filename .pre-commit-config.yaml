@@ -185,6 +185,8 @@ repos:
         files: ^src/.*\.rs$|^build\.rs$
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty
+        env:
+          RUSTFLAGS: "-D warnings"
 
       - id: clippy-bench
         name: clippy (bench)
@@ -193,6 +195,8 @@ repos:
         files: ^bench/.*\.rs$|^bench/Cargo\.toml$
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path bench/Cargo.toml
+        env:
+          RUSTFLAGS: "-D warnings"
 
       - id: clippy-tests
         name: clippy (tests)
@@ -201,6 +205,8 @@ repos:
         files: ^tests/.*\.rs$|^tests/Cargo\.toml$
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
+        env:
+          RUSTFLAGS: "-D warnings"
 
       - id: clippy-perf
         name: clippy (perf)
@@ -209,6 +215,8 @@ repos:
         files: ^perf/.*\.rs$|^perf/Cargo\.toml$
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
+        env:
+          RUSTFLAGS: "-D warnings"
 
       - id: pyright
         name: pyright
