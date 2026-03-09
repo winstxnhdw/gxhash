@@ -122,15 +122,15 @@ fn generate_throughput_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) 
         .data(data)
         .map_xticks(|_| {
             poloto::ticks::from_iter(payload_sizes.iter().flatten()).with_tick_fmt(|value: &f64| {
-                let kilobyte = (1 << 10) as f64;
-                let megabyte = (1 << 20) as f64;
-                let gigabyte = (1 << 30) as f64;
+                let kilobyte = f64::from(1 << 10);
+                let megabyte = f64::from(1 << 20);
+                let gigabyte = f64::from(1 << 30);
 
                 match 10.0_f64.powf(*value) {
                     bytes if bytes >= gigabyte => format!("{:.0} GiB", bytes / gigabyte),
                     bytes if bytes >= megabyte => format!("{:.0} MiB", bytes / megabyte),
                     bytes if bytes >= kilobyte => format!("{:.0} KiB", bytes / kilobyte),
-                    bytes => format!("{:.0} B", bytes),
+                    bytes => format!("{bytes:.0} B"),
                 }
             })
         })

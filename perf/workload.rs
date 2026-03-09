@@ -41,13 +41,13 @@ fn random_batch_size(rng: &mut PseudoRNG) -> usize {
 }
 
 fn random_delay(rng: &mut PseudoRNG) -> u128 {
-    (match rng.range(0, 99) {
+    u128::from(match rng.range(0, 99) {
         0..20 => 0,
         20..50 => rng.range(1_000, 50_000),
         50..80 => rng.range(50_000, 200_000),
         80..95 => rng.range(200_000, 500_000),
         _ => rng.range(500_000, 2_000_000),
-    }) as u128
+    })
 }
 
 fn random_payload_size(rng: &mut PseudoRNG) -> usize {
@@ -116,5 +116,5 @@ fn workload_simulation(bencher: Bencher) {
 }
 
 fn main() {
-    divan::main()
+    divan::main();
 }

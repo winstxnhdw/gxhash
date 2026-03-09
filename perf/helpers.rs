@@ -49,7 +49,7 @@ pub fn generate_bytes(seed: u64, output_size: impl Into<usize>) -> Vec<u8> {
     let mut out = Vec::with_capacity(output_size);
 
     while out.len() < output_size {
-        state = state.wrapping_mul(6364136223846793005u64).wrapping_add(1);
+        state = state.wrapping_mul(6_364_136_223_846_793_005u64).wrapping_add(1);
         out.extend_from_slice(&state.to_le_bytes());
     }
 
@@ -72,7 +72,7 @@ pub trait PythonExt<'py> {
 }
 
 impl<'py> PythonExt<'py> for Python<'py> {
-    #[inline(always)]
+    #[inline]
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>> {
         let asyncio = self.import(intern!(*self, "asyncio"))?;
 

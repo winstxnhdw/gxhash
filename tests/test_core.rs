@@ -1,3 +1,5 @@
+#![allow(clippy::needless_pass_by_value)]
+
 use crate::helpers::PythonExt;
 use crate::helpers::call_hash;
 use crate::helpers::call_hash_async;
@@ -11,7 +13,7 @@ use quickcheck_macros::quickcheck;
 #[test]
 fn test_import_gxhash() -> PyResult<()> {
     pytest!(py, {
-        assert!(py.import_gxhash()?.is_instance_of::<pyo3::types::PyModule>())
+        assert!(py.import_gxhash()?.is_instance_of::<pyo3::types::PyModule>());
     })
 }
 
@@ -21,7 +23,7 @@ fn test_import_gxhash32_from_gxhash() -> PyResult<()> {
         let seed = 42;
         let hasher_class = py.import_gxhash32()?.call1((seed,))?;
 
-        assert!(hasher_class.is_instance_of::<gxhash::GxHash32>())
+        assert!(hasher_class.is_instance_of::<gxhash::GxHash32>());
     })
 }
 
@@ -31,7 +33,7 @@ fn test_import_gxhash64_from_gxhash() -> PyResult<()> {
         let seed = 42;
         let hasher_class = py.import_gxhash64()?.call1((seed,))?;
 
-        assert!(hasher_class.is_instance_of::<gxhash::GxHash64>())
+        assert!(hasher_class.is_instance_of::<gxhash::GxHash64>());
     })
 }
 
@@ -41,7 +43,7 @@ fn test_import_gxhash128_from_gxhash() -> PyResult<()> {
         let seed = 42;
         let hasher_class = py.import_gxhash128()?.call1((seed,))?;
 
-        assert!(hasher_class.is_instance_of::<gxhash::GxHash128>())
+        assert!(hasher_class.is_instance_of::<gxhash::GxHash128>());
     })
 }
 
@@ -49,7 +51,7 @@ fn test_import_gxhash128_from_gxhash() -> PyResult<()> {
 fn test_gxhash_async_error() -> PyResult<()> {
     pytest!(py, {
         let error = py.import_gxhash()?.getattr("GxHashAsyncError")?.call0()?;
-        assert!(error.is_instance_of::<pyo3::exceptions::PyException>())
+        assert!(error.is_instance_of::<pyo3::exceptions::PyException>());
     })
 }
 
@@ -281,7 +283,7 @@ fn test_gxhash32_hash_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash32()?.call1((42,))?;
         let result = call_hash::<u32>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 11074207u32);
+        assert_eq!(result, 11_074_207_u32);
     })
 }
 
@@ -291,7 +293,7 @@ fn test_gxhash64_hash_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash64()?.call1((42,))?;
         let result = call_hash::<u64>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 10922345113571621535u64);
+        assert_eq!(result, 10_922_345_113_571_621_535_u64);
     })
 }
 
@@ -301,7 +303,7 @@ fn test_gxhash128_hash_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash128()?.call1((42,))?;
         let result = call_hash::<u128>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 340008176428847722652273161291189254815u128);
+        assert_eq!(result, 340_008_176_428_847_722_652_273_161_291_189_254_815u128);
     })
 }
 
@@ -311,7 +313,7 @@ fn test_gxhash32_hash_async_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash32()?.call1((42,))?;
         let result = call_hash_async::<u32>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 11074207u32);
+        assert_eq!(result, 11_074_207_u32);
     })
 }
 
@@ -321,7 +323,7 @@ fn test_gxhash64_hash_async_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash64()?.call1((42,))?;
         let result = call_hash_async::<u64>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 10922345113571621535u64);
+        assert_eq!(result, 10_922_345_113_571_621_535_u64);
     })
 }
 
@@ -331,6 +333,6 @@ fn test_gxhash128_hash_async_determinism() -> PyResult<()> {
         let hasher = py.import_gxhash128()?.call1((42,))?;
         let result = call_hash_async::<u128>(py, &hasher, b"hello")?;
 
-        assert_eq!(result, 340008176428847722652273161291189254815u128);
+        assert_eq!(result, 340_008_176_428_847_722_652_273_161_291_189_254_815u128);
     })
 }

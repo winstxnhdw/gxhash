@@ -50,8 +50,8 @@ macro_rules! bench_hash_async_batch {
         fn $name(bencher: Bencher) {
             python!(py, {
                 let seed: u64 = 42;
-                let payloads = (0..24)
-                    .map(|i| generate_bytes(seed.wrapping_add(i as u64), $memory))
+                let payloads = (0u64..24)
+                    .map(|i| generate_bytes(seed.wrapping_add(i), $memory))
                     .collect::<Vec<_>>();
 
                 let asyncio = py.import_asyncio()?;
@@ -102,5 +102,5 @@ bench_hash_async_batch!(hash128_async_batch, import_gxhash128, Memory::KiB64);
 bench_hash_async_batch!(hash128_async_batch_large, import_gxhash128, Memory::MiB4);
 
 fn main() {
-    divan::main()
+    divan::main();
 }

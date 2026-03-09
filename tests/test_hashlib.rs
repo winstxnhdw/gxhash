@@ -1,3 +1,7 @@
+#![allow(clippy::needless_pass_by_value)]
+
+use std::fmt::write;
+
 use crate::helpers::{PythonExt, call_hashlib_digest, call_hashlib_hexdigest};
 use crate::pytest;
 use gxhash::gxhash_py;
@@ -12,7 +16,7 @@ use quickcheck_macros::quickcheck;
 #[test]
 fn test_import_gxhash_hashlib() -> PyResult<()> {
     pytest!(py, {
-        assert!(py.import_gxhash_hashlib()?.is_instance_of::<pyo3::types::PyModule>())
+        assert!(py.import_gxhash_hashlib()?.is_instance_of::<pyo3::types::PyModule>());
     })
 }
 
@@ -234,10 +238,10 @@ fn test_hashlib_gxhash32_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<(
     pytest!(py, {
         let gxhash32 = py.import_hashlib_gxhash32()?;
         let hexdigest = call_hashlib_hexdigest(py, &gxhash32, &bytes)?;
-        let digest: String = call_hashlib_digest(py, &gxhash32, &bytes)?
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect();
+        let mut digest = String::new();
+        for byte in call_hashlib_digest(py, &gxhash32, &bytes)? {
+            write(&mut digest, format_args!("{byte:02x}")).unwrap();
+        }
 
         assert_eq!(hexdigest, digest);
     })
@@ -248,10 +252,10 @@ fn test_hashlib_gxhash64_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<(
     pytest!(py, {
         let gxhash64 = py.import_hashlib_gxhash64()?;
         let hexdigest = call_hashlib_hexdigest(py, &gxhash64, &bytes)?;
-        let digest: String = call_hashlib_digest(py, &gxhash64, &bytes)?
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect();
+        let mut digest = String::new();
+        for byte in call_hashlib_digest(py, &gxhash64, &bytes)? {
+            write(&mut digest, format_args!("{byte:02x}")).unwrap();
+        }
 
         assert_eq!(hexdigest, digest);
     })
@@ -262,10 +266,10 @@ fn test_hashlib_gxhash128_hexdigest_digest_equality(bytes: Vec<u8>) -> PyResult<
     pytest!(py, {
         let gxhash128 = py.import_hashlib_gxhash128()?;
         let hexdigest = call_hashlib_hexdigest(py, &gxhash128, &bytes)?;
-        let digest: String = call_hashlib_digest(py, &gxhash128, &bytes)?
-            .iter()
-            .map(|b| format!("{b:02x}"))
-            .collect();
+        let mut digest = String::new();
+        for byte in call_hashlib_digest(py, &gxhash128, &bytes)? {
+            write(&mut digest, format_args!("{byte:02x}")).unwrap();
+        }
 
         assert_eq!(hexdigest, digest);
     })

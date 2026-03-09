@@ -68,7 +68,7 @@ macro_rules! bench_hashlib_copy {
         #[divan::bench]
         fn $name(bencher: Bencher) {
             python!(py, {
-                let seed = 42;
+                let seed: u64 = 42;
                 let kwargs = [("seed", seed)].into_py_dict(py)?;
                 let hasher = py.$import()?.call((), Some(&kwargs))?;
                 let copy = hasher.getattr("copy")?;
@@ -85,8 +85,8 @@ macro_rules! bench_hashlib_new {
         #[divan::bench]
         fn $name(bencher: Bencher) {
             python!(py, {
-                let seed = 42;
-                let bytes_vector = generate_bytes(seed as u64, $memory);
+                let seed: u64 = 42;
+                let bytes_vector = generate_bytes(seed, $memory);
                 let bytes = bytes_vector.as_slice();
                 let new = py.import_gxhashlib_new()?;
                 let kwargs = [("seed", seed)].into_py_dict(py)?;
@@ -102,8 +102,8 @@ macro_rules! bench_hashlib_file_digest {
         #[divan::bench]
         fn $name(bencher: Bencher) {
             python!(py, {
-                let seed = 42;
-                let bytes_vector = generate_bytes(seed as u64, $memory);
+                let seed: u64 = 42;
+                let bytes_vector = generate_bytes(seed, $memory);
                 let io = py.import(intern!(py, "io"))?;
                 let file_digest = py.import_gxhashlib_file_digest()?;
                 let kwargs = [("seed", seed)].into_py_dict(py)?;
@@ -155,5 +155,5 @@ bench_hashlib_file_digest!(gxhashlib_file_digest128_small, "gxhash128", Memory::
 bench_hashlib_file_digest!(gxhashlib_file_digest128, "gxhash128", Memory::KiB64);
 
 fn main() {
-    divan::main()
+    divan::main();
 }

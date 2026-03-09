@@ -53,11 +53,12 @@ jobs:
         env:
           RELEASE_TYPE: ${{ inputs.release-type }}
         run: >-
-          cz bump --increment "$RELEASE_TYPE"
-                  --yes
-                  --changelog
-                  --git-output-to-stderr
-                  --changelog-to-stdout | tail -n +2 > body.md
+          cz bump
+          --increment "$RELEASE_TYPE"
+          --yes
+          --changelog
+          --git-output-to-stderr
+          --changelog-to-stdout | tail -n +2 > body.md
 
       - name: Push changelog and tag
         id: push

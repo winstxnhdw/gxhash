@@ -4,6 +4,13 @@ test = [{ name = "main", harness = true, path = "main.rs" }]
 name = "gxhash-tests"
 edition = "2024"
 
+[lints.rust]
+warnings = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
+
 [dependencies]
 gxhash = { path = "..", package = "gxhash-py" }
 pyo3 = { version = "0.28.2", default-features = false, features = ["macros"] }

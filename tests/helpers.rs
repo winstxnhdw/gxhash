@@ -40,7 +40,7 @@ pub trait PythonExt<'py> {
 }
 
 impl<'py> PythonExt<'py> for Python<'py> {
-    #[inline(always)]
+    #[inline]
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>> {
         let asyncio = self.import(intern!(*self, "asyncio"))?;
 

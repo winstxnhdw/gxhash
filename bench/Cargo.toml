@@ -3,6 +3,13 @@ name = "benchmark"
 version = "0.1.0"
 edition = "2024"
 
+[lints.rust]
+warnings = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
+
 [dependencies]
 poloto = { version = "19.1.2", default-features = false }
 tagu = { version = "0.1.6", default-features = false }
