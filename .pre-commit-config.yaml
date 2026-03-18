@@ -47,7 +47,7 @@ repos:
         stages: [commit-msg]
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.10.9
+    rev: 0.10.11
     hooks:
       - id: uv-lock
         name: uv lock
@@ -64,7 +64,7 @@ repos:
         args: [--project, bench]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.5
+    rev: v0.15.6
     hooks:
       - id: ruff-format
         name: ruff format
