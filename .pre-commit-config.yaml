@@ -143,7 +143,7 @@ repos:
         entry: >-
           sh -c "
             PATH=$(echo $PATH | tr ':' '\n' | grep -v '.venv' | tr '\n' ':')
-            cargo test --manifest-path tests/Cargo.toml
+            cargo test --locked --manifest-path tests/Cargo.toml
           "
 
       - id: rustfmt
