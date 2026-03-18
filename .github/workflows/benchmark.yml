@@ -27,7 +27,7 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.3.1
+        uses: astral-sh/setup-uv@v7.6.0
 
       - name: Install Python dependenc(ies)
         run: uv sync
@@ -69,7 +69,7 @@ jobs:
           repository: ${{ github.repository }}.wiki
 
       - name: Download charts
-        uses: actions/download-artifact@v8.0.0
+        uses: actions/download-artifact@v8.0.1
         with:
           pattern: charts
           path: resources
