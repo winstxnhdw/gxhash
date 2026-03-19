@@ -91,7 +91,7 @@ class EagerRoutine[R, I: Buffer](Coroutine[None, None, R]):
         raise NotImplementedError
 
 
-async def gather[T](coroutines: Iterator[Coroutine[None, None, T]], /, *, loop: AbstractEventLoop) -> None:
+async def gather[T](loop: AbstractEventLoop, coroutines: Iterator[Coroutine[None, None, T]], /) -> None:
     for future in tuple(map(loop.create_task, coroutines)):
         await future
 
@@ -105,12 +105,12 @@ async def benchmark[R, I](evaluand: Evaluand[R, I], metadata: EvaluandMetadata[I
     hash_futures = map(hasher, metadata["payloads"])
 
     start = perf_counter_ns()
-    await gather(hash_warmup_futures, loop=loop)
+    await gather(loop, hash_warmup_futures)
     end = perf_counter_ns()
     cold_duration = Nanoseconds(end - start)
 
     start = perf_counter_ns()
-    await gather(hash_futures, loop=loop)
+    await gather(loop, hash_futures)
     end = perf_counter_ns()
     hot_duration = Nanoseconds(end - start)
 
