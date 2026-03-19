@@ -208,6 +208,12 @@ jobs:
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
         run: exit 1
 
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+        with:
+          show-progress: false
+          persist-credentials: false
+
       - name: Download coverage report artifact
         uses: actions/download-artifact@v8.0.1
         with:
