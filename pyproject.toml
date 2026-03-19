@@ -66,9 +66,6 @@ exclude = [
   "**/Makefile",
 ]
 
-[tool.uv]
-required-version = "==0.10.11"
-
 [tool.ruff]
 line-length = 120
 
