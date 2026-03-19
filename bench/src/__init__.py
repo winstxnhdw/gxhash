@@ -50,22 +50,21 @@ class EvaluandMetadata[I](TypedDict):
     payloads: Iterable[I]
 
 
-class Evaluand[R, I](EvaluandMetadata[I]):
+class Evaluand[R, I](TypedDict):
     name: str
     length: Length
     hasher: Callable[[I], Coroutine[None, None, R]]
 
 
 class Progress:
-    __slots__ = ("current", "step", "total")
+    __slots__ = ("current", "total")
 
-    def __init__(self, *, total: int, step: int = 1) -> None:
+    def __init__(self, *, total: int) -> None:
         self.total = total
-        self.step = step
         self.current = 0
 
     def __next__(self) -> tuple[int, int]:
-        self.current += self.step
+        self.current += 1
         return self.current, self.total
 
 
@@ -97,13 +96,13 @@ async def gather[T](coroutines: Iterator[Coroutine[None, None, T]], /, *, loop: 
         await future
 
 
-async def benchmark[R, I](kwargs: Evaluand[R, I]) -> EvaluationResult:
+async def benchmark[R, I](evaluand: Evaluand[R, I], metadata: EvaluandMetadata[I]) -> EvaluationResult:
     loop = get_running_loop()
     loop.set_task_factory(eager_task_factory)
 
-    hasher = kwargs["hasher"]
-    hash_warmup_futures = map(hasher, kwargs["payloads_warmup"])
-    hash_futures = map(hasher, kwargs["payloads"])
+    hasher = evaluand["hasher"]
+    hash_warmup_futures = map(hasher, metadata["payloads_warmup"])
+    hash_futures = map(hasher, metadata["payloads"])
 
     start = perf_counter_ns()
     await gather(hash_warmup_futures, loop=loop)
@@ -116,172 +115,148 @@ async def benchmark[R, I](kwargs: Evaluand[R, I]) -> EvaluationResult:
     hot_duration = Nanoseconds(end - start)
 
     return {
-        "name": kwargs["name"],
-        "length": kwargs["length"],
-        "batch_size": kwargs["batch_size"],
-        "payload_size": kwargs["payload_size"],
+        "name": evaluand["name"],
+        "length": evaluand["length"],
+        "batch_size": metadata["batch_size"],
+        "payload_size": metadata["payload_size"],
         "cold_duration": cold_duration,
         "hot_duration": hot_duration,
     }
 
 
-def create_evaluands(
-    *,
-    payload_size: int,
-    payload_count: int,
-    progress: Progress,
-    logger: Logger,
-) -> Iterator[Evaluand[int, bytes]]:
-    seed = randint(0, 256)  # noqa: S311
-    payloads_warmup = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
-    payloads = tuple(urandom(payload_size) for _ in repeat(None, payload_count))
-    metadata: EvaluandMetadata[bytes] = {
+def generate_metadata(*, payload_size: int, payload_count: int) -> Iterator[EvaluandMetadata[bytes]]:
+    yield {
         "payload_size": payload_size,
-        "payloads_warmup": payloads_warmup,
-        "payloads": payloads,
         "batch_size": payload_count,
+        "payloads_warmup": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
+        "payloads": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
     }
 
+
+def replicate(repeats: int, *, progress: Progress, logger: Logger) -> Iterator[None]:
+    for _ in repeat(None, repeats):
+        logger.debug("\rRuns: %s/%s", *next(progress))
+        yield
+
+
+def setup_evaluands() -> Iterator[Evaluand[int, bytes]]:
+    seed = randint(0, 256)  # noqa: S311
+
     yield {
-        **metadata,
         "name": "GxHash32",
         "length": Length.BIT_32,
         "hasher": EagerRoutine(GxHash32(seed=seed).hash),
     }
     yield {
-        **metadata,
         "name": "GxHash32 (async)",
         "length": Length.BIT_32,
         "hasher": GxHash32(seed=seed).hash_async,
     }
     yield {
-        **metadata,
         "name": "GxHashLib32",
         "length": Length.BIT_32,
         "hasher": EagerRoutine(lambda payload: int.from_bytes(gxhash32(payload, seed=seed).digest(), "little")),
     }
     yield {
-        **metadata,
         "name": "XXH32",
         "length": Length.BIT_32,
         "hasher": EagerRoutine(xxh32_intdigest, seed=seed),
     }
     yield {
-        **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_32,
         "hasher": EagerRoutine(hash32, seed=seed),
     }
     yield {
-        **metadata,
         "name": "FarmHash32",
         "length": Length.BIT_32,
         "hasher": EagerRoutine(FarmHash32WithSeed, seed=seed),
     }
     yield {
-        **metadata,
         "name": "GxHash64",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(GxHash64(seed=seed).hash),
     }
     yield {
-        **metadata,
         "name": "GxHash64 (async)",
         "length": Length.BIT_64,
         "hasher": GxHash64(seed=seed).hash_async,
     }
     yield {
-        **metadata,
         "name": "GxHashLib64",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(lambda payload: int.from_bytes(gxhash64(payload, seed=seed).digest(), "little")),
     }
     yield {
-        **metadata,
         "name": "XXH3",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(xxh64_intdigest, seed=seed),
     }
     yield {
-        **metadata,
         "name": "CityHash64",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(CityHash64WithSeed, seed=seed),
     }
     yield {
-        **metadata,
         "name": "FarmHash64",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(FarmHash64WithSeed, seed=seed),
     }
     yield {
-        **metadata,
         "name": "MetroHash64",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(hash64_int, seed=seed),
     }
     yield {
-        **metadata,
         "name": "StringZilla",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(stringzilla_hash, seed=seed),
     }
     yield {
-        **metadata,
         "name": "GxHash128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(GxHash128(seed=seed).hash),
     }
     yield {
-        **metadata,
         "name": "GxHash128 (async)",
         "length": Length.BIT_128,
         "hasher": GxHash128(seed=seed).hash_async,
     }
     yield {
-        **metadata,
         "name": "GxHashLib128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(lambda payload: int.from_bytes(gxhash128(payload, seed=seed).digest(), "little")),
     }
     yield {
-        **metadata,
         "name": "XXH128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(xxh128_intdigest, seed=seed),
     }
     yield {
-        **metadata,
         "name": "MurmurHash3",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(hash128, seed=seed),
     }
     yield {
-        **metadata,
         "name": "CityHash128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(CityHash128WithSeed, seed=seed),
     }
     yield {
-        **metadata,
         "name": "FarmHash128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(FarmHash128WithSeed, seed=seed),
     }
     yield {
-        **metadata,
         "name": "MetroHash128",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(hash128_int, seed=seed),
     }
     yield {
-        **metadata,
         "name": "MD5",
         "length": Length.BIT_128,
         "hasher": EagerRoutine(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")),
     }
-
-    logger.debug("\rRuns: %s/%s", *next(progress))
 
 
 def generate_sizes(base: int, max_size: int) -> Iterator[int]:
@@ -305,15 +280,16 @@ def main() -> None:
     sizes = int(log(max_size, base)) + 1
     counts = 3
     repeats = 60
-    steps = sum(type(node) is Yield for node in walk(parse(getsource(create_evaluands))))
+    steps = sum(type(node) is Yield for node in walk(parse(getsource(setup_evaluands))))
     rows = sizes * counts * steps
-    progress = Progress(total=rows * repeats, step=steps)
+    progress = Progress(total=rows * repeats)
 
     results = (
-        run(benchmark(evaluand))
+        run(benchmark(evaluand, metadata))
         for size, count in product(generate_sizes(base, max_size), payload_counts(counts))
-        for evaluand in create_evaluands(payload_size=size, payload_count=count, progress=progress, logger=logger)
-        for _ in repeat(None, repeats)
+        for metadata in generate_metadata(payload_size=size, payload_count=count)
+        for evaluand in setup_evaluands()
+        for _ in replicate(repeats, progress=progress, logger=logger)
     )
 
     columns = ("name", "payload_size", "length", "batch_size")
