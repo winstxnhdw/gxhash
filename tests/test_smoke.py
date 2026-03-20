@@ -116,9 +116,9 @@ async def test_smoke() -> None:
         assert algorithms_available == algorithms_guaranteed == {"gxhash32", "gxhash64", "gxhash128"}
         temporary_file.close()
         with raises(AttributeError):
-            hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-            hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+            hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+            hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+            hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
         if version_info >= (3, 10):
             with raises(TypeError):
                 GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]

@@ -43,17 +43,17 @@ class EvaluationResult(TypedDict):
     hot_duration: Nanoseconds
 
 
-class EvaluandMetadata[I](TypedDict):
+class EvaluandMetadata[Payload](TypedDict):
     batch_size: int
     payload_size: int
-    payloads_warmup: Iterable[I]
-    payloads: Iterable[I]
+    payloads_warmup: Iterable[Payload]
+    payloads: Iterable[Payload]
 
 
-class Evaluand[R, I](TypedDict):
+class Evaluand[Payload, Result](TypedDict):
     name: str
     length: Length
-    hasher: Callable[[I], Coroutine[None, None, R]]
+    hasher: Callable[[Payload], Coroutine[None, None, Result]]
 
 
 class Progress:
@@ -63,21 +63,21 @@ class Progress:
         self.total = total
         self.current = 0
 
-    def __next__(self) -> tuple[int, int]:
+    def __next__(self) -> int:
         self.current += 1
-        return self.current, self.total
+        return self.current
 
 
-class EagerRoutine[R, I: Buffer](Coroutine[None, None, R]):
+class EagerRoutine[Payload: Buffer, Result](Coroutine[None, None, Result]):
     __slots__ = ("hasher", "result")
 
     def __await__(self) -> NoReturn:
         raise NotImplementedError
 
-    def __init__[**P](self, hasher: Callable[Concatenate[I, P], R], *args: P.args, **kwargs: P.kwargs) -> None:
-        self.hasher = partial(hasher, *args, **kwargs)
+    def __init__[**P](self, func: Callable[Concatenate[Payload, P], Result], *args: P.args, **kwargs: P.kwargs) -> None:
+        self.hasher = partial(func, *args, **kwargs)
 
-    def __call__(self, data: I, /) -> Self:
+    def __call__(self, data: Payload, /) -> Self:
         self.result = StopIteration(self.hasher(data))
         return self
 
@@ -91,12 +91,15 @@ class EagerRoutine[R, I: Buffer](Coroutine[None, None, R]):
         raise NotImplementedError
 
 
-async def gather[T](loop: AbstractEventLoop, coroutines: Iterator[Coroutine[None, None, T]], /) -> None:
+async def gather[Result](loop: AbstractEventLoop, coroutines: Iterator[Coroutine[None, None, Result]], /) -> None:
     for future in tuple(map(loop.create_task, coroutines)):
         await future
 
 
-async def benchmark[R, I](evaluand: Evaluand[R, I], metadata: EvaluandMetadata[I]) -> EvaluationResult:
+async def benchmark[Payload, Result](
+    evaluand: Evaluand[Payload, Result],
+    metadata: EvaluandMetadata[Payload],
+) -> EvaluationResult:
     loop = get_running_loop()
     loop.set_task_factory(eager_task_factory)
 
@@ -124,22 +127,7 @@ async def benchmark[R, I](evaluand: Evaluand[R, I], metadata: EvaluandMetadata[I
     }
 
 
-def generate_metadata(*, payload_size: int, payload_count: int) -> Iterator[EvaluandMetadata[bytes]]:
-    yield {
-        "payload_size": payload_size,
-        "batch_size": payload_count,
-        "payloads_warmup": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
-        "payloads": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
-    }
-
-
-def replicate(repeats: int, *, progress: Progress, logger: Logger) -> Iterator[None]:
-    for _ in repeat(None, repeats):
-        logger.debug("\rRuns: %s/%s", *next(progress))
-        yield
-
-
-def setup_evaluands() -> Iterator[Evaluand[int, bytes]]:
+def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
     seed = randint(0, 256)  # noqa: S311
 
     yield {
@@ -257,6 +245,21 @@ def setup_evaluands() -> Iterator[Evaluand[int, bytes]]:
         "length": Length.BIT_128,
         "hasher": EagerRoutine(lambda payload: int.from_bytes(md5(payload, usedforsecurity=False).digest(), "little")),
     }
+
+
+def generate_metadata(*, payload_size: int, payload_count: int) -> Iterator[EvaluandMetadata[bytes]]:
+    yield {
+        "payload_size": payload_size,
+        "batch_size": payload_count,
+        "payloads_warmup": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
+        "payloads": tuple(urandom(payload_size) for _ in repeat(None, payload_count)),
+    }
+
+
+def replicate(repeats: int, *, progress: Progress, logger: Logger) -> Iterator[None]:
+    for _ in repeat(None, repeats):
+        logger.debug("\rRuns: %s/%s", next(progress), progress.total)
+        yield
 
 
 def generate_sizes(base: int, max_size: int) -> Iterator[int]:
