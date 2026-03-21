@@ -86,8 +86,7 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
   self->self_vector_call = EagerRoutine_vectorcall;
   self->result = Py_None;
 
-  const vectorcallfunc vector_call_function = PyVectorcall_Function(self->callback);
-  self->vector_call = vector_call_function ? vector_call_function : PyObject_Vectorcall;
+  self->vector_call = PyVectorcall_Function(self->callback) ?: PyObject_Vectorcall;
   self->items[0] = Py_None;
 
   for (Py_ssize_t i = 0; i < kwargs_count && PyDict_Next(kwargs, &position, &key, &value); i++) {
