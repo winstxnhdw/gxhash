@@ -1,5 +1,7 @@
 from typing import NewType, Protocol, TypeVar
 
+from gxhash.buffer import Buffer
+
 __doc__: str
 T_co = TypeVar("T_co", covariant=True, bound=int)
 Uint32 = NewType("Uint32", int)
@@ -30,7 +32,7 @@ class Hasher(Protocol[T_co]):
         ```
         """
 
-    def hash(self, data: bytes, /) -> T_co:
+    def hash(self, data: Buffer, /) -> T_co:
         """
         Summary
         -------
@@ -39,7 +41,7 @@ class Hasher(Protocol[T_co]):
 
         Parameters
         ----------
-        data (`bytes`)
+        data (`Buffer`)
             input data
 
         Returns
@@ -58,7 +60,7 @@ class Hasher(Protocol[T_co]):
         ```
         """
 
-    async def hash_async(self, data: bytes, /) -> T_co:
+    async def hash_async(self, data: Buffer, /) -> T_co:
         """
         Summary
         -------
@@ -69,7 +71,7 @@ class Hasher(Protocol[T_co]):
 
         Parameters
         ----------
-        data (`bytes`)
+        data (`Buffer`)
             input data
 
         Returns
