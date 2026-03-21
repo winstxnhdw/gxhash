@@ -5,10 +5,10 @@ dist/
 analysis/
 gxhash-*/
 *.egg-info/
-**/*.c
 **/*.pyc
 **/*.png
 **/*.svg
-**/benchmarks.parquet
 **/*.so
 **/*.profdata
+**/compile_flags.txt
+**/benchmarks.parquet

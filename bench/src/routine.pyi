@@ -4,7 +4,8 @@ from typing import Concatenate, NoReturn, Self
 class EagerRoutine[Payload: Buffer, Result](Coroutine[None, None, Result]):
     def __init__[**P](
         self,
-        func: Callable[Concatenate[Payload, P], Result],
+        callback: Callable[Concatenate[Payload, P], Result],
+        /,
         *args: P.args,
         **kwargs: P.kwargs,
     ) -> None: ...
