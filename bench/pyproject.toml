@@ -26,12 +26,14 @@ dev = [
 ]
 
 [build-system]
-build-backend = "uv_build"
-requires = ["uv_build"]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
-[tool.uv.build-backend]
-module-root = ""
-module-name = "src"
+[tool.setuptools]
+packages = ["src"]
+ext-modules = [
+  { name = "src.routine", sources = ["src/routine.c"], extra-compile-args = ["-march=native", "-Werror"] }, # EagerRoutine
+]
 
 [tool.uv.sources]
 gxhash = { path = "../" }

@@ -1,0 +1,9 @@
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: BlockIndent
+AlignOperands: DontAlign
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackParameters: OnePerLine
+BreakBeforeTernaryOperators: true
+ColumnLimit: 120
+InsertBraces: true
+PenaltyReturnTypeOnItsOwnLine: 1000
