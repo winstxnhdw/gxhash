@@ -97,8 +97,8 @@ fn generate_throughput_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) 
 
     let data = poloto::plots!(poloto::build::markers::<_, _, (f64, f64)>([x_min, x_max], [0.0]), plots);
     let colours = [
-        "#253b77", "#E6194B", "#3CB44B", "#FFE119", "#4363D8", "#F58231", "#79059c", "#42D4F4", "#F032E6", "#BFEF45",
-        "#FABED4", "#469990", "#c28dff", "#9A6324", "#800000", "#AAFFC3", "#808000", "#FFD8B1", "#e30081", "#054f03",
+        "#2F4F4F", "#E74C3C", "#3CB44B", "#FF1493", "#006400", "#911EB4", "#B59F00", "#0000FF", "#808000", "#000075",
+        "#008856", "#BE0032", "#008080", "#800000", "#1E90FF", "#654522", "#6A5ACD", "#1B1B1B", "#B3446C", "#0067A5",
     ];
 
     let colour_css = colours.iter().enumerate().map(|(i, colour)| {
@@ -117,6 +117,7 @@ fn generate_throughput_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) 
         .append(theme);
 
     let svg = poloto::frame()
+        .num_css_class(Some(colours.len()))
         .with_viewbox(viewbox)
         .build()
         .data(data)
