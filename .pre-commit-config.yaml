@@ -75,17 +75,18 @@ repos:
         stages: [pre-commit, pre-push]
         args: [--fix]
 
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v22.1.1
+    hooks:
+      - id: clang-format
+        types_or: [c]
+        stages: [pre-commit, pre-push]
+
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.21.0
     hooks:
       - id: markdownlint-cli2
         name: markdownlint
-        stages: [pre-commit, pre-push]
-
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v22.1.1
-    hooks:
-      - id: clang-format
         stages: [pre-commit, pre-push]
 
   - repo: local

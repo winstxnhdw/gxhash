@@ -118,11 +118,10 @@ if __name__ == "__main__":
     run(main())
 ```
 
-As a drop-in replacement for `hashlib`.
+As a drop-in replacement for `hashlib`, hash computations are deferred and only computed when `digest` or `hexdigest` is called
 
 > [!WARNING]
 > [GxHash](https://github.com/ogxd/gxhash) is not an incremental hasher, and all inputs provided to the `update` method will be accumulated internally. This can lead to an unexpected increase in memory usage if you are expecting streaming behaviour.
-> Also note that hash computation in `gxhash.hashlib` functions are deferred and only computed when `digest` or `hexdigest` is called.
 
 ```python
 from gxhash.hashlib import gxhash128
