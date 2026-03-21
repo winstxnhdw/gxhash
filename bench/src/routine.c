@@ -3,20 +3,18 @@
 #include <cpython/genobject.h>
 
 static struct PyModuleDef module_definition = {
-    PyModuleDef_HEAD_INIT,
+    .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "routine",
     .m_size = -1,
 };
 
-// clang-format off
 typedef struct {
-  PyObject_HEAD
+  PyObject ob_base;
   PyObject *callback;
   PyObject *stack;
   PyObject *kwarg_names;
   PyObject *result;
 } EagerRoutineObject;
-// clang-format on
 
 static void EagerRoutine_dealloc(PyObject *const self_obj) {
   EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
@@ -32,13 +30,13 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
   EagerRoutineObject *self = NULL;
   PyObject *key = NULL;
   PyObject *value = NULL;
-  Py_ssize_t nargs = 0;
+  Py_ssize_t position = 0;
 
   if ((self = (EagerRoutineObject *)type->tp_alloc(type, 0)) == NULL) {
     goto error;
   }
 
-  if ((nargs = PyTuple_GET_SIZE(args)) < 1) {
+  if (PyTuple_GET_SIZE(args) < 1) {
     PyErr_SetString(PyExc_TypeError, "EagerRoutine requires at least one argument");
     goto error;
   }
@@ -54,11 +52,9 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
   self->callback = Py_NewRef(PyTuple_GET_ITEM(args, 0));
   self->result = Py_None;
 
-  if (kwargs_count > 0) {
-    for (Py_ssize_t position = 0, i = 0; PyDict_Next(kwargs, &position, &key, &value); i++) {
-      PyTuple_SET_ITEM(self->kwarg_names, i, Py_NewRef(key));
-      PyTuple_SET_ITEM(self->stack, 1 + i, Py_NewRef(value));
-    }
+  for (Py_ssize_t i = 0; i < kwargs_count && PyDict_Next(kwargs, &position, &key, &value); i++) {
+    PyTuple_SET_ITEM(self->kwarg_names, i, Py_NewRef(key));
+    PyTuple_SET_ITEM(self->stack, 1 + i, Py_NewRef(value));
   }
 
   PyTuple_SET_ITEM(self->stack, 0, Py_NewRef(Py_None));
@@ -101,18 +97,16 @@ static PyAsyncMethods EagerRoutine_async = {
     .am_send = (sendfunc)EagerRoutine_am_send,
 };
 
-// clang-format off
 static PyTypeObject EagerRoutine_Type = {
-  PyVarObject_HEAD_INIT(NULL, 0)
-  .tp_name = "routine.EagerRoutine",
-  .tp_basicsize = sizeof(EagerRoutineObject),
-  .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_IMMUTABLETYPE,
-  .tp_new = EagerRoutine_new,
-  .tp_dealloc = EagerRoutine_dealloc,
-  .tp_call = EagerRoutine_call,
-  .tp_as_async = &EagerRoutine_async,
+    .ob_base = {PyObject_HEAD_INIT(NULL) 0},
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_IMMUTABLETYPE,
+    .tp_name = "routine.EagerRoutine",
+    .tp_basicsize = sizeof(EagerRoutineObject),
+    .tp_new = EagerRoutine_new,
+    .tp_dealloc = EagerRoutine_dealloc,
+    .tp_call = EagerRoutine_call,
+    .tp_as_async = &EagerRoutine_async,
 };
-// clang-format on
 
 PyMODINIT_FUNC PyInit_routine(void) {
   PyObject *coroutine_abc = NULL;
