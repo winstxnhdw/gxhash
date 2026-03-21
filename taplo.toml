@@ -1,1 +1,4 @@
-formatting.column_width = 120
+[formatting]
+inline_table_expand = false
+array_auto_expand = true
+array_auto_collapse = false
