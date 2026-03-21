@@ -1,8 +1,7 @@
 from ast import Yield, parse, walk
 from asyncio import AbstractEventLoop, eager_task_factory, get_running_loop, run
-from collections.abc import Buffer, Callable, Coroutine, Iterable, Iterator
+from collections.abc import Callable, Coroutine, Iterable, Iterator
 from enum import IntEnum
-from functools import partial
 from hashlib import md5
 from inspect import getsource
 from itertools import count, islice, product, repeat, takewhile
@@ -12,7 +11,7 @@ from os import urandom
 from random import randint
 from sys import argv
 from time import perf_counter_ns
-from typing import Concatenate, NewType, NoReturn, Self, TypedDict
+from typing import NewType, TypedDict
 
 from cityhash import CityHash64WithSeed, CityHash128WithSeed
 from farmhash import FarmHash32WithSeed, FarmHash64WithSeed, FarmHash128WithSeed
@@ -24,6 +23,8 @@ from mmh3 import hash128
 from polars import LazyFrame, col
 from stringzilla import hash as stringzilla_hash
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
+
+from src.routine import EagerRoutine
 
 Nanoseconds = NewType("Nanoseconds", int)
 
@@ -66,29 +67,6 @@ class Progress(Iterator[int]):
     def __next__(self) -> int:
         self.current += 1
         return self.current
-
-
-class EagerRoutine[Payload: Buffer, Result](Coroutine[None, None, Result]):
-    __slots__ = ("hasher", "result")
-
-    def __await__(self) -> NoReturn:
-        raise NotImplementedError
-
-    def __init__[**P](self, func: Callable[Concatenate[Payload, P], Result], *args: P.args, **kwargs: P.kwargs) -> None:
-        self.hasher = partial(func, *args, **kwargs)
-
-    def __call__(self, data: Payload, /) -> Self:
-        self.result = StopIteration(self.hasher(data))
-        return self
-
-    def send(self, _) -> NoReturn:
-        raise self.result
-
-    def throw(self, *_) -> NoReturn:
-        raise NotImplementedError
-
-    def close(self) -> NoReturn:
-        raise NotImplementedError
 
 
 async def gather[Result](loop: AbstractEventLoop, coroutines: Iterator[Coroutine[None, None, Result]], /) -> None:

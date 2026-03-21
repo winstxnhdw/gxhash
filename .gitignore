@@ -1,9 +1,11 @@
-node_modules/
 .venv/
+node_modules/
 target/
 dist/
 analysis/
 gxhash-*/
+*.egg-info/
+**/*.c
 **/*.pyc
 **/*.png
 **/*.svg
