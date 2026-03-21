@@ -82,17 +82,16 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
     goto error;
   }
 
-  self->callback = Py_NewRef(PyTuple_GET_ITEM(args, 0));
-  self->self_vector_call = EagerRoutine_vectorcall;
-  self->result = Py_None;
-
-  self->vector_call = PyVectorcall_Function(self->callback) ?: PyObject_Vectorcall;
-  self->items[0] = Py_None;
-
   for (Py_ssize_t i = 0; i < kwargs_count && PyDict_Next(kwargs, &position, &key, &value); i++) {
     PyTuple_SET_ITEM(self->kwarg_names, i, Py_NewRef(key));
     self->items[1 + i] = Py_NewRef(value);
   }
+
+  self->callback = Py_NewRef(PyTuple_GET_ITEM(args, 0));
+  self->vector_call = PyVectorcall_Function(self->callback) ?: PyObject_Vectorcall;
+  self->self_vector_call = EagerRoutine_vectorcall;
+  self->result = Py_None;
+  self->items[0] = Py_None;
 
   return (PyObject *)self;
 
