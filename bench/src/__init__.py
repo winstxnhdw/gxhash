@@ -5,7 +5,7 @@ from enum import IntEnum
 from functools import partial
 from hashlib import md5
 from inspect import getsource
-from itertools import count, product, repeat, takewhile
+from itertools import count, islice, product, repeat, takewhile
 from logging import INFO, Formatter, Logger, StreamHandler, getLogger
 from math import log
 from os import urandom
@@ -56,12 +56,12 @@ class Evaluand[Payload, Result](TypedDict):
     hasher: Callable[[Payload], Coroutine[None, None, Result]]
 
 
-class Progress:
+class Progress(Iterator[int]):
     __slots__ = ("current", "total")
 
     def __init__(self, *, total: int) -> None:
-        self.total = total
         self.current = 0
+        self.total = total
 
     def __next__(self) -> int:
         self.current += 1
@@ -257,9 +257,7 @@ def generate_metadata(*, payload_size: int, payload_count: int) -> Iterator[Eval
 
 
 def replicate(repeats: int, *, progress: Progress, logger: Logger) -> Iterator[None]:
-    for _ in repeat(None, repeats):
-        logger.debug("\rRuns: %s/%s", next(progress), progress.total)
-        yield
+    return (logger.debug("\rRuns: %s/%s", current, progress.total) for current in islice(progress, repeats))
 
 
 def generate_sizes(base: int, max_size: int) -> Iterator[int]:
