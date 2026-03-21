@@ -2,13 +2,9 @@
 #include <Python.h>
 #include <cpython/genobject.h>
 
-static struct PyModuleDef module_definition = {
-    .m_base = PyModuleDef_HEAD_INIT,
-    .m_name = "routine",
-    .m_size = -1,
-};
+typedef struct EagerRoutineObject EagerRoutineObject;
 
-typedef struct {
+struct EagerRoutineObject {
   PyObject ob_base;
   PyObject *result;
   PyObject *callback;
@@ -16,7 +12,13 @@ typedef struct {
   PyObject **items;
   vectorcallfunc self_vector_call;
   vectorcallfunc vector_call;
-} EagerRoutineObject;
+};
+
+static struct PyModuleDef module_definition = {
+    .m_base = PyModuleDef_HEAD_INIT,
+    .m_name = "routine",
+    .m_size = -1,
+};
 
 static void EagerRoutine_dealloc(PyObject *const self_obj) {
   EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
@@ -101,7 +103,7 @@ error:
 }
 
 static PyAsyncMethods EagerRoutine_async = {
-    .am_send = (sendfunc)EagerRoutine_am_send,
+    .am_send = EagerRoutine_am_send,
 };
 
 static PyTypeObject EagerRoutine_Type = {
@@ -110,9 +112,9 @@ static PyTypeObject EagerRoutine_Type = {
     .tp_name = "routine.EagerRoutine",
     .tp_vectorcall_offset = __builtin_offsetof(EagerRoutineObject, self_vector_call),
     .tp_basicsize = sizeof(EagerRoutineObject),
-    .tp_call = PyVectorcall_Call,
     .tp_new = EagerRoutine_new,
     .tp_dealloc = EagerRoutine_dealloc,
+    .tp_call = PyVectorcall_Call,
     .tp_as_async = &EagerRoutine_async,
 };
 
@@ -143,7 +145,6 @@ PyMODINIT_FUNC PyInit_routine(void) {
 
   Py_DECREF(register_abc);
   Py_DECREF(coroutine_abc);
-
   return module;
 
 error:
