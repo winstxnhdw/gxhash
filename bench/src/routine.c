@@ -10,6 +10,7 @@ struct EagerRoutineObject {
     PyObject *callback;
     PyObject *kwarg_names;
     PyObject **items;
+    Py_ssize_t args_count;
     vectorcallfunc self_vector_call;
     vectorcallfunc vector_call;
 };
@@ -24,7 +25,9 @@ static void EagerRoutine_dealloc(PyObject *const self_obj) {
     EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
 
     if (self->items != NULL) {
-        for (Py_ssize_t i = 0; i < 1 + (self->kwarg_names ? PyTuple_GET_SIZE(self->kwarg_names) : 0); i++) {
+        const Py_ssize_t kwargs_count = self->kwarg_names ? PyTuple_GET_SIZE(self->kwarg_names) : 0;
+
+        for (Py_ssize_t i = 0; i < self->args_count + kwargs_count; i++) {
             Py_XDECREF(self->items[i]);
         }
 
@@ -45,7 +48,7 @@ static PyObject *EagerRoutine_vectorcall(
 ) {
     EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
     self->items[0] = args[0];
-    self->result = self->vector_call(self->callback, self->items, 1, self->kwarg_names);
+    self->result = self->vector_call(self->callback, self->items, self->args_count, self->kwarg_names);
     self->items[0] = Py_None;
 
     return Py_NewRef(self_obj);
@@ -60,7 +63,8 @@ static PySendResult EagerRoutine_am_send(PyObject *const self_obj, PyObject *con
 }
 
 static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
-    const Py_ssize_t kwargs_count = kwargs ? PyDict_GET_SIZE(kwargs) : 0;
+    const Py_ssize_t args_count = PyTuple_GET_SIZE(args);
+    const Py_ssize_t kwargs_count = kwargs != NULL ? PyDict_GET_SIZE(kwargs) : 0;
     EagerRoutineObject *self = NULL;
     PyObject *key = NULL;
     PyObject *value = NULL;
@@ -70,12 +74,12 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
         goto error;
     }
 
-    if (PyTuple_GET_SIZE(args) < 1) {
+    if (args_count < 1) {
         PyErr_SetString(PyExc_TypeError, "EagerRoutine requires at least one argument");
         goto error;
     }
 
-    if ((self->items = PyMem_Calloc(kwargs_count + 1, sizeof(PyObject *))) == NULL) {
+    if ((self->items = PyMem_Calloc(args_count + kwargs_count, sizeof(PyObject *))) == NULL) {
         PyErr_NoMemory();
         goto error;
     }
@@ -84,14 +88,19 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
         goto error;
     }
 
+    for (Py_ssize_t i = 1; i < args_count; i++) {
+        self->items[i] = Py_NewRef(PyTuple_GET_ITEM(args, i));
+    }
+
     for (Py_ssize_t i = 0; i < kwargs_count && PyDict_Next(kwargs, &position, &key, &value); i++) {
         PyTuple_SET_ITEM(self->kwarg_names, i, Py_NewRef(key));
-        self->items[i + 1] = Py_NewRef(value);
+        self->items[args_count + i] = Py_NewRef(value);
     }
 
     self->callback = Py_NewRef(PyTuple_GET_ITEM(args, 0));
     self->vector_call = PyVectorcall_Function(self->callback) ?: PyObject_Vectorcall;
     self->self_vector_call = EagerRoutine_vectorcall;
+    self->args_count = args_count;
     self->result = Py_None;
     self->items[0] = Py_None;
 
