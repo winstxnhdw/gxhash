@@ -6,4 +6,5 @@ BinPackParameters: OnePerLine
 BreakBeforeTernaryOperators: true
 ColumnLimit: 120
 InsertBraces: true
+IndentWidth: 4
 PenaltyReturnTypeOnItsOwnLine: 1000
