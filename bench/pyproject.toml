@@ -26,13 +26,18 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-rust"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["src"]
 ext-modules = [
   { name = "src.routine", sources = ["src/routine.c"], extra-compile-args = ["-march=native", "-Werror"] }, # EagerRoutine
+]
+
+[tool.setuptools-rust]
+ext-modules = [
+  { target = "src.compat", path = "Cargo.toml" },
 ]
 
 [tool.uv.sources]
