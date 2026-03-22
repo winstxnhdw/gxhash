@@ -52,6 +52,7 @@ static PyObject *Compat_vectorcall(
 
     self->items[0] = args[0];
     PyObject *hash = self->vector_call(self->hash_function, self->items, self->args_count, self->kwarg_names);
+    self->items[0] = Py_None;
 
     PyObject *digest = PyObject_CallOneArg(self->digest_descriptor, hash);
     PyBytes_AsStringAndSize(digest, &buffer, &len);
@@ -129,6 +130,7 @@ static PyObject *Compat_new(PyTypeObject *type, PyObject *args, PyObject *kwargs
     PyObject *empty_bytes = PyBytes_FromStringAndSize(NULL, 0);
     self->items[0] = empty_bytes;
     PyObject *sample = self->vector_call(self->hash_function, self->items, self->args_count, self->kwarg_names);
+    self->items[0] = Py_None;
     self->digest_descriptor = PyObject_GetAttrString((PyObject *)Py_TYPE(sample), "digest");
 
     Py_DECREF(sample);

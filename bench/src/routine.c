@@ -49,6 +49,7 @@ static PyObject *EagerRoutine_vectorcall(
     EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
     self->items[0] = args[0];
     self->result = self->vector_call(self->callback, self->items, self->args_count, self->kwarg_names);
+    self->items[0] = Py_None;
 
     return Py_NewRef(self_obj);
 }
@@ -101,6 +102,7 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
     self->self_vector_call = EagerRoutine_vectorcall;
     self->args_count = args_count;
     self->result = Py_None;
+    self->items[0] = Py_None;
 
     return (PyObject *)self;
 
