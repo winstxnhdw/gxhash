@@ -33,6 +33,7 @@ build-backend = "setuptools.build_meta"
 packages = ["src"]
 ext-modules = [
   { name = "src.routine", sources = ["src/routine.c"], extra-compile-args = ["-march=native", "-Werror"] }, # EagerRoutine
+  { name = "src.compat", sources = ["src/compat.c"], extra-compile-args = ["-march=native", "-Werror"] },   # compat
 ]
 
 [tool.uv.sources]
