@@ -1,3 +1,5 @@
 from collections.abc import Buffer
 
-def hash(data: str | Buffer, /, seed: int = ...) -> int: ...  # noqa: A001
+from cityhash import Uint64
+
+def hash(data: str | Buffer, /, seed: int = ...) -> Uint64: ...  # noqa: A001
