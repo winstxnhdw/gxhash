@@ -24,7 +24,7 @@ from polars import LazyFrame, col
 from stringzilla import hash as stringzilla_hash
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
-from src.compat import compat
+from src.compat import compat32, compat64, compat128
 from src.routine import EagerRoutine
 
 Nanoseconds = NewType("Nanoseconds", int)
@@ -122,7 +122,7 @@ def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
     yield {
         "name": "GxHashLib32",
         "length": Length.BIT_32,
-        "hasher": EagerRoutine(compat(gxhash32, seed=seed)),
+        "hasher": EagerRoutine(compat32(gxhash32, seed=seed)),
     }
     yield {
         "name": "XXH32",
@@ -152,7 +152,7 @@ def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
     yield {
         "name": "GxHashLib64",
         "length": Length.BIT_64,
-        "hasher": EagerRoutine(compat(gxhash64, seed=seed)),
+        "hasher": EagerRoutine(compat64(gxhash64, seed=seed)),
     }
     yield {
         "name": "XXH3",
@@ -192,7 +192,7 @@ def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
     yield {
         "name": "GxHashLib128",
         "length": Length.BIT_128,
-        "hasher": EagerRoutine(compat(gxhash128, seed=seed)),
+        "hasher": EagerRoutine(compat128(gxhash128, seed=seed)),
     }
     yield {
         "name": "XXH128",
@@ -222,7 +222,7 @@ def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
     yield {
         "name": "MD5",
         "length": Length.BIT_128,
-        "hasher": EagerRoutine(compat(md5)),
+        "hasher": EagerRoutine(compat128(md5)),
     }
 
 
