@@ -49,7 +49,6 @@ static PyObject *EagerRoutine_vectorcall(
     EagerRoutineObject *const self = (EagerRoutineObject *)self_obj;
     self->items[0] = args[0];
     self->result = self->vector_call(self->callback, self->items, self->args_count, self->kwarg_names);
-    self->items[0] = Py_None;
 
     return Py_NewRef(self_obj);
 }
@@ -65,10 +64,10 @@ static PySendResult EagerRoutine_am_send(PyObject *const self_obj, PyObject *con
 static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *kwargs) {
     const Py_ssize_t args_count = PyTuple_GET_SIZE(args);
     const Py_ssize_t kwargs_count = kwargs != NULL ? PyDict_GET_SIZE(kwargs) : 0;
-    EagerRoutineObject *self = NULL;
-    PyObject *key = NULL;
-    PyObject *value = NULL;
     Py_ssize_t position = 0;
+    EagerRoutineObject *self;
+    PyObject *key;
+    PyObject *value;
 
     if ((self = (EagerRoutineObject *)type->tp_alloc(type, 0)) == NULL) {
         goto error;
@@ -102,7 +101,6 @@ static PyObject *EagerRoutine_new(PyTypeObject *type, PyObject *args, PyObject *
     self->self_vector_call = EagerRoutine_vectorcall;
     self->args_count = args_count;
     self->result = Py_None;
-    self->items[0] = Py_None;
 
     return (PyObject *)self;
 
