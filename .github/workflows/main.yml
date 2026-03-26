@@ -220,7 +220,7 @@ jobs:
           name: coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5.5.3
+        uses: codecov/codecov-action@v6.0.0
         with:
           fail_ci_if_error: true
           use_oidc: true
