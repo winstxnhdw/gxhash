@@ -46,25 +46,30 @@ def raises(exception: type[BaseException]) -> Generator[None]:
 
 async def test_smoke() -> None:
     try:
+        seed32 = 0
+        seed64 = -(2**63)
+        seed128 = 2**63 - 1
         data = bytes(range(256))
+        data_bytearray = bytearray(data)
+        data_memoryview = memoryview(data)
         hashlib_md5 = md5()  # noqa: S324
         file = BytesIO(data)
         temporary_file = NamedTemporaryFile(delete=False)  # noqa: SIM115
         temporary_file.write(data)
         additional_data = b"additional data"
         extra_data = data + additional_data
-        hasher32 = GxHash32(seed=0)
-        hasher64 = GxHash64(seed=-(2**63))
-        hasher128 = GxHash128(seed=2**63 - 1)
-        gxhashlib32: HASH = gxhash32(data, seed=0, usedforsecurity=False, string=None)
-        gxhashlib64: HASH = gxhash64(data, seed=-(2**63), usedforsecurity=False, string=None)
-        gxhashlib128: HASH = gxhash128(data, seed=2**63 - 1, usedforsecurity=False, string=None)
-        new_gxhashlib32 = new("gxhash32", data, seed=0, usedforsecurity=False, string=None)
-        new_gxhashlib64 = new("gxhash64", data, seed=-(2**63), usedforsecurity=False, string=None)
-        new_gxhashlib128 = new("gxhash128", data, seed=2**63 - 1, usedforsecurity=False, string=None)
-        gxhashlib32_from_file = file_digest(file, "gxhash32", seed=0, usedforsecurity=False, string=None)
-        gxhash64_digest_from_file = file_digest(file, "gxhash64", seed=-(2**63), usedforsecurity=False, string=None)
-        gxhash128_digest_from_file = file_digest(file, "gxhash128", seed=2**63 - 1, usedforsecurity=False, string=None)
+        hasher32 = GxHash32(seed=seed32)
+        hasher64 = GxHash64(seed=seed64)
+        hasher128 = GxHash128(seed=seed128)
+        gxhashlib32: HASH = gxhash32(data, seed=seed32, usedforsecurity=False, string=None)
+        gxhashlib64: HASH = gxhash64(data, seed=seed64, usedforsecurity=False, string=None)
+        gxhashlib128: HASH = gxhash128(data, seed=seed128, usedforsecurity=False, string=None)
+        new_gxhashlib32 = new("gxhash32", data, seed=seed32, usedforsecurity=False, string=None)
+        new_gxhashlib64 = new("gxhash64", data, seed=seed64, usedforsecurity=False, string=None)
+        new_gxhashlib128 = new("gxhash128", data, seed=seed128, usedforsecurity=False, string=None)
+        gxhashlib32_from_file = file_digest(file, "gxhash32", seed=seed32, usedforsecurity=False, string=None)
+        gxhash64_digest_from_file = file_digest(file, "gxhash64", seed=seed64, usedforsecurity=False, string=None)
+        gxhash128_digest_from_file = file_digest(file, "gxhash128", seed=seed128, usedforsecurity=False, string=None)
         gxhashlib32_copy = gxhashlib32.copy()
         gxhashlib64_copy = gxhashlib64.copy()
         gxhashlib128_copy = gxhashlib128.copy()
@@ -114,6 +119,20 @@ async def test_smoke() -> None:
         assert isinstance(gxhashlib64, hashlib_md5.__class__)
         assert isinstance(gxhashlib128, hashlib_md5.__class__)
         assert algorithms_available == algorithms_guaranteed == {"gxhash32", "gxhash64", "gxhash128"}
+        assert hasher32.hash(data_bytearray) == hasher32.hash(data)
+        assert hasher64.hash(data_bytearray) == hasher64.hash(data)
+        assert hasher128.hash(data_bytearray) == hasher128.hash(data)
+        assert hasher32.hash(data_memoryview) == hasher32.hash(data)
+        assert hasher64.hash(data_memoryview) == hasher64.hash(data)
+        assert hasher128.hash(data_memoryview) == hasher128.hash(data)
+        assert await hasher32.hash_async(data_bytearray) == hasher32.hash(data)
+        assert await hasher64.hash_async(data_bytearray) == hasher64.hash(data)
+        assert await hasher128.hash_async(data_bytearray) == hasher128.hash(data)
+        assert await hasher32.hash_async(data_memoryview) == hasher32.hash(data)
+        assert await hasher64.hash_async(data_memoryview) == hasher64.hash(data)
+        assert await hasher128.hash_async(data_memoryview) == hasher128.hash(data)
+        assert gxhash128(data_bytearray, seed=seed128).hexdigest() == gxhashlib128_copy.hexdigest()
+        assert gxhash128(data_memoryview, seed=seed128).hexdigest() == gxhashlib128_copy.hexdigest()
         temporary_file.close()
         with raises(AttributeError):
             hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
