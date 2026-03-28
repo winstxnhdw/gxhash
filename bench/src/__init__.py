@@ -21,6 +21,7 @@ from metrohash import hash64_int, hash128_int
 from mmh3 import hash as hash32
 from mmh3 import hash128
 from polars import LazyFrame, col
+from siphash24 import siphash13, siphash24
 from stringzilla import hash as stringzilla_hash
 from xxhash import xxh32_intdigest, xxh64_intdigest, xxh128_intdigest
 
@@ -107,7 +108,7 @@ async def benchmark[Payload, Result](
 
 
 def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
-    seed = randint(0, 256)  # noqa: S311
+    seed = randint(0, 255)  # noqa: S311
 
     yield {
         "name": "GxHash32",
@@ -178,6 +179,16 @@ def setup_evaluands() -> Iterator[Evaluand[bytes, int]]:
         "name": "StringZilla",
         "length": Length.BIT_64,
         "hasher": EagerRoutine(stringzilla_hash, seed=seed),
+    }
+    yield {
+        "name": "SipHash-1-3",
+        "length": Length.BIT_64,
+        "hasher": EagerRoutine(compat(siphash13, key=seed.to_bytes())),
+    }
+    yield {
+        "name": "SipHash-2-4",
+        "length": Length.BIT_64,
+        "hasher": EagerRoutine(compat(siphash24, key=seed.to_bytes())),
     }
     yield {
         "name": "GxHash128",
