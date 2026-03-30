@@ -26,6 +26,6 @@ jobs:
         run: rustup component add clippy rustfmt
 
       - name: Run pre-commit
-        uses: j178/prek-action@v2.0.0
+        uses: j178/prek-action@v2.0.1
         with:
           extra-args: --last-commit
