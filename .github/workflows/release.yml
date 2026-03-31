@@ -32,7 +32,7 @@ jobs:
           ssh-key: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Install commitizen
-        uses: commitizen-tools/setup-cz@v0.7.0
+        uses: commitizen-tools/setup-cz@v0.7.1
 
       - name: Get next ${{ inputs.release-type }} revision
         id: get-revision
