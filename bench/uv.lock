@@ -41,8 +41,8 @@ requires-dist = [
 dev = [
     { name = "nodejs-wheel-binaries", specifier = ">=24.14.1" },
     { name = "pyright", specifier = ">=1.1.408" },
-    { name = "ruff", specifier = ">=0.15.8" },
-    { name = "ty", specifier = ">=0.0.27" },
+    { name = "ruff", specifier = ">=0.15.9" },
+    { name = "ty", specifier = ">=0.0.29" },
 ]
 
 [[package]]
