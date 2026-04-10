@@ -64,7 +64,7 @@ jobs:
           persist-credentials: false
 
       - name: Uninstall Rust
-        if: matrix.python-version != 3.8
+        if: matrix.python-version != 3.8 && matrix.runs-on != 'windows-11-arm'
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv with Python ${{ matrix.python-version }}
