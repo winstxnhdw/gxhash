@@ -1,11 +1,23 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
 	"ignoreDeps": ["commitizen"],
-    "packageRules": [
-        {
-            "matchCategories": ["python"],
-            "matchFileNames": ["pyproject.toml"],
-            "enabled": false
-        }
-    ]
+	"packageRules": [
+		{
+			"matchCategories": ["python"],
+			"matchFileNames": ["pyproject.toml"],
+			"enabled": false
+		},
+		{
+			"matchManagers": ["cargo"],
+			"matchFileNames": ["Cargo.toml", "Cargo.lock"],
+			"postUpgradeTasks": {
+				"executionMode": "branch",
+				"fileFilters": ["perf/Cargo.lock", "tests/Cargo.lock"],
+				"commands": [
+					"cargo update --manifest-path perf/Cargo.toml",
+					"cargo update --manifest-path tests/Cargo.toml"
+				]
+			}
+		}
+	]
 }

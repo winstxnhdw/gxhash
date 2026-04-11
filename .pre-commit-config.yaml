@@ -75,6 +75,11 @@ repos:
         stages: [pre-commit, pre-push]
         args: [--fix]
 
+  - repo: https://github.com/biomejs/pre-commit
+    rev: v2.4.11
+    hooks:
+      - id: biome-format
+
   - repo: https://github.com/pre-commit/mirrors-clang-format
     rev: v22.1.3
     hooks:
