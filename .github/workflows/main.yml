@@ -218,7 +218,7 @@ jobs:
       - name: Download coverage report artifact
         uses: actions/download-artifact@v8.0.1
         with:
-          name: coverage
+          pattern: coverage
 
       - name: Upload coverage reports to Codecov
         if: github.event_name != 'workflow_dispatch'
