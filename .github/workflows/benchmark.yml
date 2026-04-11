@@ -47,7 +47,7 @@ jobs:
         run: cargo run --locked --manifest-path "$UV_PROJECT/Cargo.toml" -- vaes
 
       - name: Upload charts
-        uses: actions/upload-artifact@v7.0.0
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: charts
           if-no-files-found: error
