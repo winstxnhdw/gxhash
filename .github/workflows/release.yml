@@ -30,7 +30,7 @@ jobs:
         with:
           show-progress: false
           fetch-depth: 0
-          ssh-key: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Install commitizen
         uses: commitizen-tools/setup-cz@v0.9.0
