@@ -165,6 +165,7 @@ jobs:
           RUSTUP_TOOLCHAIN: 1.83.0
 
   coverage:
+    if: github.event_name != 'workflow_call'
     runs-on: ubuntu-latest
 
     steps:
@@ -220,6 +221,7 @@ jobs:
           name: coverage
 
       - name: Upload coverage reports to Codecov
+        if: github.event_name != 'workflow_call'
         uses: codecov/codecov-action@v6.0.0
         with:
           fail_ci_if_error: true

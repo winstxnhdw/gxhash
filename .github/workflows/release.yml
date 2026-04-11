@@ -14,7 +14,8 @@ permissions: {}
 jobs:
   main:
     uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
-    secrets: inherit
+    permissions:
+      id-token: write
 
   python:
     uses: winstxnhdw/gxhash/.github/workflows/python.yml@main
