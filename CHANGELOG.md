@@ -4,6 +4,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0]
+
+Released on 2026-04-11
+
+### Fixed
+
+- update all dependencies (#158)
+- update all dependencies (#128)
+- update all dependencies (#121)
+
+### Changed
+
+- update `pygments`
+- increase minimum `maturin` version to fix Windows install (#124)
+- separate lazy hashlib note from warning
+- bump rustls-webpki (#130)
+- bump quinn-proto (#122)
+- turn on pedantic lints
+- remove nightly tag
+- rename positional parameter names in stub
+- add footnote
+
 ## [0.5.2]
 
 Released on 2026-03-06
