@@ -8,7 +8,7 @@ Released on {{ entry.date }}
 ### {{ change_key }}
 
 {% for change in changes %}
-- {{ change.message }}
+- {{ change.message }}{{ " (" ~ change.sha1[:7] ~ ")" if "(#" not in change.message else "" }}
 {% endfor %}
 {% endif %}
 {% endfor %}

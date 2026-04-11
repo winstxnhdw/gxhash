@@ -16,15 +16,15 @@ Released on 2026-04-11
 
 ### Changed
 
-- update `pygments`
+- update `pygments` (2c32586)
 - increase minimum `maturin` version to fix Windows install (#124)
-- separate lazy hashlib note from warning
+- separate lazy hashlib note from warning (5c0aa09)
 - bump rustls-webpki (#130)
 - bump quinn-proto (#122)
-- turn on pedantic lints
-- remove nightly tag
-- rename positional parameter names in stub
-- add footnote
+- turn on pedantic lints (adbe362)
+- remove nightly tag (7b04b99)
+- rename positional parameter names in stub (0b43d12)
+- add footnote (87338ee)
 
 ## [0.5.2]
 
