@@ -28,7 +28,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.8
           - 3.9
           - "3.10"
           - 3.11
@@ -54,12 +53,7 @@ jobs:
           persist-credentials: false
 
       - name: Uninstall Rust
-        if: matrix.python-version != 3.8
         run: rustup self uninstall -y || brew uninstall rustup
-
-      - name: Add x64 Rust target on Windows ARM
-        if: matrix.python-version == 3.8 && matrix.runs-on == 'windows-11-arm'
-        run: rustup target add x86_64-pc-windows-msvc
 
       - name: Install uv with Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v8.0.0
@@ -81,7 +75,6 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 3.8
           - 3.9
           - "3.10"
           - 3.11
@@ -100,9 +93,6 @@ jobs:
           - windows-11-arm
 
         exclude:
-          - runs-on: windows-11-arm
-            python-version: 3.8
-
           - runs-on: windows-11-arm
             python-version: 3.9
 
