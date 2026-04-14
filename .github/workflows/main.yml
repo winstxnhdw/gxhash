@@ -27,17 +27,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        python-version:
-          - 3.8
-          - 3.9
-          - "3.10"
-          - 3.11
-          - 3.12
-          - 3.13
-          - 3.13t
-          - 3.14
-          - 3.14t
-
+        python-version: [3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
@@ -45,16 +35,6 @@ jobs:
           - macos-26-intel
           - windows-latest
           - windows-11-arm
-
-        exclude:
-          - runs-on: windows-11-arm
-            python-version: 3.8
-
-          - runs-on: windows-11-arm
-            python-version: 3.9
-
-          - runs-on: windows-11-arm
-            python-version: "3.10"
 
     steps:
       - name: Checkout repository
@@ -64,13 +44,12 @@ jobs:
           persist-credentials: false
 
       - name: Uninstall Rust
-        if: matrix.python-version != 3.8
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv with Python ${{ matrix.python-version }}
         uses: astral-sh/setup-uv@v8.0.0
         with:
-          python-version: ${{ matrix.python-version }}-${{ !startsWith(runner.arch, 'ARM') && 'x86_64' || 'arm64' }}
+          python-version: ${{ matrix.python-version }}-${{ startsWith(runner.arch, 'ARM') && runner.os != 'Windows' && 'arm64' || 'x86_64' }}
           activate-environment: true
 
       - name: Build sdist
@@ -86,17 +65,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
-        python-version:
-          - 3.8
-          - 3.9
-          - "3.10"
-          - 3.11
-          - 3.12
-          - 3.13
-          - 3.13t
-          - 3.14
-          - 3.14t
-
+        python-version: [3.9, "3.10", 3.11, 3.12, 3.13, 3.13t, 3.14, 3.14t]
         runs-on:
           - ubuntu-latest
           - ubuntu-24.04-arm
@@ -106,9 +75,6 @@ jobs:
           - windows-11-arm
 
         exclude:
-          - runs-on: windows-11-arm
-            python-version: 3.8
-
           - runs-on: windows-11-arm
             python-version: 3.9
 

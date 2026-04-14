@@ -7,13 +7,13 @@ We welcome all kinds of contributions. _You don't need to be an expert in Python
 <summary>An exhaustive (probably) list of checks for <code>gxhash-py</code></summary>
 <br>
 
-- Package installation matrix across all non-/free-threaded Python 3.8-3.14 and Ubuntu/macOS/Windows on x64/ARM64
-- Cargo matrix test (Rust/PyO3) across all non-/free-threaded Python 3.8-3.14 and Ubuntu/macOS/Windows on x64/ARM64
+- Package installation matrix across all non-/free-threaded Python 3.9-3.14 and Ubuntu/macOS/Windows on x64/ARM64
+- Cargo matrix test (Rust/PyO3) across all non-/free-threaded Python 3.9-3.14 and Ubuntu/macOS/Windows on x64/ARM64
 - Rust MSRV override build matrix test across Ubuntu/macOS/Windows
 - Rust code coverage generation
 - Clippy linting for all Rust workspaces
 - Python formatting
-- Python doc/test/lint/type-checking across Python 3.8-3.14
+- Python doc/test/lint/type-checking across Python 3.9-3.14
 - CodSpeed performance regression analysis test
 - Source distribution content analysis with manual review gate on publish
 - Smoke test with privileged approval gate on publish
