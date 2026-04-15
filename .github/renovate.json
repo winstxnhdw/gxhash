@@ -9,7 +9,7 @@
 		},
 		{
 			"matchManagers": ["cargo"],
-			"matchFileNames": ["Cargo.toml", "Cargo.lock"],
+			"matchFileNames": ["**/Cargo.toml", "**/Cargo.lock"],
 			"postUpgradeTasks": {
 				"executionMode": "branch",
 				"fileFilters": ["perf/Cargo.lock", "tests/Cargo.lock"],
