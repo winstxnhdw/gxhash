@@ -22,7 +22,7 @@ bench = "src:main"
 dev = [
   "nodejs-wheel-binaries>=24.14.1",
   "pyright>=1.1.408",
-  "ruff>=0.15.10",
+  "ruff>=0.15.11",
   "ty>=0.0.31",
 ]
 
