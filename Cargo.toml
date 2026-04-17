@@ -42,7 +42,7 @@ version = "3.5.0"
 default-features = false
 
 [dependencies.tokio]
-version = "1.52.0"
+version = "1.52.1"
 default-features = false
 features = ["rt-multi-thread"]
 
