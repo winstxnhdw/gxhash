@@ -9,7 +9,7 @@ dependencies = [
   "gxhash",
   "metrohash>=0.4.1",
   "mmh3>=5.2.1",
-  "polars>=1.39.3",
+  "polars>=1.40.0",
   "siphash24>=1.8",
   "stringzilla>=4.6.0",
   "xxhash>=3.6.0",
