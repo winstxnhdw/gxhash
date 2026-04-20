@@ -45,7 +45,7 @@ jobs:
         working-directory: ${{ env.BENCHMARK_PATH }}
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v4.13.1
+        uses: CodSpeedHQ/action@v4.14.0
         with:
           working-directory: ${{ env.BENCHMARK_PATH }}
           mode: simulation
