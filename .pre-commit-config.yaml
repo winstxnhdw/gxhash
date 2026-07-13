@@ -150,7 +150,7 @@ repos:
         name: cargo test
         stages: [pre-push]
         language: system
-        files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$
+        files: ^(src/|tests/).*\.rs$|^Cargo\.(toml|lock)$|^build\.rs$|^\.cargo/
         pass_filenames: false
         entry: >-
           sh -c "
@@ -194,7 +194,7 @@ repos:
         name: clippy
         stages: [pre-commit, pre-push]
         language: system
-        files: ^src/.*\.rs$|^build\.rs$
+        files: ^src/.*\.rs$|^build\.rs$|^\.cargo/
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty
 
@@ -202,7 +202,7 @@ repos:
         name: clippy (bench)
         stages: [pre-commit, pre-push]
         language: system
-        files: ^bench/.*\.rs$|^bench/Cargo\.toml$
+        files: ^bench/.*\.rs$|^bench/Cargo\.toml$|^\.cargo/
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path bench/Cargo.toml
 
@@ -210,7 +210,7 @@ repos:
         name: clippy (tests)
         stages: [pre-commit, pre-push]
         language: system
-        files: ^tests/.*\.rs$|^tests/Cargo\.toml$
+        files: ^tests/.*\.rs$|^tests/Cargo\.toml$|^\.cargo/
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path tests/Cargo.toml --tests
 
@@ -218,7 +218,7 @@ repos:
         name: clippy (perf)
         stages: [pre-commit, pre-push]
         language: system
-        files: ^perf/.*\.rs$|^perf/Cargo\.toml$
+        files: ^perf/.*\.rs$|^perf/Cargo\.toml$|^\.cargo/
         pass_filenames: false
         entry: cargo clippy --locked --fix --allow-dirty --manifest-path perf/Cargo.toml --benches
 
