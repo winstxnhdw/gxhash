@@ -23,6 +23,8 @@ jobs:
   release:
     needs: [main, python]
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TYPE: ${{ inputs.release-type }}
 
     steps:
       - name: Checkout repository
@@ -38,12 +40,8 @@ jobs:
       - name: Get next ${{ inputs.release-type }} revision
         id: get-revision
         run: echo "revision=$(cz bump --get-next --increment "$RELEASE_TYPE")" > "$GITHUB_OUTPUT"
-        env:
-          RELEASE_TYPE: ${{ inputs.release-type }}
 
       - name: Create bump and changelog
-        env:
-          RELEASE_TYPE: ${{ inputs.release-type }}
         run: >-
           cz bump
           --increment "$RELEASE_TYPE"
