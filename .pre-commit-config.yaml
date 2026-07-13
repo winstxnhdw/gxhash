@@ -46,6 +46,11 @@ repos:
       - id: commitizen
         stages: [commit-msg]
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
   - repo: https://github.com/astral-sh/uv-pre-commit
     rev: 0.11.28
     hooks:
