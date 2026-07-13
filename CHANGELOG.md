@@ -4,6 +4,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0]
+
+Released on 2026-07-13
+
+### Fixed
+
+- update all dependencies (#188)
+- update all dependencies (#185)
+- update all dependencies (#179)
+- update dependency polars to >=1.40.0 (#175)
+- update all dependencies (#173)
+- update all dependencies (#170)
+
+### Changed
+
+- drop support for Python 3.13t (64715b3)
+- bump `pyo3` (bd5c991)
+- make build flags additive (dade3a4)
+- drop Python 3.8 (#168)
+- add commit hash to non-PR commits (40f0017)
+
 ## [0.6.0]
 
 Released on 2026-04-11
