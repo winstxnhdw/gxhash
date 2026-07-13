@@ -47,6 +47,7 @@ jobs:
           --increment "$RELEASE_TYPE"
           --yes
           --changelog
+          --no-verify
           --git-output-to-stderr
           --changelog-to-stdout | tail -n +2 > body.md
 
