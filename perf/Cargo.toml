@@ -20,4 +20,4 @@ gxhash = { path = "..", package = "gxhash-py" }
 pyo3 = { version = "0.29.0", default-features = false, features = ["macros"] }
 
 [dev-dependencies]
-divan = { version = "=4.6.0", package = "codspeed-divan-compat" }
+divan = { version = "=5.0.1", package = "codspeed-divan-compat" }

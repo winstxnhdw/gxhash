@@ -41,13 +41,13 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.15.0
+    rev: v4.16.4
     hooks:
       - id: commitizen
         stages: [commit-msg]
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.11.8
+    rev: 0.11.28
     hooks:
       - id: uv-lock
         name: uv lock
@@ -64,7 +64,7 @@ repos:
         args: [--project, bench]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
+    rev: v0.15.21
     hooks:
       - id: ruff-format
         name: ruff format
@@ -76,19 +76,19 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/biomejs/pre-commit
-    rev: v2.4.14
+    rev: v2.5.3
     hooks:
       - id: biome-format
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v22.1.4
+    rev: v22.1.8
     hooks:
       - id: clang-format
         types_or: [c]
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.22.1
+    rev: v0.23.0
     hooks:
       - id: markdownlint-cli2
         name: markdownlint

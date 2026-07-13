@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
@@ -57,7 +57,7 @@ jobs:
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv with Python ${{ matrix.python-version }}
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: ${{ matrix.python-version }}-${{ matrix.python-architecture || startsWith(runner.arch, 'ARM') && 'arm64' || 'x86_64' }}
           activate-environment: true
@@ -93,13 +93,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v6.3.0
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ startsWith(runner.arch, 'ARM') && 'arm64' || 'x64' }}
@@ -121,13 +121,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.1.0
+        uses: astral-sh/setup-uv@v8.3.2
         with:
           activate-environment: true
 
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
@@ -186,7 +186,7 @@ jobs:
         run: exit 1
 
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
@@ -198,7 +198,7 @@ jobs:
 
       - name: Upload coverage reports to Codecov
         if: github.event_name != 'workflow_dispatch'
-        uses: codecov/codecov-action@v6.0.2
+        uses: codecov/codecov-action@v7.0.0
         with:
           fail_ci_if_error: true
           use_oidc: true
