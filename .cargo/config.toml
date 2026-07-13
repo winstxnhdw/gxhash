@@ -1,5 +1,5 @@
-[build]
+[target.'cfg(all())']
 rustflags = ["-C", "target-cpu=native"]
 
 [target.aarch64-apple-darwin]
-rustflags = ["-C", "target-cpu=native", "-C", "target-feature=+aes,+neon"]
+rustflags = ["-C", "target-feature=+aes,+neon"]

@@ -7,6 +7,7 @@ on:
     branches: ["**"]
     paths:
       - .github/workflows/main.yml
+      - .cargo/**
       - pyproject.toml
       - uv.lock
       - Cargo.toml

@@ -6,6 +6,7 @@ on:
     branches: ["**"]
     paths:
       - .github/workflows/performance.yml
+      - .cargo/**
       - Cargo.toml
       - Cargo.lock
       - rust-toolchain.toml
@@ -15,7 +16,6 @@ on:
 
 permissions: {}
 env:
-  RUSTFLAGS: -C target-feature=+aes,+ssse3
   BENCHMARK_PATH: perf
 
 jobs:
