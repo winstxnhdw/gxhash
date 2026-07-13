@@ -25,18 +25,18 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v7.0.0
         with:
           show-progress: false
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v6.2.0
+        uses: actions/setup-python@v6.3.0
         with:
-          python-version: 3.14.4
+          python-version: 3.14.6
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.76.0
+        uses: taiki-e/install-action@v2.83.2
         with:
           tool: cargo-codspeed
 
@@ -45,7 +45,7 @@ jobs:
         working-directory: ${{ env.BENCHMARK_PATH }}
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v4.15.0
+        uses: CodSpeedHQ/action@v4.18.5
         with:
           working-directory: ${{ env.BENCHMARK_PATH }}
           mode: simulation
