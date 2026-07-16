@@ -37,6 +37,9 @@ ext-modules = [
   { name = "src.compat", sources = ["src/compat.c"], extra-compile-args = ["-march=native", "-Werror"] },   # compat
 ]
 
+[tool.uv]
+required-version = "==0.11.29"
+
 [tool.uv.sources]
 gxhash = { path = "../" }
 
