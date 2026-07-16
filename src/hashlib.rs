@@ -41,17 +41,14 @@ trait HexDigest {
 
 impl HexDigest for u32 {
     #[cfg(target_arch = "x86_64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(8);
 
         unsafe {
-            let table = x86_64::_mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
-                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-            );
-
-            let input = x86_64::_mm_cvtsi32_si128(self as i32);
+            let table = x86_64::_mm_loadu_si128(b"0123456789abcdef".as_ptr().cast());
+            let input = x86_64::_mm_cvtsi32_si128(i32::from_ne_bytes(self.to_ne_bytes()));
             let mask = x86_64::_mm_set1_epi8(0x0F);
             let lo = x86_64::_mm_and_si128(input, mask);
             let hi = x86_64::_mm_and_si128(x86_64::_mm_srli_epi16(input, 4), mask);
@@ -66,6 +63,7 @@ impl HexDigest for u32 {
     }
 
     #[cfg(target_arch = "aarch64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(8);
@@ -88,17 +86,15 @@ impl HexDigest for u32 {
 
 impl HexDigest for u64 {
     #[cfg(target_arch = "x86_64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(16);
 
         unsafe {
-            let table = x86_64::_mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
-                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-            );
+            let table = x86_64::_mm_loadu_si128(b"0123456789abcdef".as_ptr().cast());
 
-            let input = x86_64::_mm_cvtsi64_si128(self as i64);
+            let input = x86_64::_mm_cvtsi64_si128(i64::from_ne_bytes(self.to_ne_bytes()));
             let mask = x86_64::_mm_set1_epi8(0x0F);
             let lo = x86_64::_mm_and_si128(input, mask);
             let hi = x86_64::_mm_and_si128(x86_64::_mm_srli_epi16(input, 4), mask);
@@ -114,6 +110,7 @@ impl HexDigest for u64 {
     }
 
     #[cfg(target_arch = "aarch64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(16);
@@ -133,17 +130,14 @@ impl HexDigest for u64 {
 
 impl HexDigest for u128 {
     #[cfg(target_arch = "x86_64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(32);
 
         unsafe {
-            let table = x86_64::_mm_setr_epi8(
-                b'0' as i8, b'1' as i8, b'2' as i8, b'3' as i8, b'4' as i8, b'5' as i8, b'6' as i8, b'7' as i8,
-                b'8' as i8, b'9' as i8, b'a' as i8, b'b' as i8, b'c' as i8, b'd' as i8, b'e' as i8, b'f' as i8,
-            );
-
-            let input = x86_64::_mm_set_epi64x((self >> 64) as i64, self as i64);
+            let table = x86_64::_mm_loadu_si128(b"0123456789abcdef".as_ptr().cast());
+            let input = x86_64::_mm_loadu_si128(self.to_le_bytes().as_ptr().cast());
             let mask = x86_64::_mm_set1_epi8(0x0F);
             let lo = x86_64::_mm_and_si128(input, mask);
             let hi = x86_64::_mm_and_si128(x86_64::_mm_srli_epi16(input, 4), mask);
@@ -165,6 +159,7 @@ impl HexDigest for u128 {
     }
 
     #[cfg(target_arch = "aarch64")]
+    #[allow(clippy::inline_always)]
     #[inline(always)]
     fn hexdigest(self) -> String {
         let mut hex = Vec::<u8>::with_capacity(32);
@@ -299,8 +294,8 @@ fn new<'py>(
 #[pyo3(signature = (fileobj, digest, /, *, seed = 0, **kwargs))]
 fn file_digest<'py>(
     py: Python<'py>,
-    fileobj: Bound<'py, PyAny>,
-    digest: Bound<'py, PyAny>,
+    fileobj: &Bound<'py, PyAny>,
+    digest: &Bound<'py, PyAny>,
     seed: i64,
     kwargs: Option<Bound<'py, PyDict>>,
 ) -> PyResult<Bound<'py, PyAny>> {
@@ -320,7 +315,7 @@ fn file_digest<'py>(
 
         let bytes = pyo3::types::PyBytes::new_with(
             py,
-            (file.metadata()?.len() - file.stream_position()?) as usize,
+            usize::try_from(file.metadata()?.len() - file.stream_position()?)?,
             |buffer| py.detach(|| (&*file).read_exact(buffer).map_err(Into::into)),
         );
 
