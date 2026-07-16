@@ -15,6 +15,7 @@ on:
       - rust-toolchain.toml
       - build.rs
       - src/**
+      - tests/.config/**
       - tests/**.rs
       - "!bench/**"
 
@@ -104,8 +105,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ startsWith(runner.arch, 'ARM') && 'arm64' || 'x64' }}
 
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
       - name: Test
-        run: cargo test --locked --manifest-path tests/Cargo.toml
+        run: cargo nextest run --locked --manifest-path tests/Cargo.toml
 
   override:
     runs-on: ${{ matrix.runs-on }}
@@ -154,23 +158,29 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
-      - name: Generate coverage report
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Generate coverage and test reports
         run: >-
-          cargo llvm-cov
+          cargo llvm-cov nextest
           --all-features
           --manifest-path tests/Cargo.toml
           --locked
+          --profile ci
           --lcov
           --no-rustc-wrapper
           --fail-under-lines 80
           --ignore-filename-regex tests
           --output-path lcov.info
 
-      - name: Upload coverage report artifact
+      - name: Upload report artifacts
         uses: actions/upload-artifact@v7.0.1
         with:
           name: coverage
-          path: lcov.info
+          path: |
+            lcov.info
+            tests/target/nextest/ci/junit.xml
           if-no-files-found: error
 
   report:
@@ -191,15 +201,26 @@ jobs:
           show-progress: false
           persist-credentials: false
 
-      - name: Download coverage report artifact
+      - name: Download report artifacts
         uses: actions/download-artifact@v8.0.1
         with:
-          pattern: coverage
+          name: coverage
 
-      - name: Upload coverage reports to Codecov
+      - name: Upload coverage report to Codecov
         if: github.event_name != 'workflow_dispatch'
         uses: codecov/codecov-action@v7.0.0
         with:
+          disable_search: true
           fail_ci_if_error: true
           use_oidc: true
           files: lcov.info
+
+      - name: Upload test results to Codecov
+        if: github.event_name != 'workflow_dispatch'
+        uses: codecov/codecov-action@v7.0.0
+        with:
+          disable_search: true
+          fail_ci_if_error: true
+          use_oidc: true
+          files: tests/target/nextest/ci/junit.xml
+          report_type: test_results
