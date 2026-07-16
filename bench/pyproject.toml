@@ -22,8 +22,8 @@ bench = "src:main"
 dev = [
   "nodejs-wheel-binaries>=24.16.0",
   "pyright>=1.1.411",
-  "ruff>=0.15.21",
-  "ty>=0.0.59",
+  "ruff>=0.15.22",
+  "ty>=0.0.60",
 ]
 
 [build-system]
