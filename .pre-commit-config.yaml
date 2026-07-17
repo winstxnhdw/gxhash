@@ -93,7 +93,7 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.23.0
+    rev: v0.23.1
     hooks:
       - id: markdownlint-cli2
         name: markdownlint
