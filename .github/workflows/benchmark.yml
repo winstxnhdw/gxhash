@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout wiki
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           repository: ${{ github.repository }}.wiki

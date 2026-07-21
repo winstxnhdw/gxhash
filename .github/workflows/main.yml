@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
@@ -94,7 +94,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
@@ -150,7 +150,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
@@ -196,7 +196,7 @@ jobs:
         run: exit 1
 
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
