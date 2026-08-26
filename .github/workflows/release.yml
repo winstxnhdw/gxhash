@@ -13,12 +13,12 @@ permissions: {}
 
 jobs:
   main:
-    uses: winstxnhdw/gxhash/.github/workflows/main.yml@main
+    uses: winstxnhdw/gxhash/.github/workflows/main.yml@c6bc84471f2ac9f6a36c0be1015d4c7ef45d3704 # main
     permissions:
       id-token: write
 
   python:
-    uses: winstxnhdw/gxhash/.github/workflows/python.yml@main
+    uses: winstxnhdw/gxhash/.github/workflows/python.yml@c6bc84471f2ac9f6a36c0be1015d4c7ef45d3704 # main
 
   release:
     needs: [main, python]
