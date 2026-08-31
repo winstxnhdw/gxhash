@@ -42,7 +42,7 @@ jobs:
   push:
     if: needs.lock.outputs.patched
     needs: lock
-    uses: winstxnhdw/actions/.github/workflows/format-push.yml@f43de6b5804c7609cb6f13864e2d18a70301469e # main
+    uses: winstxnhdw/actions/.github/workflows/format-push.yml@main
     with:
       message: "build: update `gxhash-perf` and `gxhash-tests` lockfiles"
     secrets:

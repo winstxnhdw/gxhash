@@ -38,7 +38,7 @@ ext-modules = [
 ]
 
 [tool.uv]
-required-version = "==0.11.29"
+required-version = "==0.12.7"
 
 [tool.uv.sources]
 gxhash = { path = "../" }
