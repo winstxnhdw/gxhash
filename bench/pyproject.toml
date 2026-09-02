@@ -3,16 +3,16 @@ name = "bench"
 version = "0.0.0"
 description = "Benchmark suite for GxHash"
 readme = "README.md"
-requires-python = ">=3.14.6"
+requires-python = ">=3.14.7"
 dependencies = [
   "cityhash>=0.4.10",
   "gxhash",
   "metrohash>=0.4.1",
-  "mmh3>=5.2.1",
-  "polars>=1.42.1",
+  "mmh3>=5.3.0",
+  "polars>=1.44.1",
   "siphash24>=1.8",
-  "stringzilla>=4.6.2",
-  "xxhash>=3.8.1",
+  "stringzilla>=5.1.2",
+  "xxhash>=4.0.1",
 ]
 
 [project.scripts]
@@ -20,10 +20,10 @@ bench = "src:main"
 
 [dependency-groups]
 dev = [
-  "nodejs-wheel-binaries>=24.16.0",
+  "nodejs-wheel-binaries>=24.19.0",
   "pyright>=1.1.411",
-  "ruff>=0.15.22",
-  "ty>=0.0.61",
+  "ruff>=0.16.5",
+  "ty>=0.0.77",
 ]
 
 [build-system]
