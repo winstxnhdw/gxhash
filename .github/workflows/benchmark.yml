@@ -21,25 +21,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.3.2
+        uses: astral-sh/setup-uv@v10.0.1
 
       - name: Install Python dependenc(ies)
         run: uv sync
 
       - name: Generate benchmark results
-        run: sudo -E nice -n -20 ionice -c 1 -n 0 $(which uv) run bench
+        run: sudo -E nice -n -20 ionice -c 1 -n 0 "$(which uv)" run bench
 
       - name: Render charts
         run: cargo run --locked --manifest-path "$UV_PROJECT/Cargo.toml"
 
       - name: Generate benchmark results with VAES
-        run: sudo -E nice -n -20 ionice -c 1 -n 0 $(which uv) run --reinstall bench
+        run: sudo -E nice -n -20 ionice -c 1 -n 0 "$(which uv)" run --reinstall bench
         env:
           MATURIN_PEP517_ARGS: --features hybrid
 
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Checkout wiki
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           show-progress: false
           repository: ${{ github.repository }}.wiki
