@@ -40,7 +40,7 @@ jobs:
 
       - name: Compare sdist files
         id: new-files
-        run: echo "added=$(comm -13 previous.txt current.txt | tr '\n' ' ')" > $GITHUB_OUTPUT
+        run: echo "added=$(comm -13 previous.txt current.txt | tr '\n' ' ')" > "$GITHUB_OUTPUT"
 
   review:
     if: needs.compare.outputs.added
