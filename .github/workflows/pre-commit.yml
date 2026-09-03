@@ -1,13 +1,9 @@
 name: Pre-commit
 
 on:
-  workflow_call:
   pull_request:
   push:
     branches: ["**"]
-    paths:
-      - "**"
-      - .cargo/**
 
 permissions: {}
 
