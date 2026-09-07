@@ -36,7 +36,7 @@ jobs:
           python-version: 3.14.7
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.87.7
+        uses: taiki-e/install-action@v2.87.8
         with:
           tool: cargo-codspeed
 
