@@ -41,7 +41,7 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.18.1
+    rev: v4.19.0
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -52,7 +52,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.17
+    rev: 0.12.18
     hooks:
       - id: uv-lock
         name: uv lock
