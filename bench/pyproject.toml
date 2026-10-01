@@ -8,7 +8,7 @@ dependencies = [
   "cityhash>=0.4.10",
   "gxhash",
   "metrohash>=0.4.1",
-  "mmh3>=5.3.0",
+  "mmh3>=5.3.1",
   "polars>=1.44.2",
   "siphash24>=1.9",
   "stringzilla>=5.1.2",
