@@ -52,7 +52,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.21
+    rev: 0.13.0
     hooks:
       - id: uv-lock
         name: uv lock
@@ -106,7 +106,7 @@ repos:
         stages: [commit-msg]
         language: system
         entry: |
-          uv run --no-project --python 3.14 python -c "
+          uv run --no-project --python 3.15 python -c "
             from sys import argv
             lines = [line for line in open(argv[1]) if not line.startswith('#')]
             exit('line 2 must be blank' if len(lines) > 1 and lines[1].strip() else 0)
