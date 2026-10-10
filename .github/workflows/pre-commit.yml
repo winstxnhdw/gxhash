@@ -19,12 +19,12 @@ jobs:
           fetch-depth: 2
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.2.0
+        uses: astral-sh/setup-uv@v10.3.0
 
       - name: Install Clippy and Rustfmt
         run: rustup component add clippy rustfmt
 
       - name: Run pre-commit
-        uses: j178/prek-action@v3.0.0
+        uses: j178/prek-action@v3.0.1
         with:
           extra-args: --last-commit
