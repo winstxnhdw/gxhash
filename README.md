@@ -3,7 +3,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-black?logo=github)](https://github.com/winstxnhdw/gxhash)
 [![PyPi](https://img.shields.io/pypi/v/gxhash)](https://pypi.python.org/pypi/gxhash)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/gxhash)](https://pypi.python.org/pypi/gxhash)
-[![python](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14-blue)](https://www.python.org/)
+[![python](https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11%20|%203.12%20|%203.13%20|%203.14|%203.15-blue)](https://www.python.org/)
 [![codecov](https://codecov.io/github/winstxnhdw/gxhash/graph/badge.svg?token=L5FVMJTQUB)](https://codecov.io/github/winstxnhdw/gxhash)
 [![main.yml](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml/badge.svg)](https://github.com/winstxnhdw/gxhash/actions/workflows/main.yml)
 
@@ -93,9 +93,11 @@ Hashing bytes.
 ```python
 from gxhash import GxHash32
 
+
 def main() -> None:
     gxhash = GxHash32(seed=0)
     result = gxhash.hash(b"Hello, world!")
+
 
 if __name__ == "__main__":
     main()
@@ -110,9 +112,11 @@ Hashing bytes asynchronously.
 from asyncio import run
 from gxhash import GxHash128
 
+
 async def main() -> None:
     gxhash = GxHash128(seed=0)
     result = await gxhash.hash_async(b"Hello, world!")
+
 
 if __name__ == "__main__":
     run(main())
@@ -126,9 +130,11 @@ As a drop-in replacement for `hashlib`, hash computations are deferred and only 
 ```python
 from gxhash.hashlib import gxhash128
 
+
 def main() -> None:
     hasher = gxhash128(data=b"Hello, world!", seed=0)
     result = hasher.hexdigest()
+
 
 if __name__ == "__main__":
     main()
