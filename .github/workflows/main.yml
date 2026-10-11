@@ -178,13 +178,13 @@ jobs:
         uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage
+          if-no-files-found: error
           path: |
             lcov.info
             tests/target/nextest/ci/junit.xml
-          if-no-files-found: error
 
   report:
-    if: always()
+    if: always() && github.event_name != 'workflow_dispatch'
     needs: [install, test, override, coverage]
     runs-on: ubuntu-slim
     permissions:
