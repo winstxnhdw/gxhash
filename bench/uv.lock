@@ -1,6 +1,6 @@
 version = 1
 revision = 5
-requires-python = ">=3.14.7"
+requires-python = ">=3.14.8"
 
 [[package]]
 name = "bench"
@@ -30,10 +30,10 @@ requires-dist = [
     { name = "cityhash", specifier = ">=0.4.10" },
     { name = "gxhash", directory = "../" },
     { name = "metrohash", specifier = ">=0.4.1" },
-    { name = "mmh3", specifier = ">=5.3.0" },
-    { name = "polars", specifier = ">=1.44.2" },
+    { name = "mmh3", specifier = ">=5.3.1" },
+    { name = "polars", specifier = ">=2.0.0" },
     { name = "siphash24", specifier = ">=1.9" },
-    { name = "stringzilla", specifier = ">=5.1.2" },
+    { name = "stringzilla", specifier = ">=5.2.0" },
     { name = "xxhash", specifier = ">=4.0.1" },
 ]
 
@@ -41,8 +41,8 @@ requires-dist = [
 dev = [
     { name = "nodejs-wheel-binaries", specifier = ">=24.19.0" },
     { name = "pyright", specifier = ">=1.1.414" },
-    { name = "ruff", specifier = ">=0.16.9" },
-    { name = "ty", specifier = ">=0.0.84" },
+    { name = "ruff", specifier = ">=0.17.0" },
+    { name = "ty", specifier = ">=0.0.86" },
 ]
 
 [[package]]
