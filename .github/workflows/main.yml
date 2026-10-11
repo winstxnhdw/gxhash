@@ -207,7 +207,6 @@ jobs:
           name: coverage
 
       - name: Upload coverage report to Codecov
-        if: github.event_name != 'workflow_dispatch'
         uses: codecov/codecov-action@v7.1.1
         with:
           disable_search: true
@@ -216,7 +215,6 @@ jobs:
           files: lcov.info
 
       - name: Upload test results to Codecov
-        if: github.event_name != 'workflow_dispatch'
         uses: codecov/codecov-action@v7.1.1
         with:
           disable_search: true
