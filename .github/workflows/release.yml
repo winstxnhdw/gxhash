@@ -41,15 +41,13 @@ jobs:
         id: get-revision
         run: echo "revision=$(cz bump --get-next --increment "$RELEASE_TYPE")" > "$GITHUB_OUTPUT"
 
-      - name: Create bump and changelog
-        run: >-
-          cz bump
-          --increment "$RELEASE_TYPE"
-          --yes
-          --changelog
-          --no-verify
-          --git-output-to-stderr
-          --changelog-to-stdout | tail -n +2 > body.md
+      - name: Prepare release notes
+        run: cz changelog --dry-run --unreleased-version "$REVISION" | tail -n +2 > body.md
+        env:
+          REVISION: ${{ steps.get-revision.outputs.revision }}
+
+      - name: Create bump
+        run: cz bump --yes --changelog --no-verify --increment "$RELEASE_TYPE"
 
       - name: Push changelog and tag
         id: push
