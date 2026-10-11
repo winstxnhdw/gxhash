@@ -4,6 +4,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.1]
+
+Released on 2026-10-11
+
+### Added
+
+- add support for Python 3.15 (#267)
+
+### Fixed
+
+- do not report coverage on release (4866438)
+- update all dependencies (#266)
+- update all dependencies (#224)
+- update all dependencies (#223)
+- update all dependencies (#201)
+- update all dependencies (#195)
+- update all dependencies (#194)
+- apply clippy suggestions (7d8d0f6)
+
 ## [0.7.0]
 
 Released on 2026-07-13
