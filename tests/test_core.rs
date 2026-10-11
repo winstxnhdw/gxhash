@@ -1,5 +1,3 @@
-#![allow(clippy::needless_pass_by_value)]
-
 use crate::helpers::PythonExt;
 use crate::helpers::call_hash;
 use crate::helpers::call_hash_async;
@@ -8,7 +6,6 @@ use gxhash::gxhash_py;
 use pyo3::PyResult;
 use pyo3::types::IntoPyDict;
 use pyo3::types::PyAnyMethods;
-use quickcheck_macros::quickcheck;
 
 #[test]
 fn test_import_gxhash() -> PyResult<()> {
@@ -55,226 +52,349 @@ fn test_gxhash_async_error() -> PyResult<()> {
     })
 }
 
-#[quickcheck]
-fn test_gxhash32_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash32_constructor_invalid_runtime() -> PyResult<()> {
     pytest!(py, {
-        let seed = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash32()?.call((), Some(&seed))?;
-
-        let result1 = call_hash::<u32>(py, &hasher, &bytes)?;
-        let result2 = call_hash::<u32>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash64_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let seed = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash64()?.call((), Some(&seed))?;
-
-        let result1 = call_hash::<u64>(py, &hasher, &bytes)?;
-        let result2 = call_hash::<u64>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash128_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash::<u128>(py, &hasher, &bytes)?;
-        let result2 = call_hash::<u128>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash32_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash32()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash_async::<u32>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u32>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash64_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash64()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash_async::<u64>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u64>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash128_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash_async::<u128>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u128>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash32_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash32()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash::<u32>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u32>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash64_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash64()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash::<u64>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u64>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash128_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
-        let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
-        let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
-
-        let result1 = call_hash::<u128>(py, &hasher, &bytes)?;
-        let result2 = call_hash_async::<u128>(py, &hasher, &bytes)?;
-
-        assert_eq!(result1, result2);
-    })
-}
-
-#[quickcheck]
-fn test_gxhash32_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
-    pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash32()?;
 
-        let result1 = call_hash::<u32>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash::<u32>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", py.None())?;
+
+        let result = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        assert!(result.unwrap_err().is_instance_of::<pyo3::exceptions::PyTypeError>(py));
     })
 }
 
-#[quickcheck]
-fn test_gxhash64_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash64_constructor_invalid_runtime() -> PyResult<()> {
     pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash64()?;
-        let result1 = call_hash::<u64>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash::<u64>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
 
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", py.None())?;
+
+        let result = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        assert!(result.unwrap_err().is_instance_of::<pyo3::exceptions::PyTypeError>(py));
     })
 }
 
-#[quickcheck]
-fn test_gxhash128_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash128_constructor_invalid_runtime() -> PyResult<()> {
     pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash128()?;
-        let result1 = call_hash::<u128>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash::<u128>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
 
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", py.None())?;
+
+        let result = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        assert!(result.unwrap_err().is_instance_of::<pyo3::exceptions::PyTypeError>(py));
     })
 }
 
-#[quickcheck]
-fn test_gxhash32_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash32_hash_async_shutdown_runtime() -> PyResult<()> {
     pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash32()?;
-        let result1 = call_hash_async::<u32>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash_async::<u32>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
 
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", runtime.get_type().call0()?)?;
+
+        let hasher = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        let error_type = core.getattr("GxHashAsyncError")?;
+        let error = call_hash_async::<u32>(py, &hasher?, &vec![0u8; 4 << 20]).unwrap_err();
+
+        assert!(error.is_instance(py, &error_type));
     })
 }
 
-#[quickcheck]
-fn test_gxhash64_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash64_hash_async_shutdown_runtime() -> PyResult<()> {
     pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash64()?;
-        let result1 = call_hash_async::<u64>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash_async::<u64>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
 
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", runtime.get_type().call0()?)?;
+
+        let hasher = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        let error_type = core.getattr("GxHashAsyncError")?;
+        let error = call_hash_async::<u64>(py, &hasher?, &vec![0u8; 4 << 20]).unwrap_err();
+
+        assert!(error.is_instance(py, &error_type));
     })
 }
 
-#[quickcheck]
-fn test_gxhash128_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+#[test]
+fn test_gxhash128_hash_async_shutdown_runtime() -> PyResult<()> {
     pytest!(py, {
+        let core = py.import_gxhash()?;
         let hasher_class = py.import_gxhash128()?;
-        let result1 = call_hash_async::<u128>(py, &hasher_class.call1((seed,))?, &bytes)?;
-        let result2 = call_hash_async::<u128>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
 
-        assert_ne!(result1, result2);
+        let runtime = core.getattr("runtime")?;
+        core.setattr("runtime", runtime.get_type().call0()?)?;
+
+        let hasher = hasher_class.call1((0,));
+        core.setattr("runtime", &runtime)?;
+
+        let error_type = core.getattr("GxHashAsyncError")?;
+        let error = call_hash_async::<u128>(py, &hasher?, &vec![0u8; 4 << 20]).unwrap_err();
+
+        assert!(error.is_instance(py, &error_type));
     })
 }
 
-#[quickcheck]
-fn test_gxhash32_hash_async_large_input(seed: i64) -> PyResult<()> {
-    pytest!(py, {
-        let hasher = py.import_gxhash32()?.call1((seed,))?;
-        let input = vec![0u8; 16 << 20];
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let seed = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash32()?.call((), Some(&seed))?;
 
-        let result1 = call_hash_async::<u32>(py, &hasher, &input)?;
-        let result2 = call_hash::<u32>(py, &hasher, &input)?;
+            let result1 = call_hash::<u32>(py, &hasher, &bytes)?;
+            let result2 = call_hash::<u32>(py, &hasher, &bytes)?;
 
-        assert_eq!(result1, result2);
-    })
+            assert_eq!(result1, result2);
+        })
+    }
 }
 
-#[quickcheck]
-fn test_gxhash64_hash_async_large_input(seed: i64) -> PyResult<()> {
-    pytest!(py, {
-        let hasher = py.import_gxhash64()?.call1((seed,))?;
-        let input = vec![0u8; 16 << 20];
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let seed = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash64()?.call((), Some(&seed))?;
 
-        let result1 = call_hash_async::<u64>(py, &hasher, &input)?;
-        let result2 = call_hash::<u64>(py, &hasher, &input)?;
+            let result1 = call_hash::<u64>(py, &hasher, &bytes)?;
+            let result2 = call_hash::<u64>(py, &hasher, &bytes)?;
 
-        assert_eq!(result1, result2);
-    })
+            assert_eq!(result1, result2);
+        })
+    }
 }
 
-#[quickcheck]
-fn test_gxhash128_hash_async_large_input(seed: i64) -> PyResult<()> {
-    pytest!(py, {
-        let hasher = py.import_gxhash128()?.call1((seed,))?;
-        let input = vec![0u8; 16 << 20];
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
 
-        let result1 = call_hash_async::<u128>(py, &hasher, &input)?;
-        let result2 = call_hash::<u128>(py, &hasher, &input)?;
+            let result1 = call_hash::<u128>(py, &hasher, &bytes)?;
+            let result2 = call_hash::<u128>(py, &hasher, &bytes)?;
 
-        assert_eq!(result1, result2);
-    })
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash32()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash_async::<u32>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u32>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash64()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash_async::<u64>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u64>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash_async(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash_async::<u128>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u128>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash32()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash::<u32>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u32>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash64()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash::<u64>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u64>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash_sync_async_equality(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_kwargs = [("seed", seed)].into_py_dict(py)?;
+            let hasher = py.import_gxhash128()?.call((), Some(&hasher_kwargs))?;
+
+            let result1 = call_hash::<u128>(py, &hasher, &bytes)?;
+            let result2 = call_hash_async::<u128>(py, &hasher, &bytes)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash32()?;
+
+            let result1 = call_hash::<u32>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash::<u32>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash64()?;
+            let result1 = call_hash::<u64>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash::<u64>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash128()?;
+            let result1 = call_hash::<u128>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash::<u128>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash32()?;
+            let result1 = call_hash_async::<u32>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash_async::<u32>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash64()?;
+            let result1 = call_hash_async::<u64>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash_async::<u64>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash_async_seed_change(seed: i64, bytes: Vec<u8>) -> PyResult<()> {
+        pytest!(py, {
+            let hasher_class = py.import_gxhash128()?;
+            let result1 = call_hash_async::<u128>(py, &hasher_class.call1((seed,))?, &bytes)?;
+            let result2 = call_hash_async::<u128>(py, &hasher_class.call1((seed.wrapping_add(1),))?, &bytes)?;
+
+            assert_ne!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash32_hash_async_large_input(seed: i64) -> PyResult<()> {
+        pytest!(py, {
+            let hasher = py.import_gxhash32()?.call1((seed,))?;
+            let input = vec![0u8; 16 << 20];
+
+            let result1 = call_hash_async::<u32>(py, &hasher, &input)?;
+            let result2 = call_hash::<u32>(py, &hasher, &input)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash64_hash_async_large_input(seed: i64) -> PyResult<()> {
+        pytest!(py, {
+            let hasher = py.import_gxhash64()?.call1((seed,))?;
+            let input = vec![0u8; 16 << 20];
+
+            let result1 = call_hash_async::<u64>(py, &hasher, &input)?;
+            let result2 = call_hash::<u64>(py, &hasher, &input)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
+}
+
+quickcheck::quickcheck! {
+    fn test_gxhash128_hash_async_large_input(seed: i64) -> PyResult<()> {
+        pytest!(py, {
+            let hasher = py.import_gxhash128()?.call1((seed,))?;
+            let input = vec![0u8; 16 << 20];
+
+            let result1 = call_hash_async::<u128>(py, &hasher, &input)?;
+            let result2 = call_hash::<u128>(py, &hasher, &input)?;
+
+            assert_eq!(result1, result2);
+        })
+    }
 }
 
 #[test]

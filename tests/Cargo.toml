@@ -17,4 +17,3 @@ pyo3 = { version = "0.29.0", default-features = false, features = ["macros"] }
 
 [dev-dependencies]
 quickcheck = "=1.1.0"
-quickcheck_macros = "=1.2.0"
