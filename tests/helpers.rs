@@ -43,13 +43,6 @@ impl<'py> PythonExt<'py> for Python<'py> {
     #[inline]
     fn import_asyncio(&self) -> PyResult<Bound<'_, PyModule>> {
         let asyncio = self.import(intern!(*self, "asyncio"))?;
-
-        #[cfg(windows)]
-        {
-            let policy = asyncio.getattr(intern!(*self, "WindowsSelectorEventLoopPolicy"))?;
-            asyncio.call_method1(intern!(*self, "set_event_loop_policy"), (policy.call0()?,))?;
-        }
-
         Ok(asyncio)
     }
 
