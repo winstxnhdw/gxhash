@@ -3,7 +3,7 @@ name = "bench"
 version = "0.0.0"
 description = "Benchmark suite for GxHash"
 readme = "README.md"
-requires-python = ">=3.14.8"
+requires-python = ">=3.15.0"
 dependencies = [
   "cityhash>=0.4.10",
   "gxhash",
