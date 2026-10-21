@@ -4,7 +4,7 @@ on:
   workflow_call:
   pull_request:
   push:
-    branches: ["**"]
+    branches: [main]
     paths:
       - .github/workflows/main.yml
       - .cargo/**
