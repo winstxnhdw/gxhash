@@ -68,7 +68,7 @@ exclude = [
 ]
 
 [tool.uv]
-required-version = "==0.13.0"
+required-version = "==0.13.4"
 
 [tool.ruff]
 line-length = 120
