@@ -38,6 +38,26 @@ jobs:
           - windows-latest
           - windows-11-arm
 
+        # uv-managed PyPy downloads are only available for x64 runners.
+        include:
+          - python-version: pypy@3.11
+            runs-on: ubuntu-latest
+
+          - python-version: pypy@3.11
+            runs-on: macos-26-intel
+
+          - python-version: pypy@3.11
+            runs-on: windows-latest
+
+          - python-version: pypy@3.12
+            runs-on: ubuntu-latest
+
+          - python-version: pypy@3.12
+            runs-on: macos-26-intel
+
+          - python-version: pypy@3.12
+            runs-on: windows-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7.0.1
@@ -64,6 +84,7 @@ jobs:
           MATURIN_PEP517_ARGS: ${{ !startsWith(runner.arch, 'ARM') && '--features hybrid' || '' }}
 
   test:
+    # PyPy does not support the interpreter embedding used by the Rust tests.
     runs-on: ${{ matrix.runs-on }}
     strategy:
       matrix:
