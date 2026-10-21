@@ -11,8 +11,8 @@ dependencies = [
   "mmh3>=5.3.1",
   "polars>=2.0.0",
   "siphash24>=1.9",
-  "stringzilla>=5.2.0",
-  "xxhash>=4.0.1",
+  "stringzilla>=5.3.1",
+  "xxhash>=4.0.2",
 ]
 
 [project.scripts]
@@ -22,8 +22,8 @@ bench = "src:main"
 dev = [
   "nodejs-wheel-binaries>=24.19.0",
   "pyright>=1.1.414",
-  "ruff>=0.17.0",
-  "ty>=0.0.87",
+  "ruff>=0.17.1",
+  "ty>=0.0.90",
 ]
 
 [build-system]
