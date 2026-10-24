@@ -78,6 +78,7 @@ select = ["ALL"]
 ignore = [
   "D",      # pydocstyle (all docstring rules)
   "COM812", # missing-trailing-comma (conflict with ruff format)
+  "CPY001", # missing-copyright-notice
   "A004",   # import-shadowing-builtin
   "PYI001", # unprefixed-type-param
   "PYI021", # docstring-in-stub
