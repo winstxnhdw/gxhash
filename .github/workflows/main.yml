@@ -133,7 +133,7 @@ jobs:
         shell: bash
         run: uv pip install -v dist/gxhash-*.tar.gz
         env:
-          RUSTUP_TOOLCHAIN: 1.83.0
+          RUSTUP_TOOLCHAIN: 1.85.0
 
   coverage:
     if: github.event_name != 'workflow_dispatch'
