@@ -19,13 +19,13 @@
 				"perf/**"
 			],
 			"semanticCommitType": "internal",
-			"semanticCommitScope": "build"
+			"semanticCommitScope": "deps"
 		},
 		{
 			"matchManagers": ["cargo"],
 			"matchFileNames": ["Cargo.toml"],
 			"semanticCommitType": "build",
-			"semanticCommitScope": null
+			"semanticCommitScope": "deps"
 		},
 		{
 			"matchUpdateTypes": ["major"],
