@@ -8,7 +8,7 @@ from collections.abc import Generator
 from contextlib import contextmanager
 from hashlib import md5
 from io import BytesIO
-from sys import version_info
+from sys import implementation, version_info
 from tempfile import NamedTemporaryFile
 
 from gxhash import GxHash32, GxHash64, GxHash128, GxHashAsyncError
@@ -115,18 +115,20 @@ async def test_smoke() -> None:
         assert isinstance(gxhashlib128, hashlib_md5.__class__)
         assert algorithms_available == algorithms_guaranteed == {"gxhash32", "gxhash64", "gxhash128"}
         temporary_file.close()
-        with raises(AttributeError):
-            hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
-            hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
-            hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
-        if version_info >= (3, 10):
-            with raises(TypeError):
-                GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-                GxHash64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-                GxHash128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-                type(gxhashlib32).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-                type(gxhashlib64).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
-                type(gxhashlib128).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+        # PyPy allows instance dictionaries and does not enforce immutable extension types.
+        if implementation.name == "cpython":
+            with raises(AttributeError):
+                hasher32.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+                hasher64.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+                hasher128.foo = 1  # pyright: ignore[reportAttributeAccessIssue] # ty: ignore[unresolved-attribute]
+            if version_info >= (3, 10):
+                with raises(TypeError):
+                    GxHash32.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                    GxHash64.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                    GxHash128.foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                    type(gxhashlib32).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                    type(gxhashlib64).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
+                    type(gxhashlib128).foo = 1  # pyright: ignore[reportAttributeAccessIssue]
         raise GxHashAsyncError  # noqa: TRY301
     except GxHashAsyncError:
         pass

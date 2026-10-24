@@ -8,12 +8,13 @@ We welcome all kinds of contributions. _You don't need to be an expert in Python
 <br>
 
 - Package installation matrix across all non-/free-threaded Python 3.9-3.15 and Ubuntu/macOS/Windows on x64/ARM64
+- PyPy 3.11-3.12 package installation across Ubuntu/macOS/Windows on x64
 - Cargo matrix test (Rust/PyO3) across all non-/free-threaded Python 3.9-3.15 and Ubuntu/macOS/Windows on x64/ARM64
 - Rust MSRV override build matrix test across Ubuntu/macOS/Windows
 - Rust code coverage generation
 - Clippy linting for all Rust workspaces
 - Python formatting
-- Python doc/test/lint/type-checking across Python 3.9-3.15
+- Python doc/test/lint/type-checking across Python 3.9-3.15 and PyPy 3.11-3.12
 - CodSpeed performance regression analysis test
 - Source distribution content analysis with manual review gate on publish
 - Smoke test with privileged approval gate on publish
