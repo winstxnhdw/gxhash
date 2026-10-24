@@ -4,7 +4,7 @@ on:
   workflow_call:
   pull_request:
   push:
-    branches: ["**"]
+    branches: [main]
     paths:
       - .github/workflows/main.yml
       - .cargo/**
@@ -69,7 +69,7 @@ jobs:
         run: rustup self uninstall -y || brew uninstall rustup
 
       - name: Install uv with Python ${{ matrix.python-version }}
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.2
         with:
           python-version: ${{ matrix.python-version }}
           activate-environment: true
@@ -112,7 +112,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
           architecture: ${{ startsWith(runner.arch, 'ARM') && 'arm64' || 'x64' }}
@@ -143,7 +143,7 @@ jobs:
           persist-credentials: false
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10.3.0
+        uses: astral-sh/setup-uv@v10.3.2
         with:
           activate-environment: true
 
@@ -154,7 +154,7 @@ jobs:
         shell: bash
         run: uv pip install -v dist/gxhash-*.tar.gz
         env:
-          RUSTUP_TOOLCHAIN: 1.83.0
+          RUSTUP_TOOLCHAIN: 1.85.0
 
   coverage:
     if: github.event_name != 'workflow_dispatch'

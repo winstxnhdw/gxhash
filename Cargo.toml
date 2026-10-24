@@ -12,7 +12,7 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/winstxnhdw/gxhash"
 documentation = "https://github.com/winstxnhdw/gxhash/README.md"
-rust-version = "1.83.0"
+rust-version = "1.85.0"
 autotests = false
 autobenches = false
 

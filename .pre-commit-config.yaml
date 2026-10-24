@@ -52,7 +52,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.13.1
+    rev: 0.13.4
     hooks:
       - id: uv-lock
         name: uv lock
@@ -70,7 +70,7 @@ repos:
         args: [--project, bench]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.0
+    rev: v0.17.1
     hooks:
       - id: ruff-format
         name: ruff format

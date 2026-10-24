@@ -3,7 +3,7 @@ name: Performance
 on:
   pull_request:
   push:
-    branches: ["**"]
+    branches: [main]
     paths:
       - .github/workflows/performance.yml
       - .cargo/**
@@ -32,12 +32,12 @@ jobs:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v7.0.0
+        uses: actions/setup-python@v7.1.0
         with:
-          python-version: 3.15
+          python-version: 3.15.1
 
       - name: Install cargo-codspeed
-        uses: taiki-e/install-action@v2.87.28
+        uses: taiki-e/install-action@v2.87.31
         with:
           tool: cargo-codspeed
 
@@ -46,7 +46,7 @@ jobs:
         working-directory: ${{ env.BENCHMARK_PATH }}
 
       - name: Run the benchmark simulation
-        uses: CodSpeedHQ/action@v5.5.0
+        uses: CodSpeedHQ/action@v5.6.0
         with:
           working-directory: ${{ env.BENCHMARK_PATH }}
           mode: simulation

@@ -72,7 +72,7 @@ RUSTFLAGS="-C target-feature=+aes,+neon" pip install gxhash
 > The `hybrid` feature cannot be used alongside stable Rust.
 
 ```bash
-RUSTUP_TOOLCHAIN="1.83.0" pip install gxhash
+RUSTUP_TOOLCHAIN="1.85.0" pip install gxhash
 ```
 
 ## Supported Platforms
