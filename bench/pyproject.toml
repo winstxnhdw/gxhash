@@ -3,7 +3,7 @@ name = "bench"
 version = "0.0.0"
 description = "Benchmark suite for GxHash"
 readme = "README.md"
-requires-python = ">=3.15.0"
+requires-python = ">=3.15.1"
 dependencies = [
   "cityhash>=0.4.10",
   "gxhash",
@@ -22,8 +22,8 @@ bench = "src:main"
 dev = [
   "nodejs-wheel-binaries>=24.19.0",
   "pyright>=1.1.414",
-  "ruff>=0.17.1",
-  "ty>=0.0.90",
+  "ruff>=0.17.2",
+  "ty>=0.0.91",
 ]
 
 [build-system]
