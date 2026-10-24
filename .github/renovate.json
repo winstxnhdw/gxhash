@@ -1,7 +1,6 @@
 {
 	"extends": ["github>winstxnhdw/renovate"],
-	"groupName": null,
-	"groupSlug": null,
+	"ignorePresets": [":ignoreModulesAndTests"],
 	"separateMajorMinor": true,
 	"ignoreDeps": ["commitizen"],
 	"packageRules": [
@@ -19,8 +18,6 @@
 				"tests/**",
 				"perf/**"
 			],
-			"groupName": "development dependencies",
-			"groupSlug": "development",
 			"semanticCommitType": "internal",
 			"semanticCommitScope": "build"
 		},
@@ -31,15 +28,8 @@
 			"semanticCommitScope": null
 		},
 		{
-			"matchManagers": ["cargo"],
-			"matchFileNames": ["Cargo.toml"],
-			"matchPackageNames": ["pyo3", "pyo3-build-config"],
-			"matchUpdateTypes": ["minor", "patch"],
-			"groupName": "PyO3",
-			"groupSlug": "pyo3"
-		},
-		{
 			"matchUpdateTypes": ["major"],
+			"matchPackageNames": ["!pyo3", "!pyo3-build-config"],
 			"groupName": null,
 			"groupSlug": null
 		}
