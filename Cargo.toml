@@ -31,7 +31,7 @@ all = "deny"
 pedantic = "deny"
 
 [dependencies.pyo3]
-version = "0.29.3"
+version = "0.30.1"
 default-features = false
 features = ["macros", "experimental-async"]
 
@@ -41,10 +41,10 @@ version = "3.5.0"
 default-features = false
 
 [dependencies.tokio]
-version = "1.53.3"
+version = "1.54.1"
 default-features = false
 features = ["rt-multi-thread"]
 
 [build-dependencies.pyo3-build-config]
-version = "0.29.3"
+version = "0.30.1"
 default-features = false
