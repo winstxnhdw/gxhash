@@ -9,9 +9,9 @@ dependencies = [
   "gxhash",
   "metrohash>=0.4.1",
   "mmh3>=5.3.1",
-  "polars>=2.0.0",
+  "polars>=2.1.0",
   "siphash24>=1.9",
-  "stringzilla>=5.3.1",
+  "stringzilla>=5.3.2",
   "xxhash>=4.0.2",
 ]
 
@@ -23,7 +23,7 @@ dev = [
   "nodejs-wheel-binaries>=24.19.0",
   "pyright>=1.1.414",
   "ruff>=0.17.2",
-  "ty>=0.0.91",
+  "ty>=0.0.92",
 ]
 
 [build-system]
