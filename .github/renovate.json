@@ -10,14 +10,7 @@
       "enabled": false
     },
     {
-      "matchFileNames": [
-        ".github/**",
-        ".pre-commit-config.yaml",
-        "rust-toolchain.toml",
-        "bench/**",
-        "tests/**",
-        "perf/**"
-      ],
+      "matchFileNames": [".github/**", ".pre-commit-config.yaml", "bench/**", "tests/**", "perf/**"],
       "semanticCommitType": "internal",
       "semanticCommitScope": "deps"
     },
