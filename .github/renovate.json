@@ -1,37 +1,37 @@
 {
-	"extends": ["github>winstxnhdw/renovate"],
-	"ignorePresets": [":ignoreModulesAndTests"],
-	"separateMajorMinor": true,
-	"ignoreDeps": ["commitizen"],
-	"packageRules": [
-		{
-			"matchCategories": ["python"],
-			"matchFileNames": ["pyproject.toml"],
-			"enabled": false
-		},
-		{
-			"matchFileNames": [
-				".github/**",
-				".pre-commit-config.yaml",
-				"rust-toolchain.toml",
-				"bench/**",
-				"tests/**",
-				"perf/**"
-			],
-			"semanticCommitType": "internal",
-			"semanticCommitScope": "deps"
-		},
-		{
-			"matchManagers": ["cargo"],
-			"matchFileNames": ["Cargo.toml"],
-			"semanticCommitType": "build",
-			"semanticCommitScope": "deps"
-		},
-		{
-			"matchUpdateTypes": ["major"],
-			"matchPackageNames": ["!pyo3", "!pyo3-build-config"],
-			"groupName": null,
-			"groupSlug": null
-		}
-	]
+  "extends": ["github>winstxnhdw/renovate"],
+  "ignorePresets": [":ignoreModulesAndTests"],
+  "separateMajorMinor": true,
+  "ignoreDeps": ["commitizen"],
+  "packageRules": [
+    {
+      "matchCategories": ["python"],
+      "matchFileNames": ["pyproject.toml"],
+      "enabled": false
+    },
+    {
+      "matchFileNames": [
+        ".github/**",
+        ".pre-commit-config.yaml",
+        "rust-toolchain.toml",
+        "bench/**",
+        "tests/**",
+        "perf/**"
+      ],
+      "semanticCommitType": "internal",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "matchManagers": ["cargo"],
+      "matchFileNames": ["Cargo.toml"],
+      "semanticCommitType": "build",
+      "semanticCommitScope": "deps"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": ["!pyo3", "!pyo3-build-config"],
+      "groupName": null,
+      "groupSlug": null
+    }
+  ]
 }

@@ -144,7 +144,7 @@ fn generate_throughput_benchmark_line_plot(heading: &str, lazyframe: LazyFrame) 
 
 fn main() -> Result<(), Error> {
     let path = "benchmarks.parquet";
-    let postfix = std::env::args().nth(1).map(|s| format!("-{s}")).unwrap_or_default();
+    let postfix = std::env::args().nth(1).map_or_default(|s| format!("-{s}"));
 
     let dataframe = LazyFrame::scan_parquet(PlRefPath::new(path), ScanArgsParquet::default())?.with_column(
         col("payload_size")
