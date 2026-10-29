@@ -49,8 +49,10 @@ ignore = [
   "D",      # pydocstyle (all docstring rules)
   "COM812", # missing-trailing-comma (conflict with ruff format)
   "CPY001", # missing-copyright-notice
-  "TC003",  # typing-only-standard-library-import
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"typings/*" = ["N801"]
 
 [tool.ruff.lint.flake8-annotations]
 suppress-dummy-args = true
@@ -59,3 +61,6 @@ suppress-dummy-args = true
 stubPath = "./typings"
 typeCheckingMode = "strict"
 reportUnknownMemberType = false
+
+[tool.ty.environment]
+extra-paths = ["./typings"]
