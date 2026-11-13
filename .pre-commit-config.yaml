@@ -52,7 +52,7 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.13.7
+    rev: 0.13.8
     hooks:
       - id: uv-lock
         name: uv lock
@@ -70,7 +70,7 @@ repos:
         args: [--project, bench]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.4
+    rev: v0.17.5
     hooks:
       - id: ruff-format
         name: ruff format
@@ -82,7 +82,7 @@ repos:
         args: [--fix]
 
   - repo: https://github.com/biomejs/pre-commit
-    rev: v2.6.6
+    rev: v2.6.7
     hooks:
       - id: biome-format
 
@@ -94,7 +94,7 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.24.0
+    rev: v0.24.1
     hooks:
       - id: markdownlint-cli2
         name: markdownlint
