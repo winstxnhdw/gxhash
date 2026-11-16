@@ -32,7 +32,7 @@ jobs:
         python-version: [3.9, "3.10", 3.11, 3.12, 3.13, 3.14, 3.14t, 3.15, 3.15t]
         runs-on:
           - ubuntu-latest
-          - ubuntu-24.04-arm
+          - ubuntu-26.04-arm
           - macos-latest
           - macos-26-intel
           - windows-latest
@@ -69,7 +69,7 @@ jobs:
       matrix:
         python-version: [3.9, "3.10", 3.11, 3.12, 3.13, 3.14, 3.14t, 3.15, 3.15t]
         runs-on:
-          - ubuntu-latest
+          - ubuntu-24.04
           - ubuntu-24.04-arm
           - macos-latest
           - macos-26-intel
@@ -108,7 +108,7 @@ jobs:
       matrix:
         runs-on:
           - ubuntu-slim
-          - ubuntu-24.04-arm
+          - ubuntu-26.04-arm
           - macos-latest
           - macos-26-intel
           - windows-latest
