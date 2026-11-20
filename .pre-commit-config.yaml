@@ -41,7 +41,7 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.19.3
+    rev: v4.19.4
     hooks:
       - id: commitizen
         stages: [commit-msg]
@@ -65,7 +65,7 @@ repos:
         args: [--project, bench]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.17.5
+    rev: v0.17.6
     hooks:
       - id: ruff-format
         name: ruff format
@@ -89,7 +89,7 @@ repos:
         stages: [pre-commit, pre-push]
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.24.1
+    rev: v0.24.2
     hooks:
       - id: markdownlint-cli2
         name: markdownlint
