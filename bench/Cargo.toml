@@ -11,8 +11,8 @@ all = "deny"
 pedantic = "deny"
 
 [dependencies]
-poloto = { version = "19.1.2", default-features = false }
-tagu = { version = "0.1.6", default-features = false }
+poloto = { version = "19.2.0", default-features = false }
+tagu = { version = "0.2.0", default-features = false }
 
 [dependencies.polars]
 version = "0.55.2"

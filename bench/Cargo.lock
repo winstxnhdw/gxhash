@@ -2094,9 +2094,9 @@ dependencies = [
 
 [[package]]
 name = "poloto"
-version = "19.1.2"
+version = "19.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "164dbd541c9832e92fa34452e9c2e98b515a548a3f8549fb2402fe1cd5e46b96"
+checksum = "05c8c5a60aa2f56023b2ec22a8b74a46be133ec661ae5fda3c68077058943e86"
 dependencies = [
  "tagu",
 ]
@@ -2835,9 +2835,9 @@ dependencies = [
 
 [[package]]
 name = "tagu"
-version = "0.1.6"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eddb6b06d20fba9ed21fca3d696ee1b6e870bca0bcf9fa2971f6ae2436de576a"
+checksum = "3a63d6060ef4c2cdb2fd43ab920990b4575cc29075569f3937d857afb94b5166"
 
 [[package]]
 name = "thiserror"
